@@ -13,6 +13,20 @@
       "description": "",
       "targetTempo": 140,
       "createdAt": "2026-07-17T21:54:30.225Z"
+    },
+    {
+      "id": "5b062e04-590e-4c6a-86d3-08eac2f699da",
+      "name": "E-shape triplets",
+      "description": "",
+      "targetTempo": 140,
+      "createdAt": "2026-07-17T21:58:01.193Z"
+    },
+    {
+      "id": "1cac5d46-2e52-4fdd-a98e-08f7501a42de",
+      "name": "8f",
+      "description": "Pentatonic pull offs",
+      "targetTempo": 160,
+      "createdAt": "2026-07-17T21:59:24.292Z"
     }
   ],
   "sessions": []
