@@ -1,4 +1,12 @@
 {
-  "items": [],
+  "items": [
+    {
+      "id": "49d86dfb-d482-4923-959f-60ee424408ce",
+      "name": "C-Shape Warmup",
+      "description": "",
+      "targetTempo": 130,
+      "createdAt": "2026-07-17T21:39:52.108Z"
+    }
+  ],
   "sessions": []
 }
