@@ -6,6 +6,13 @@
       "description": "",
       "targetTempo": 130,
       "createdAt": "2026-07-17T21:39:52.108Z"
+    },
+    {
+      "id": "89970727-7224-4dd3-ad8d-dfb4170b8be6",
+      "name": "C-shape triplets",
+      "description": "",
+      "targetTempo": 140,
+      "createdAt": "2026-07-17T21:54:30.225Z"
     }
   ],
   "sessions": []
