@@ -41,6 +41,20 @@
       "description": "Pentatonic descending pattern",
       "targetTempo": 160,
       "createdAt": "2026-07-17T22:29:15.621Z"
+    },
+    {
+      "id": "396c47ca-4d08-4e10-ab92-fe76538cc44f",
+      "name": "8j",
+      "description": "Major scale legato pattern",
+      "targetTempo": 160,
+      "createdAt": "2026-07-17T22:29:43.117Z"
+    },
+    {
+      "id": "77798049-14f3-4153-9992-784cadba1090",
+      "name": "8k",
+      "description": "Major scale 3NPS legato pattern",
+      "targetTempo": 160,
+      "createdAt": "2026-07-17T22:30:35.443Z"
     }
   ],
   "sessions": []
