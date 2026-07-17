@@ -3,6 +3,7 @@ const STORAGE_KEY = 'guitar-practice-tracker';
 const Storage = {
   _fileSha: null,
   _pushTimer: null,
+  _pushInFlight: null,
   onSyncStatus: null,
 
   normalize(data) {
@@ -86,30 +87,54 @@ const Storage = {
     return data;
   },
 
-  async pushToGitHub({ silent = false, retry = true, settings = null } = {}) {
+  async pushToGitHub({ silent = false, settings = null } = {}) {
     settings = GitHubSync.normalizeSettings(settings || this.getSyncSettings());
     if (!GitHubSync.isConfigured(settings)) {
       throw new Error('Paste your GitHub token first');
     }
 
+    clearTimeout(this._pushTimer);
+    this._pushTimer = null;
+
+    if (this._pushInFlight) {
+      return this._pushInFlight;
+    }
+
+    this._pushInFlight = this._pushWithRetry(settings, silent).finally(() => {
+      this._pushInFlight = null;
+    });
+
+    return this._pushInFlight;
+  },
+
+  async _pushWithRetry(settings, silent) {
     if (!silent) this.setSyncStatus('Saving to GitHub…', 'info');
 
-    try {
-      const data = this.load();
-      const { sha } = await GitHubSync.fetchRemote(settings);
-      this._fileSha = await GitHubSync.pushRemote(settings, data, sha);
-      if (!silent) this.setSyncStatus('Saved to GitHub', 'success');
-    } catch (error) {
-      if (retry && /409|422/.test(String(error.message))) {
-        const data = this.load();
-        const { sha } = await GitHubSync.fetchRemote(settings);
-        this._fileSha = await GitHubSync.pushRemote(settings, data, sha);
-        if (!silent) this.setSyncStatus('Saved to GitHub', 'success');
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const local = this.load();
+        const remote = await GitHubSync.fetchRemote(settings);
+        const data = attempt === 0 ? local : this.mergeData(remote.data, local);
+        if (attempt > 0) {
+          this.save(data, { sync: false });
+        }
+        this._fileSha = await GitHubSync.pushRemote(settings, data, remote.sha);
+        if (!silent) {
+          const note = attempt > 0 ? ' (resolved sync conflict)' : '';
+          this.setSyncStatus(`Saved to GitHub${note}`, 'success');
+        }
         return;
+      } catch (error) {
+        lastError = error;
+        if (!/409|422/.test(String(error.message)) || attempt === 2) {
+          break;
+        }
       }
-      this.setSyncStatus(error.message, 'error');
-      throw error;
     }
+
+    this.setSyncStatus(lastError.message, 'error');
+    throw lastError;
   },
 
   mergeData(remote, local) {
