@@ -2,7 +2,10 @@ class Metronome {
   constructor() {
     this.bpm = 80;
     this.beatsPerMeasure = 4;
-    this.beat = 0;
+    this.subdivisionsPerBeat = 1;
+    this.accentDownbeat = true;
+    this.accentQuarterBeats = true;
+    this.tick = 0;
     this.running = false;
     this.nextBeatTime = 0;
     this.timerId = null;
@@ -26,6 +29,19 @@ class Metronome {
   setBpm(bpm) {
     this.bpm = Math.max(40, Math.min(300, bpm));
     this._reportBpm(this.bpm);
+  }
+
+  setSubdivision(value) {
+    const n = parseInt(value, 10);
+    this.subdivisionsPerBeat = [1, 2, 3, 4].includes(n) ? n : 1;
+  }
+
+  setAccentDownbeat(enabled) {
+    this.accentDownbeat = !!enabled;
+  }
+
+  setAccentQuarterBeats(enabled) {
+    this.accentQuarterBeats = !!enabled;
   }
 
   setRamp(startBpm, endBpm, durationSec) {
@@ -79,23 +95,28 @@ class Metronome {
   _schedule() {
     const bpm = this._currentBpm();
     this._reportBpm(bpm);
-    const interval = 60 / bpm;
+    const beatInterval = 60 / bpm;
+    const interval = beatInterval / this.subdivisionsPerBeat;
 
     while (this.nextBeatTime < this.audioCtx.currentTime + 0.1) {
-      const accent = this.beat % this.beatsPerMeasure === 0;
+      const beatInMeasure = Math.floor(this.tick / this.subdivisionsPerBeat) % this.beatsPerMeasure;
+      const isBeatStart = this.tick % this.subdivisionsPerBeat === 0;
+      const accentDownbeat = this.accentDownbeat && isBeatStart && beatInMeasure === 0;
+      const accentQuarter = this.accentQuarterBeats && this.subdivisionsPerBeat > 1 && isBeatStart;
+      const accent = accentDownbeat || accentQuarter;
       this._click(this.nextBeatTime, accent);
 
       if (this.onBeat) {
-        const beatNum = this.beat;
+        const tickNum = this.tick;
         const isAccent = accent;
         const delay = Math.max(0, (this.nextBeatTime - this.audioCtx.currentTime) * 1000);
         setTimeout(() => {
-          if (this.running) this.onBeat(beatNum, isAccent);
+          if (this.running) this.onBeat(tickNum, isAccent);
         }, delay);
       }
 
       this.nextBeatTime += interval;
-      this.beat++;
+      this.tick++;
     }
   }
 
@@ -109,7 +130,7 @@ class Metronome {
     await this.init();
     if (this.running) return;
     this.running = true;
-    this.beat = 0;
+    this.tick = 0;
     this.nextBeatTime = this.audioCtx.currentTime + 0.05;
     if (this.ramp) {
       this.ramp.startAudioTime = this.audioCtx.currentTime;

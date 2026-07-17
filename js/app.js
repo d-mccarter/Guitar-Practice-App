@@ -52,6 +52,26 @@ const App = {
     }
   },
 
+  applyMetronomeOptions() {
+    const subdivisionSelect = document.getElementById('metronome-subdivision');
+    const accentBtn = document.getElementById('metronome-accent-btn');
+    const quarterAccentBtn = document.getElementById('metronome-quarter-accent-btn');
+    const quarterAccentRow = document.getElementById('metronome-quarter-accent-row');
+    if (subdivisionSelect) {
+      this.metronome.setSubdivision(subdivisionSelect.value);
+      const usesSubdivision = parseInt(subdivisionSelect.value, 10) > 1;
+      if (quarterAccentRow) {
+        quarterAccentRow.hidden = !usesSubdivision;
+      }
+    }
+    if (accentBtn) {
+      this.metronome.setAccentDownbeat(accentBtn.classList.contains('on'));
+    }
+    if (quarterAccentBtn) {
+      this.metronome.setAccentQuarterBeats(quarterAccentBtn.classList.contains('on'));
+    }
+  },
+
   bindPractice() {
     const tempoInput = document.getElementById('tempo-bpm');
     const tempoDisplay = document.getElementById('tempo-display');
@@ -122,6 +142,38 @@ const App = {
         if (!this.session && this.practiceMode === 'ramp') this.updatePracticeModeUI();
       });
     });
+
+    const subdivisionSelect = document.getElementById('metronome-subdivision');
+    const accentBtn = document.getElementById('metronome-accent-btn');
+    const quarterAccentBtn = document.getElementById('metronome-quarter-accent-btn');
+
+    const updateToggleButton = (btn, enabled) => {
+      btn.textContent = enabled ? 'On' : 'Off';
+      btn.classList.toggle('on', enabled);
+      btn.classList.toggle('off', !enabled);
+      btn.setAttribute('aria-pressed', String(enabled));
+    };
+
+    subdivisionSelect.addEventListener('change', () => {
+      this.applyMetronomeOptions();
+    });
+    subdivisionSelect.addEventListener('input', () => {
+      this.applyMetronomeOptions();
+    });
+
+    accentBtn.addEventListener('click', () => {
+      if (this.metronome.isRunning()) return;
+      updateToggleButton(accentBtn, !accentBtn.classList.contains('on'));
+      this.applyMetronomeOptions();
+    });
+
+    quarterAccentBtn.addEventListener('click', () => {
+      if (this.metronome.isRunning()) return;
+      updateToggleButton(quarterAccentBtn, !quarterAccentBtn.classList.contains('on'));
+      this.applyMetronomeOptions();
+    });
+
+    this.applyMetronomeOptions();
 
     this.metronome.onBeat = (_beat, accent) => {
       beatIndicator.classList.add('active');
@@ -206,6 +258,9 @@ const App = {
     document.getElementById('ramp-minutes').disabled = disabled;
     document.getElementById('tempo-up').disabled = disabled;
     document.getElementById('tempo-down').disabled = disabled;
+    document.getElementById('metronome-subdivision').disabled = disabled;
+    document.getElementById('metronome-accent-btn').disabled = disabled;
+    document.getElementById('metronome-quarter-accent-btn').disabled = disabled;
   },
 
   async startSession() {
@@ -226,6 +281,7 @@ const App = {
     let endTempo = null;
 
     this.metronome.clearRamp();
+    this.applyMetronomeOptions();
 
     if (this.practiceMode === 'ramp') {
       startTempo = parseInt(document.getElementById('ramp-start-bpm').value, 10) || 60;

@@ -391,6 +391,16 @@ select {
   color: var(--accent);
 }
 
+.metronome-options {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.metronome-options .sync-auto-row {
+  margin-bottom: 0;
+}
+
 .metronome-panel {
   text-align: center;
   padding: 24px 16px;

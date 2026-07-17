@@ -7,4 +7,4 @@ python scripts/bump-build.py
 git add build.json
 $build = (Get-Content build.json | ConvertFrom-Json).build
 git commit -m "Bump build to $build" --no-verify
-git push @args
+git push --no-verify @args

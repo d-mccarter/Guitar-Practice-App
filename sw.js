@@ -1,4 +1,4 @@
-const CACHE = 'practice-tracker-v15';
+const CACHE = 'practice-tracker-v17';
 const ASSETS = [
   './',
   './index.html',
@@ -51,7 +51,7 @@ self.addEventListener('fetch', (event) => {
 async function networkFirst(request) {
   const cache = await caches.open(CACHE);
   try {
-    const response = await fetch(request);
+    const response = await fetch(new Request(request, { cache: 'no-store' }));
     if (response.ok) {
       cache.put(request, response.clone());
     }
