@@ -479,23 +479,9 @@ const App = {
     Object.values(fields).forEach((field) => {
       field.addEventListener('input', () => Storage.saveSyncSettings(readSettings()));
       field.addEventListener('change', () => Storage.saveSyncSettings(readSettings()));
-    });
-
-    document.getElementById('sync-paste-btn').addEventListener('click', async () => {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (!text.trim()) {
-          Storage.setSyncStatus('Clipboard is empty.', 'error');
-          return;
-        }
-        fields.token.value = text.trim();
-        Storage.saveSyncSettings(readSettings());
-        Storage.setSyncStatus('Token pasted.', 'success');
-        fields.token.focus();
-      } catch {
-        Storage.setSyncStatus('Tap the token field and use Paste from the keyboard.', 'error');
-        fields.token.focus();
-      }
+      field.addEventListener('paste', () => {
+        setTimeout(() => Storage.saveSyncSettings(readSettings()), 0);
+      });
     });
 
     document.getElementById('sync-pull-btn').addEventListener('click', async () => {

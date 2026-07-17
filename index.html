@@ -123,12 +123,9 @@
         <div id="sync-settings">
           <label class="field">
             <span>Personal access token</span>
-            <div class="token-input-row">
-              <input type="text" id="sync-token" class="token-input" placeholder="ghp_…" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text">
-              <button type="button" class="btn btn-secondary btn-small" id="sync-paste-btn">Paste</button>
-            </div>
+            <textarea id="sync-token" class="token-input" rows="2" placeholder="Paste token here (Ctrl+V)" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
           </label>
-          <p class="field-hint">Create a token at github.com/settings/tokens with <strong>Contents: Read and write</strong> for this repo. Stored only on this device.</p>
+          <p class="field-hint">Click the box above and press <strong>Ctrl+V</strong> to paste. Create a token at github.com/settings/tokens with <strong>Contents: Read and write</strong>. Stored only on this device.</p>
           <div class="field-row">
             <label class="field">
               <span>Owner</span>

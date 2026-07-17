@@ -161,22 +161,13 @@ body {
   width: auto;
 }
 
-.token-input-row {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-}
-
-.token-input-row .token-input {
-  flex: 1;
-  min-width: 0;
-  -webkit-text-security: disc;
-  text-security: disc;
-}
-
-.token-input-row .btn {
-  flex-shrink: 0;
-  align-self: stretch;
+.token-input {
+  width: 100%;
+  min-height: 72px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .sync-actions {
