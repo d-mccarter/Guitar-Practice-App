@@ -137,17 +137,17 @@
               <input type="text" id="sync-repo" value="Guitar-Practice-App" autocapitalize="off" autocorrect="off">
             </label>
           </div>
-          <label class="field sync-toggle">
-            <input type="checkbox" id="sync-enabled">
-            <span>Enable GitHub sync</span>
-          </label>
+          <div class="sync-auto-row">
+            <span>Auto-sync on changes</span>
+            <button type="button" id="sync-enabled-btn" class="sync-switch off" aria-pressed="false">Off</button>
+          </div>
+          <div class="sync-status" id="sync-status" aria-live="polite">Paste a token, then tap Test token.</div>
           <div class="sync-actions">
             <button type="button" class="btn btn-secondary btn-small" id="sync-test-btn">Test token</button>
             <button type="button" class="btn btn-secondary btn-small" id="sync-pull-btn">Pull from GitHub</button>
             <button type="button" class="btn btn-secondary btn-small" id="sync-push-btn">Push to GitHub</button>
           </div>
         </div>
-        <p class="sync-status" id="sync-status"></p>
       </div>
     </section>
 

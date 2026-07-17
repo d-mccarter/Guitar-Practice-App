@@ -422,7 +422,7 @@ const App = {
   },
 
   bindSync() {
-    const enabledInput = document.getElementById('sync-enabled');
+    const enabledBtn = document.getElementById('sync-enabled-btn');
     const statusEl = document.getElementById('sync-status');
     const fields = {
       owner: document.getElementById('sync-owner'),
@@ -430,8 +430,22 @@ const App = {
       token: document.getElementById('sync-token')
     };
 
+    const setStatus = (message, type = 'info') => {
+      statusEl.textContent = message;
+      statusEl.dataset.type = type;
+    };
+
+    const isAutoSyncEnabled = () => enabledBtn.classList.contains('on');
+
+    const updateAutoSyncButton = (enabled) => {
+      enabledBtn.classList.toggle('on', enabled);
+      enabledBtn.classList.toggle('off', !enabled);
+      enabledBtn.textContent = enabled ? 'On' : 'Off';
+      enabledBtn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+    };
+
     const readSettings = () => GitHubSync.normalizeSettings({
-      enabled: enabledInput.checked,
+      enabled: isAutoSyncEnabled(),
       owner: fields.owner.value,
       repo: fields.repo.value,
       branch: 'main',
@@ -446,7 +460,7 @@ const App = {
     };
 
     const applySettings = (settings) => {
-      enabledInput.checked = settings.enabled;
+      updateAutoSyncButton(!!settings.enabled);
       fields.owner.value = settings.owner;
       fields.repo.value = settings.repo;
       fields.token.value = settings.token;
@@ -459,39 +473,47 @@ const App = {
       }
     };
 
-    Storage.onSyncStatus = (message, type) => {
-      statusEl.textContent = message;
-      statusEl.dataset.type = type;
-    };
+    Storage.onSyncStatus = (message, type) => setStatus(message, type);
 
     applySettings(Storage.getSyncSettings());
 
-    enabledInput.addEventListener('change', async () => {
+    const runInitialSync = async (settings) => {
+      const { data: remote, sha } = await GitHubSync.fetchRemote(settings);
+      const local = Storage.load();
+      const remoteEmpty = !remote.items?.length && !remote.sessions?.length;
+      const localHasData = local.items.length || local.sessions.length;
+
+      Storage._fileSha = sha;
+
+      if (remoteEmpty && localHasData) {
+        await Storage.pushToGitHub({ settings });
+      } else {
+        await Storage.pullFromGitHub({ settings });
+        refreshAfterSync();
+      }
+    };
+
+    enabledBtn.addEventListener('click', async () => {
+      updateAutoSyncButton(!isAutoSyncEnabled());
       const settings = saveSettingsFromForm();
 
-      if (!settings.enabled || !settings.token) {
-        if (settings.enabled && !settings.token) {
-          Storage.setSyncStatus('Paste your token first, then enable sync.', 'error');
-        }
+      if (!settings.enabled) {
+        setStatus('Auto-sync off. You can still use Test, Pull, and Push.', 'info');
         return;
       }
 
+      if (!settings.token) {
+        setStatus('Paste your token first, then turn auto-sync on.', 'error');
+        updateAutoSyncButton(false);
+        saveSettingsFromForm();
+        return;
+      }
+
+      setStatus('Connecting…', 'info');
       try {
-        const { data: remote, sha } = await GitHubSync.fetchRemote(settings);
-        const local = Storage.load();
-        const remoteEmpty = !remote.items?.length && !remote.sessions?.length;
-        const localHasData = local.items.length || local.sessions.length;
-
-        Storage._fileSha = sha;
-
-        if (remoteEmpty && localHasData) {
-          await Storage.pushToGitHub({ settings });
-        } else {
-          await Storage.pullFromGitHub({ settings });
-          refreshAfterSync();
-        }
-      } catch {
-        /* status handled in Storage */
+        await runInitialSync(settings);
+      } catch (error) {
+        setStatus(error.message, 'error');
       }
     });
 
@@ -503,21 +525,20 @@ const App = {
       });
     });
 
-    document.getElementById('sync-test-btn').addEventListener('click', async () => {
-      const btn = document.getElementById('sync-test-btn');
-      const settings = saveSettingsFromForm();
-      statusEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      statusEl.textContent = 'Testing token…';
-      statusEl.dataset.type = 'info';
+    document.getElementById('sync-test-btn').addEventListener('click', async (event) => {
+      event.preventDefault();
+      const btn = event.currentTarget;
+      const settings = readSettings();
+      saveSettingsFromForm();
+
+      setStatus('Testing token…', 'info');
       btn.disabled = true;
 
       try {
         const user = await GitHubSync.testToken(settings);
-        statusEl.textContent = `Token OK — signed in as ${user.login}`;
-        statusEl.dataset.type = 'success';
+        setStatus(`Token OK — signed in as ${user.login}`, 'success');
       } catch (error) {
-        statusEl.textContent = error.message;
-        statusEl.dataset.type = 'error';
+        setStatus(error.message, 'error');
       } finally {
         btn.disabled = false;
       }
@@ -528,8 +549,8 @@ const App = {
       try {
         await Storage.pullFromGitHub({ settings });
         refreshAfterSync();
-      } catch {
-        /* status handled in Storage */
+      } catch (error) {
+        setStatus(error.message, 'error');
       }
     });
 
@@ -537,8 +558,8 @@ const App = {
       const settings = saveSettingsFromForm();
       try {
         await Storage.pushToGitHub({ settings });
-      } catch {
-        /* status handled in Storage */
+      } catch (error) {
+        setStatus(error.message, 'error');
       }
     });
   },
