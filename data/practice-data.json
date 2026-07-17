@@ -55,6 +55,20 @@
       "description": "Major scale 3NPS legato pattern",
       "targetTempo": 160,
       "createdAt": "2026-07-17T22:30:35.443Z"
+    },
+    {
+      "id": "8d886925-762f-40d7-9bae-6b70fcc41263",
+      "name": "8l",
+      "description": "E-shape scale legato",
+      "targetTempo": 160,
+      "createdAt": "2026-07-17T22:31:00.746Z"
+    },
+    {
+      "id": "447c7bd8-5e58-40bf-9ca3-4b262da5b2e8",
+      "name": "8m",
+      "description": "C-shape scale legato",
+      "targetTempo": 160,
+      "createdAt": "2026-07-17T22:31:21.394Z"
     }
   ],
   "sessions": []
