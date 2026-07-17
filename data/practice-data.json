@@ -27,6 +27,13 @@
       "description": "Pentatonic pull offs",
       "targetTempo": 160,
       "createdAt": "2026-07-17T21:59:24.292Z"
+    },
+    {
+      "id": "44f9749e-9700-41e4-ac15-8d38d7942e1f",
+      "name": "8g",
+      "description": "Pentatonic 4-note pattern",
+      "targetTempo": 160,
+      "createdAt": "2026-07-17T22:28:44.802Z"
     }
   ],
   "sessions": []
