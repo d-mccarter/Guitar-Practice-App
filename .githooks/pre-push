@@ -1,0 +1,5 @@
+#!/bin/sh
+python scripts/bump-build.py
+git add build.json
+BUILD=$(python -c "import json; print(json.load(open('build.json'))['build'])")
+git commit -m "Bump build to ${BUILD}" --no-verify

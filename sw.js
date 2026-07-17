@@ -1,4 +1,4 @@
-const CACHE = 'practice-tracker-v10';
+const CACHE = 'practice-tracker-v11';
 const ASSETS = [
   './',
   './index.html',
@@ -9,10 +9,11 @@ const ASSETS = [
   './js/charts.js',
   './js/app.js',
   './manifest.json',
-  './data/practice-data.json'
+  './data/practice-data.json',
+  './build.json'
 ];
 
-const NETWORK_FIRST = /\.(?:html|css|js)$|\/$/;
+const NETWORK_FIRST = /\.(?:html|css|js|json)$|\/$/;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

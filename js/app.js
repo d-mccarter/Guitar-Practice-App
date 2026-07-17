@@ -6,6 +6,7 @@ const App = {
   practiceMode: 'practice',
 
   init() {
+    this.loadBuildLabel();
     this.bindNavigation();
     this.bindPractice();
     this.bindItems();
@@ -36,6 +37,19 @@ const App = {
         if (view === 'log') this.renderLog();
       });
     });
+  },
+
+  async loadBuildLabel() {
+    const label = document.getElementById('build-label');
+    try {
+      const response = await fetch(`build.json?${Date.now()}`);
+      if (!response.ok) throw new Error('missing');
+      const info = await response.json();
+      label.textContent = `Build ${info.build}`;
+      label.title = info.updated ? `Updated ${info.updated}` : '';
+    } catch {
+      label.textContent = 'Build ?';
+    }
   },
 
   bindPractice() {
