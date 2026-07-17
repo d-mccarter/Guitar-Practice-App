@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f0f12">
+  <title>Practice Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1 id="page-title">Practice</h1>
+  </header>
+
+  <main id="app">
+    <!-- Practice View -->
+    <section id="view-practice" class="view active">
+      <div class="card session-setup">
+        <div class="mode-toggle" role="tablist" aria-label="Metronome mode">
+          <button type="button" class="mode-btn active" data-mode="practice">Practice</button>
+          <button type="button" class="mode-btn" data-mode="free">Free</button>
+          <button type="button" class="mode-btn" data-mode="ramp">Ramp</button>
+        </div>
+
+        <div id="practice-item-field">
+          <label class="field">
+            <span id="practice-item-label">Practice item</span>
+            <select id="practice-item-select">
+              <option value="">Select an item…</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="fixed-tempo-panel">
+          <div class="field-row">
+            <label class="field" id="timer-field">
+              <span>Timer (min)</span>
+              <input type="number" id="timer-minutes" min="1" max="120" value="10">
+            </label>
+            <label class="field">
+              <span>Tempo (BPM)</span>
+              <input type="number" id="tempo-bpm" min="40" max="300" value="80">
+            </label>
+          </div>
+
+          <div class="tempo-controls" id="fixed-tempo-controls">
+            <button type="button" class="btn-icon" id="tempo-down" aria-label="Decrease tempo">−</button>
+            <span id="setup-tempo-display">80 BPM</span>
+            <button type="button" class="btn-icon" id="tempo-up" aria-label="Increase tempo">+</button>
+          </div>
+        </div>
+
+        <div id="ramp-tempo-panel" hidden>
+          <div class="field-row">
+            <label class="field">
+              <span>Start (BPM)</span>
+              <input type="number" id="ramp-start-bpm" min="40" max="300" value="60">
+            </label>
+            <label class="field">
+              <span>End (BPM)</span>
+              <input type="number" id="ramp-end-bpm" min="40" max="300" value="120">
+            </label>
+          </div>
+          <label class="field">
+            <span>Ramp duration (min)</span>
+            <input type="number" id="ramp-minutes" min="1" max="120" value="5">
+          </label>
+          <p class="field-hint">Tempo increases smoothly from start to end over the duration.</p>
+        </div>
+      </div>
+
+      <div class="card metronome-panel">
+        <div class="beat-indicator" id="beat-indicator">
+          <div class="beat-dot"></div>
+        </div>
+        <div class="live-tempo" id="tempo-display">80 BPM</div>
+        <div class="timer-display" id="session-timer">10:00</div>
+        <div class="session-status" id="session-status">Ready</div>
+        <button type="button" class="btn btn-primary btn-large" id="start-stop-btn">Start</button>
+      </div>
+
+      <div class="card last-session" id="last-session-card" hidden>
+        <h3>Last session</h3>
+        <p id="last-session-summary"></p>
+      </div>
+    </section>
+
+    <!-- Items View -->
+    <section id="view-items" class="view">
+      <form id="item-form" class="card">
+        <h3 id="item-form-title">Add practice item</h3>
+        <label class="field">
+          <span>Name</span>
+          <input type="text" id="item-name" placeholder="5k, scales, warm-up…" required maxlength="100">
+        </label>
+        <label class="field">
+          <span>Description</span>
+          <input type="text" id="item-description" placeholder="Daily warm-up routine" maxlength="200">
+        </label>
+        <label class="field">
+          <span>Target tempo (optional)</span>
+          <input type="number" id="item-target-tempo" min="40" max="300" placeholder="120">
+        </label>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="item-submit-btn">Add item</button>
+          <button type="button" class="btn btn-secondary" id="item-cancel-btn" hidden>Cancel</button>
+        </div>
+      </form>
+
+      <div class="card">
+        <h3>Your items</h3>
+        <ul id="items-list" class="items-list"></ul>
+        <p class="empty-state" id="items-empty">No practice items yet. Add one above.</p>
+      </div>
+    </section>
+
+    <!-- Log View -->
+    <section id="view-log" class="view">
+      <div class="card">
+        <div class="log-filters">
+          <label class="field">
+            <span>Filter by item</span>
+            <select id="log-filter-item">
+              <option value="">All items</option>
+            </select>
+          </label>
+        </div>
+        <ul id="log-list" class="log-list"></ul>
+        <p class="empty-state" id="log-empty">No sessions logged yet.</p>
+      </div>
+    </section>
+
+    <!-- Progress View -->
+    <section id="view-progress" class="view">
+      <div class="card">
+        <label class="field">
+          <span>Practice item</span>
+          <select id="progress-item-select">
+            <option value="">Select an item…</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="card chart-card">
+        <h3>Tempo over time</h3>
+        <p class="chart-subtitle">Track progressive overload — higher tempo = progress</p>
+        <canvas id="tempo-chart" height="200"></canvas>
+        <p class="empty-state" id="tempo-chart-empty">Log sessions to see tempo progress.</p>
+      </div>
+
+      <div class="card chart-card">
+        <h3>Practice time</h3>
+        <p class="chart-subtitle">Minutes practiced per week</p>
+        <canvas id="time-chart" height="200"></canvas>
+        <p class="empty-state" id="time-chart-empty">Log sessions to see practice time.</p>
+      </div>
+
+      <div class="card stats-grid" id="stats-grid" hidden>
+        <div class="stat">
+          <span class="stat-value" id="stat-sessions">0</span>
+          <span class="stat-label">Sessions</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-minutes">0</span>
+          <span class="stat-label">Total min</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-peak-tempo">—</span>
+          <span class="stat-label">Peak tempo</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-avg-tempo">—</span>
+          <span class="stat-label">Avg tempo</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button type="button" class="nav-btn active" data-view="practice">
+      <span class="nav-icon">♪</span>
+      <span>Practice</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="items">
+      <span class="nav-icon">☰</span>
+      <span>Items</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="log">
+      <span class="nav-icon">📋</span>
+      <span>Log</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="progress">
+      <span class="nav-icon">📈</span>
+      <span>Progress</span>
+    </button>
+  </nav>
+
+  <script src="js/storage.js"></script>
+  <script src="js/metronome.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
