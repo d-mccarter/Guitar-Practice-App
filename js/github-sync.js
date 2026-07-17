@@ -25,15 +25,19 @@ const GitHubSync = {
   },
 
   isConfigured(settings = this.getSettings()) {
-    return settings.enabled && settings.owner && settings.repo && settings.token;
+    return !!(settings.owner && settings.repo && settings.token);
   },
 
-  rawUrl(settings) {
-    return `https://raw.githubusercontent.com/${settings.owner}/${settings.repo}/${settings.branch}/${settings.path}`;
+  isAutoSyncEnabled(settings = this.getSettings()) {
+    return settings.enabled && this.isConfigured(settings);
   },
 
-  apiUrl(settings) {
+  readApiUrl(settings) {
     return `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/${settings.path}?ref=${settings.branch}`;
+  },
+
+  writeApiUrl(settings) {
+    return `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/${settings.path}`;
   },
 
   headers(settings) {
@@ -42,6 +46,18 @@ const GitHubSync = {
       Authorization: `Bearer ${settings.token}`,
       'X-GitHub-Api-Version': '2022-11-28'
     };
+  },
+
+  async parseError(response, fallback) {
+    try {
+      const body = await response.json();
+      if (body.message) {
+        return `${fallback} (${response.status}): ${body.message}`;
+      }
+    } catch {
+      /* ignore */
+    }
+    return `${fallback} (${response.status})`;
   },
 
   utf8ToBase64(text) {
@@ -53,7 +69,7 @@ const GitHubSync = {
   },
 
   async fetchRemote(settings) {
-    const response = await fetch(this.apiUrl(settings), {
+    const response = await fetch(this.readApiUrl(settings), {
       headers: this.headers(settings)
     });
 
@@ -61,8 +77,16 @@ const GitHubSync = {
       return { data: { items: [], sessions: [] }, sha: null };
     }
 
+    if (response.status === 401) {
+      throw new Error(await this.parseError(response, 'GitHub token rejected'));
+    }
+
+    if (response.status === 403) {
+      throw new Error(await this.parseError(response, 'GitHub read denied — check token repo access'));
+    }
+
     if (!response.ok) {
-      throw new Error(`GitHub read failed (${response.status})`);
+      throw new Error(await this.parseError(response, 'GitHub read failed'));
     }
 
     const payload = await response.json();
@@ -73,11 +97,12 @@ const GitHubSync = {
   async pushRemote(settings, data, sha) {
     const body = {
       message: 'Update practice data',
+      branch: settings.branch,
       content: this.utf8ToBase64(JSON.stringify(data, null, 2))
     };
     if (sha) body.sha = sha;
 
-    const response = await fetch(this.apiUrl(settings), {
+    const response = await fetch(this.writeApiUrl(settings), {
       method: 'PUT',
       headers: {
         ...this.headers(settings),
@@ -86,8 +111,16 @@ const GitHubSync = {
       body: JSON.stringify(body)
     });
 
+    if (response.status === 401) {
+      throw new Error(await this.parseError(response, 'GitHub token rejected'));
+    }
+
+    if (response.status === 403) {
+      throw new Error(await this.parseError(response, 'GitHub write denied — token needs Contents read/write access'));
+    }
+
     if (!response.ok) {
-      throw new Error(`GitHub write failed (${response.status})`);
+      throw new Error(await this.parseError(response, 'GitHub write failed'));
     }
 
     const payload = await response.json();

@@ -48,7 +48,7 @@ const Storage = {
   },
 
   async init() {
-    if (!GitHubSync.isConfigured()) return;
+    if (!GitHubSync.isAutoSyncEnabled()) return;
 
     try {
       const settings = this.getSyncSettings();
@@ -74,7 +74,7 @@ const Storage = {
   async pullFromGitHub({ silent = false } = {}) {
     const settings = this.getSyncSettings();
     if (!GitHubSync.isConfigured(settings)) {
-      throw new Error('GitHub sync is not configured');
+      throw new Error('Paste your GitHub token first');
     }
 
     if (!silent) this.setSyncStatus('Pulling from GitHub…', 'info');
@@ -86,18 +86,31 @@ const Storage = {
     return data;
   },
 
+  async ensureFileSha(settings) {
+    if (this._fileSha) return;
+    try {
+      const { sha } = await GitHubSync.fetchRemote(settings);
+      this._fileSha = sha;
+    } catch {
+      this._fileSha = null;
+    }
+  },
+
   async pushToGitHub({ silent = false, retry = true } = {}) {
     const settings = this.getSyncSettings();
-    if (!GitHubSync.isConfigured(settings)) return;
+    if (!GitHubSync.isConfigured(settings)) {
+      throw new Error('Paste your GitHub token first');
+    }
 
     if (!silent) this.setSyncStatus('Saving to GitHub…', 'info');
 
     try {
+      await this.ensureFileSha(settings);
       const data = this.load();
       this._fileSha = await GitHubSync.pushRemote(settings, data, this._fileSha);
       if (!silent) this.setSyncStatus('Saved to GitHub', 'success');
     } catch (error) {
-      if (retry && String(error.message).includes('409')) {
+      if (retry && /409|422/.test(String(error.message))) {
         const { data, sha } = await GitHubSync.fetchRemote(settings);
         this._fileSha = sha;
         this.save(this.mergeData(data, this.load()), { sync: false });
@@ -124,7 +137,7 @@ const Storage = {
   },
 
   schedulePush() {
-    if (!GitHubSync.isConfigured()) return;
+    if (!GitHubSync.isAutoSyncEnabled()) return;
     clearTimeout(this._pushTimer);
     this._pushTimer = setTimeout(() => {
       this.pushToGitHub({ silent: true }).catch(() => {});
