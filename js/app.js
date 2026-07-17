@@ -409,7 +409,6 @@ const App = {
 
   bindSync() {
     const enabledInput = document.getElementById('sync-enabled');
-    const settingsPanel = document.getElementById('sync-settings');
     const statusEl = document.getElementById('sync-status');
     const fields = {
       owner: document.getElementById('sync-owner'),
@@ -431,7 +430,6 @@ const App = {
       fields.owner.value = settings.owner;
       fields.repo.value = settings.repo;
       fields.token.value = settings.token;
-      settingsPanel.hidden = !settings.enabled;
     };
 
     const refreshAfterSync = () => {
@@ -450,10 +448,14 @@ const App = {
 
     enabledInput.addEventListener('change', async () => {
       const settings = readSettings();
-      settingsPanel.hidden = !settings.enabled;
       Storage.saveSyncSettings(settings);
 
-      if (!settings.enabled || !settings.token) return;
+      if (!settings.enabled || !settings.token) {
+        if (settings.enabled && !settings.token) {
+          Storage.setSyncStatus('Paste your token first, then enable sync.', 'error');
+        }
+        return;
+      }
 
       try {
         const { data: remote, sha } = await GitHubSync.fetchRemote(settings);
@@ -475,7 +477,25 @@ const App = {
     });
 
     Object.values(fields).forEach((field) => {
+      field.addEventListener('input', () => Storage.saveSyncSettings(readSettings()));
       field.addEventListener('change', () => Storage.saveSyncSettings(readSettings()));
+    });
+
+    document.getElementById('sync-paste-btn').addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (!text.trim()) {
+          Storage.setSyncStatus('Clipboard is empty.', 'error');
+          return;
+        }
+        fields.token.value = text.trim();
+        Storage.saveSyncSettings(readSettings());
+        Storage.setSyncStatus('Token pasted.', 'success');
+        fields.token.focus();
+      } catch {
+        Storage.setSyncStatus('Tap the token field and use Paste from the keyboard.', 'error');
+        fields.token.focus();
+      }
     });
 
     document.getElementById('sync-pull-btn').addEventListener('click', async () => {

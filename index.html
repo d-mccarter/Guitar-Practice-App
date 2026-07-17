@@ -120,26 +120,29 @@
       <div class="card" id="sync-card">
         <h3>Sync with GitHub</h3>
         <p class="field-hint">Store practice data in your repo so it follows you on every device.</p>
-        <label class="field sync-toggle">
-          <input type="checkbox" id="sync-enabled">
-          <span>Enable GitHub sync</span>
-        </label>
-        <div id="sync-settings" hidden>
+        <div id="sync-settings">
+          <label class="field">
+            <span>Personal access token</span>
+            <div class="token-input-row">
+              <input type="text" id="sync-token" class="token-input" placeholder="ghp_…" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text">
+              <button type="button" class="btn btn-secondary btn-small" id="sync-paste-btn">Paste</button>
+            </div>
+          </label>
+          <p class="field-hint">Create a token at github.com/settings/tokens with <strong>Contents: Read and write</strong> for this repo. Stored only on this device.</p>
           <div class="field-row">
             <label class="field">
               <span>Owner</span>
-              <input type="text" id="sync-owner" value="d-mccarter">
+              <input type="text" id="sync-owner" value="d-mccarter" autocapitalize="off" autocorrect="off">
             </label>
             <label class="field">
               <span>Repo</span>
-              <input type="text" id="sync-repo" value="Guitar-Practice-App">
+              <input type="text" id="sync-repo" value="Guitar-Practice-App" autocapitalize="off" autocorrect="off">
             </label>
           </div>
-          <label class="field">
-            <span>Personal access token</span>
-            <input type="password" id="sync-token" placeholder="ghp_…" autocomplete="off">
+          <label class="field sync-toggle">
+            <input type="checkbox" id="sync-enabled">
+            <span>Enable GitHub sync</span>
           </label>
-          <p class="field-hint">Create a token at github.com/settings/tokens with <strong>Contents: Read and write</strong> for this repo. Stored only on this device.</p>
           <div class="sync-actions">
             <button type="button" class="btn btn-secondary btn-small" id="sync-pull-btn">Pull from GitHub</button>
             <button type="button" class="btn btn-secondary btn-small" id="sync-push-btn">Push to GitHub</button>

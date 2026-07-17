@@ -161,6 +161,24 @@ body {
   width: auto;
 }
 
+.token-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.token-input-row .token-input {
+  flex: 1;
+  min-width: 0;
+  -webkit-text-security: disc;
+  text-security: disc;
+}
+
+.token-input-row .btn {
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
 .sync-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
