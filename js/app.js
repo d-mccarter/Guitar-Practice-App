@@ -85,9 +85,28 @@ const App = {
       tempoDisplay.textContent = `${bpm} BPM`;
     };
 
-    const updateTempo = () => {
-      const bpm = parseInt(tempoInput.value, 10) || 80;
+    const clampBpm = (raw, fallback = 80) => {
+      const n = parseInt(String(raw).trim(), 10);
+      if (Number.isNaN(n)) return fallback;
+      return Math.max(40, Math.min(300, n));
+    };
+
+    const commitTempo = () => {
+      const bpm = clampBpm(tempoInput.value, 80);
       tempoInput.value = bpm;
+      updateTempoDisplay(bpm);
+      document.getElementById('setup-tempo-display').textContent = `${bpm} BPM`;
+      if (!this.metronome.isRunning()) {
+        this.metronome.setBpm(bpm);
+      }
+    };
+
+    const onTempoInput = () => {
+      const raw = tempoInput.value.trim();
+      if (raw === '') return;
+      const n = parseInt(raw, 10);
+      if (Number.isNaN(n)) return;
+      const bpm = Math.max(40, Math.min(300, n));
       updateTempoDisplay(bpm);
       document.getElementById('setup-tempo-display').textContent = `${bpm} BPM`;
       if (!this.metronome.isRunning()) {
@@ -119,14 +138,15 @@ const App = {
       });
     });
 
-    tempoInput.addEventListener('input', updateTempo);
+    tempoInput.addEventListener('input', onTempoInput);
+    tempoInput.addEventListener('blur', commitTempo);
     document.getElementById('tempo-up').addEventListener('click', () => {
-      tempoInput.value = (parseInt(tempoInput.value, 10) || 80) + 1;
-      updateTempo();
+      tempoInput.value = Math.min(300, clampBpm(tempoInput.value, 80) + 1);
+      commitTempo();
     });
     document.getElementById('tempo-down').addEventListener('click', () => {
-      tempoInput.value = Math.max(40, (parseInt(tempoInput.value, 10) || 80) - 1);
-      updateTempo();
+      tempoInput.value = Math.max(40, clampBpm(tempoInput.value, 80) - 1);
+      commitTempo();
     });
 
     timerInput.addEventListener('input', () => {
@@ -200,12 +220,12 @@ const App = {
       const item = Storage.getItemById(e.target.value);
       if (item?.targetTempo && this.practiceMode !== 'ramp') {
         tempoInput.value = item.targetTempo;
-        updateTempo();
+        commitTempo();
       }
     });
 
     this.updatePracticeModeUI();
-    updateTempo();
+    commitTempo();
     resetTimerDisplay();
   },
 
@@ -282,6 +302,10 @@ const App = {
 
     this.metronome.clearRamp();
     this.applyMetronomeOptions();
+
+    if (this.practiceMode !== 'ramp') {
+      tempoInput.blur();
+    }
 
     if (this.practiceMode === 'ramp') {
       startTempo = parseInt(document.getElementById('ramp-start-bpm').value, 10) || 60;
