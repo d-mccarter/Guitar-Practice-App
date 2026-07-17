@@ -1,26 +1,134 @@
 const STORAGE_KEY = 'guitar-practice-tracker';
 
 const Storage = {
+  _fileSha: null,
+  _pushTimer: null,
+  onSyncStatus: null,
+
+  normalize(data) {
+    return {
+      items: (Array.isArray(data.items) ? data.items : []).map((item) => ({
+        ...item,
+        name: item.name || item.code || 'Untitled',
+        description: item.description || ''
+      })),
+      sessions: Array.isArray(data.sessions) ? data.sessions : []
+    };
+  },
+
   load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return { items: [], sessions: [] };
-      const data = JSON.parse(raw);
-      return {
-        items: (Array.isArray(data.items) ? data.items : []).map((item) => ({
-          ...item,
-          name: item.name || item.code || 'Untitled',
-          description: item.description || ''
-        })),
-        sessions: Array.isArray(data.sessions) ? data.sessions : []
-      };
+      return this.normalize(JSON.parse(raw));
     } catch {
       return { items: [], sessions: [] };
     }
   },
 
-  save(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  save(data, options = {}) {
+    const normalized = this.normalize(data);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+    if (options.sync !== false) {
+      this.schedulePush();
+    }
+    return normalized;
+  },
+
+  getSyncSettings() {
+    return GitHubSync.getSettings();
+  },
+
+  saveSyncSettings(settings) {
+    GitHubSync.saveSettings(settings);
+  },
+
+  setSyncStatus(message, type = 'info') {
+    if (this.onSyncStatus) this.onSyncStatus(message, type);
+  },
+
+  async init() {
+    if (!GitHubSync.isConfigured()) return;
+
+    try {
+      const settings = this.getSyncSettings();
+      const { data: remote, sha } = await GitHubSync.fetchRemote(settings);
+      const local = this.load();
+      const remoteEmpty = !remote.items?.length && !remote.sessions?.length;
+      const localHasData = local.items.length || local.sessions.length;
+
+      this._fileSha = sha;
+
+      if (remoteEmpty && localHasData) {
+        await this.pushToGitHub({ silent: true });
+        this.setSyncStatus('Synced to GitHub', 'success');
+      } else {
+        this.save(remote, { sync: false });
+        this.setSyncStatus('Synced from GitHub', 'success');
+      }
+    } catch (error) {
+      this.setSyncStatus(error.message, 'error');
+    }
+  },
+
+  async pullFromGitHub({ silent = false } = {}) {
+    const settings = this.getSyncSettings();
+    if (!GitHubSync.isConfigured(settings)) {
+      throw new Error('GitHub sync is not configured');
+    }
+
+    if (!silent) this.setSyncStatus('Pulling from GitHub…', 'info');
+
+    const { data, sha } = await GitHubSync.fetchRemote(settings);
+    this._fileSha = sha;
+    this.save(data, { sync: false });
+    if (!silent) this.setSyncStatus('Loaded from GitHub', 'success');
+    return data;
+  },
+
+  async pushToGitHub({ silent = false, retry = true } = {}) {
+    const settings = this.getSyncSettings();
+    if (!GitHubSync.isConfigured(settings)) return;
+
+    if (!silent) this.setSyncStatus('Saving to GitHub…', 'info');
+
+    try {
+      const data = this.load();
+      this._fileSha = await GitHubSync.pushRemote(settings, data, this._fileSha);
+      if (!silent) this.setSyncStatus('Saved to GitHub', 'success');
+    } catch (error) {
+      if (retry && String(error.message).includes('409')) {
+        const { data, sha } = await GitHubSync.fetchRemote(settings);
+        this._fileSha = sha;
+        this.save(this.mergeData(data, this.load()), { sync: false });
+        return this.pushToGitHub({ silent, retry: false });
+      }
+      this.setSyncStatus(error.message, 'error');
+      throw error;
+    }
+  },
+
+  mergeData(remote, local) {
+    const itemsById = new Map();
+    [...remote.items, ...local.items].forEach((item) => itemsById.set(item.id, item));
+
+    const sessionsById = new Map();
+    [...remote.sessions, ...local.sessions].forEach((session) => sessionsById.set(session.id, session));
+
+    return {
+      items: [...itemsById.values()],
+      sessions: [...sessionsById.values()].sort(
+        (a, b) => new Date(b.startedAt) - new Date(a.startedAt)
+      )
+    };
+  },
+
+  schedulePush() {
+    if (!GitHubSync.isConfigured()) return;
+    clearTimeout(this._pushTimer);
+    this._pushTimer = setTimeout(() => {
+      this.pushToGitHub({ silent: true }).catch(() => {});
+    }, 1500);
   },
 
   getItems() {

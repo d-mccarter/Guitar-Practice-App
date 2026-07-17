@@ -116,6 +116,37 @@
         <ul id="items-list" class="items-list"></ul>
         <p class="empty-state" id="items-empty">No practice items yet. Add one above.</p>
       </div>
+
+      <div class="card" id="sync-card">
+        <h3>Sync with GitHub</h3>
+        <p class="field-hint">Store practice data in your repo so it follows you on every device.</p>
+        <label class="field sync-toggle">
+          <input type="checkbox" id="sync-enabled">
+          <span>Enable GitHub sync</span>
+        </label>
+        <div id="sync-settings" hidden>
+          <div class="field-row">
+            <label class="field">
+              <span>Owner</span>
+              <input type="text" id="sync-owner" value="d-mccarter">
+            </label>
+            <label class="field">
+              <span>Repo</span>
+              <input type="text" id="sync-repo" value="Guitar-Practice-App">
+            </label>
+          </div>
+          <label class="field">
+            <span>Personal access token</span>
+            <input type="password" id="sync-token" placeholder="ghp_…" autocomplete="off">
+          </label>
+          <p class="field-hint">Create a token at github.com/settings/tokens with <strong>Contents: Read and write</strong> for this repo. Stored only on this device.</p>
+          <div class="sync-actions">
+            <button type="button" class="btn btn-secondary btn-small" id="sync-pull-btn">Pull from GitHub</button>
+            <button type="button" class="btn btn-secondary btn-small" id="sync-push-btn">Push to GitHub</button>
+          </div>
+        </div>
+        <p class="sync-status" id="sync-status"></p>
+      </div>
     </section>
 
     <!-- Log View -->
@@ -199,6 +230,7 @@
     </button>
   </nav>
 
+  <script src="js/github-sync.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/metronome.js"></script>
   <script src="js/charts.js"></script>

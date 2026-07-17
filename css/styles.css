@@ -151,6 +151,38 @@ body {
   margin-top: -4px;
 }
 
+.sync-toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.sync-toggle input {
+  width: auto;
+}
+
+.sync-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.sync-status {
+  min-height: 1.2em;
+  font-size: 0.85rem;
+  margin-top: 12px;
+  color: var(--text-muted);
+}
+
+.sync-status[data-type="success"] {
+  color: var(--success);
+}
+
+.sync-status[data-type="error"] {
+  color: var(--danger);
+}
+
 [hidden] {
   display: none !important;
 }

@@ -1,13 +1,15 @@
-const CACHE = 'practice-tracker-v6';
+const CACHE = 'practice-tracker-v7';
 const ASSETS = [
   './',
   './index.html',
   './css/styles.css',
+  './js/github-sync.js',
   './js/storage.js',
   './js/metronome.js',
   './js/charts.js',
   './js/app.js',
-  './manifest.json'
+  './manifest.json',
+  './data/practice-data.json'
 ];
 
 const NETWORK_FIRST = /\.(?:html|css|js)$|\/$/;

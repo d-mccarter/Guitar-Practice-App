@@ -9,6 +9,7 @@ const App = {
     this.bindNavigation();
     this.bindPractice();
     this.bindItems();
+    this.bindSync();
     this.bindLog();
     this.bindProgress();
     this.refreshAll();
@@ -406,6 +407,97 @@ const App = {
     document.getElementById('item-cancel-btn').hidden = true;
   },
 
+  bindSync() {
+    const enabledInput = document.getElementById('sync-enabled');
+    const settingsPanel = document.getElementById('sync-settings');
+    const statusEl = document.getElementById('sync-status');
+    const fields = {
+      owner: document.getElementById('sync-owner'),
+      repo: document.getElementById('sync-repo'),
+      token: document.getElementById('sync-token')
+    };
+
+    const readSettings = () => ({
+      enabled: enabledInput.checked,
+      owner: fields.owner.value.trim(),
+      repo: fields.repo.value.trim(),
+      branch: 'main',
+      path: 'data/practice-data.json',
+      token: fields.token.value.trim()
+    });
+
+    const applySettings = (settings) => {
+      enabledInput.checked = settings.enabled;
+      fields.owner.value = settings.owner;
+      fields.repo.value = settings.repo;
+      fields.token.value = settings.token;
+      settingsPanel.hidden = !settings.enabled;
+    };
+
+    const refreshAfterSync = () => {
+      this.refreshAll();
+      if (document.getElementById('view-progress').classList.contains('active')) {
+        this.renderProgress();
+      }
+    };
+
+    Storage.onSyncStatus = (message, type) => {
+      statusEl.textContent = message;
+      statusEl.dataset.type = type;
+    };
+
+    applySettings(Storage.getSyncSettings());
+
+    enabledInput.addEventListener('change', async () => {
+      const settings = readSettings();
+      settingsPanel.hidden = !settings.enabled;
+      Storage.saveSyncSettings(settings);
+
+      if (!settings.enabled || !settings.token) return;
+
+      try {
+        const { data: remote, sha } = await GitHubSync.fetchRemote(settings);
+        const local = Storage.load();
+        const remoteEmpty = !remote.items?.length && !remote.sessions?.length;
+        const localHasData = local.items.length || local.sessions.length;
+
+        Storage._fileSha = sha;
+
+        if (remoteEmpty && localHasData) {
+          await Storage.pushToGitHub();
+        } else {
+          await Storage.pullFromGitHub();
+          refreshAfterSync();
+        }
+      } catch {
+        /* status handled in Storage */
+      }
+    });
+
+    Object.values(fields).forEach((field) => {
+      field.addEventListener('change', () => Storage.saveSyncSettings(readSettings()));
+    });
+
+    document.getElementById('sync-pull-btn').addEventListener('click', async () => {
+      Storage.saveSyncSettings(readSettings());
+      try {
+        await Storage.pullFromGitHub();
+        refreshAfterSync();
+      } catch {
+        /* status handled in Storage */
+      }
+    });
+
+    document.getElementById('sync-push-btn').addEventListener('click', async () => {
+      Storage.saveSyncSettings(readSettings());
+      try {
+        await Storage.pushToGitHub();
+      } catch {
+        /* status handled in Storage */
+      }
+    });
+  },
+
   bindLog() {
     document.getElementById('log-filter-item').addEventListener('change', () => this.renderLog());
   },
@@ -553,4 +645,7 @@ const App = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => App.init());
+document.addEventListener('DOMContentLoaded', async () => {
+  await Storage.init();
+  App.init();
+});
