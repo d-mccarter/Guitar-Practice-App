@@ -172,6 +172,10 @@ const GitHubSync = {
       throw new Error(await this.parseError(response, 'GitHub write denied — token needs Contents read/write access'));
     }
 
+    if (response.status === 409 || response.status === 422) {
+      throw new Error(await this.parseError(response, 'GitHub write conflict'));
+    }
+
     if (!response.ok) {
       throw new Error(await this.parseError(response, 'GitHub write failed'));
     }

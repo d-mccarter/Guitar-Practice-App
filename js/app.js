@@ -504,13 +504,22 @@ const App = {
     });
 
     document.getElementById('sync-test-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('sync-test-btn');
       const settings = saveSettingsFromForm();
+      statusEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      statusEl.textContent = 'Testing token…';
+      statusEl.dataset.type = 'info';
+      btn.disabled = true;
+
       try {
-        Storage.setSyncStatus('Testing token…', 'info');
         const user = await GitHubSync.testToken(settings);
-        Storage.setSyncStatus(`Token OK — signed in as ${user.login}`, 'success');
+        statusEl.textContent = `Token OK — signed in as ${user.login}`;
+        statusEl.dataset.type = 'success';
       } catch (error) {
-        Storage.setSyncStatus(error.message, 'error');
+        statusEl.textContent = error.message;
+        statusEl.dataset.type = 'error';
+      } finally {
+        btn.disabled = false;
       }
     });
 

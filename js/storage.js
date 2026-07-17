@@ -86,16 +86,6 @@ const Storage = {
     return data;
   },
 
-  async ensureFileSha(settings) {
-    if (this._fileSha) return;
-    try {
-      const { sha } = await GitHubSync.fetchRemote(settings);
-      this._fileSha = sha;
-    } catch {
-      this._fileSha = null;
-    }
-  },
-
   async pushToGitHub({ silent = false, retry = true, settings = null } = {}) {
     settings = GitHubSync.normalizeSettings(settings || this.getSyncSettings());
     if (!GitHubSync.isConfigured(settings)) {
@@ -105,16 +95,17 @@ const Storage = {
     if (!silent) this.setSyncStatus('Saving to GitHub…', 'info');
 
     try {
-      await this.ensureFileSha(settings);
       const data = this.load();
-      this._fileSha = await GitHubSync.pushRemote(settings, data, this._fileSha);
+      const { sha } = await GitHubSync.fetchRemote(settings);
+      this._fileSha = await GitHubSync.pushRemote(settings, data, sha);
       if (!silent) this.setSyncStatus('Saved to GitHub', 'success');
     } catch (error) {
       if (retry && /409|422/.test(String(error.message))) {
-        const { data, sha } = await GitHubSync.fetchRemote(settings);
-        this._fileSha = sha;
-        this.save(this.mergeData(data, this.load()), { sync: false });
-        return this.pushToGitHub({ silent, retry: false });
+        const data = this.load();
+        const { sha } = await GitHubSync.fetchRemote(settings);
+        this._fileSha = await GitHubSync.pushRemote(settings, data, sha);
+        if (!silent) this.setSyncStatus('Saved to GitHub', 'success');
+        return;
       }
       this.setSyncStatus(error.message, 'error');
       throw error;
