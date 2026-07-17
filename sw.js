@@ -1,4 +1,4 @@
-const CACHE = 'practice-tracker-v5';
+const CACHE = 'practice-tracker-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,8 @@ const ASSETS = [
   './js/app.js',
   './manifest.json'
 ];
+
+const NETWORK_FIRST = /\.(?:html|css|js)$|\/$/;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -27,7 +29,33 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
+    return;
+  }
+
+  if (NETWORK_FIRST.test(url.pathname) || event.request.mode === 'navigate') {
+    event.respondWith(networkFirst(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
 });
+
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE);
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    throw new Error('Offline and not cached');
+  }
+}
