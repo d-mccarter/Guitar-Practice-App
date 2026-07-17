@@ -34,6 +34,13 @@
       "description": "Pentatonic 4-note pattern",
       "targetTempo": 160,
       "createdAt": "2026-07-17T22:28:44.802Z"
+    },
+    {
+      "id": "97ea8c84-a953-4874-aeb8-db80d08bc3b1",
+      "name": "8h",
+      "description": "Pentatonic descending pattern",
+      "targetTempo": 160,
+      "createdAt": "2026-07-17T22:29:15.621Z"
     }
   ],
   "sessions": []
