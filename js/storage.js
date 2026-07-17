@@ -71,8 +71,8 @@ const Storage = {
     }
   },
 
-  async pullFromGitHub({ silent = false } = {}) {
-    const settings = this.getSyncSettings();
+  async pullFromGitHub({ silent = false, settings = null } = {}) {
+    settings = GitHubSync.normalizeSettings(settings || this.getSyncSettings());
     if (!GitHubSync.isConfigured(settings)) {
       throw new Error('Paste your GitHub token first');
     }
@@ -96,8 +96,8 @@ const Storage = {
     }
   },
 
-  async pushToGitHub({ silent = false, retry = true } = {}) {
-    const settings = this.getSyncSettings();
+  async pushToGitHub({ silent = false, retry = true, settings = null } = {}) {
+    settings = GitHubSync.normalizeSettings(settings || this.getSyncSettings());
     if (!GitHubSync.isConfigured(settings)) {
       throw new Error('Paste your GitHub token first');
     }

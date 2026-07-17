@@ -430,14 +430,20 @@ const App = {
       token: document.getElementById('sync-token')
     };
 
-    const readSettings = () => ({
+    const readSettings = () => GitHubSync.normalizeSettings({
       enabled: enabledInput.checked,
-      owner: fields.owner.value.trim(),
-      repo: fields.repo.value.trim(),
+      owner: fields.owner.value,
+      repo: fields.repo.value,
       branch: 'main',
       path: 'data/practice-data.json',
-      token: fields.token.value.trim()
+      token: fields.token.value
     });
+
+    const saveSettingsFromForm = () => {
+      const settings = readSettings();
+      Storage.saveSyncSettings(settings);
+      return settings;
+    };
 
     const applySettings = (settings) => {
       enabledInput.checked = settings.enabled;
@@ -461,8 +467,7 @@ const App = {
     applySettings(Storage.getSyncSettings());
 
     enabledInput.addEventListener('change', async () => {
-      const settings = readSettings();
-      Storage.saveSyncSettings(settings);
+      const settings = saveSettingsFromForm();
 
       if (!settings.enabled || !settings.token) {
         if (settings.enabled && !settings.token) {
@@ -480,9 +485,9 @@ const App = {
         Storage._fileSha = sha;
 
         if (remoteEmpty && localHasData) {
-          await Storage.pushToGitHub();
+          await Storage.pushToGitHub({ settings });
         } else {
-          await Storage.pullFromGitHub();
+          await Storage.pullFromGitHub({ settings });
           refreshAfterSync();
         }
       } catch {
@@ -491,17 +496,28 @@ const App = {
     });
 
     Object.values(fields).forEach((field) => {
-      field.addEventListener('input', () => Storage.saveSyncSettings(readSettings()));
-      field.addEventListener('change', () => Storage.saveSyncSettings(readSettings()));
+      field.addEventListener('input', () => saveSettingsFromForm());
+      field.addEventListener('change', () => saveSettingsFromForm());
       field.addEventListener('paste', () => {
-        setTimeout(() => Storage.saveSyncSettings(readSettings()), 0);
+        setTimeout(() => saveSettingsFromForm(), 0);
       });
     });
 
-    document.getElementById('sync-pull-btn').addEventListener('click', async () => {
-      Storage.saveSyncSettings(readSettings());
+    document.getElementById('sync-test-btn').addEventListener('click', async () => {
+      const settings = saveSettingsFromForm();
       try {
-        await Storage.pullFromGitHub();
+        Storage.setSyncStatus('Testing token…', 'info');
+        const user = await GitHubSync.testToken(settings);
+        Storage.setSyncStatus(`Token OK — signed in as ${user.login}`, 'success');
+      } catch (error) {
+        Storage.setSyncStatus(error.message, 'error');
+      }
+    });
+
+    document.getElementById('sync-pull-btn').addEventListener('click', async () => {
+      const settings = saveSettingsFromForm();
+      try {
+        await Storage.pullFromGitHub({ settings });
         refreshAfterSync();
       } catch {
         /* status handled in Storage */
@@ -509,9 +525,9 @@ const App = {
     });
 
     document.getElementById('sync-push-btn').addEventListener('click', async () => {
-      Storage.saveSyncSettings(readSettings());
+      const settings = saveSettingsFromForm();
       try {
-        await Storage.pushToGitHub();
+        await Storage.pushToGitHub({ settings });
       } catch {
         /* status handled in Storage */
       }
