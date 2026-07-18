@@ -772,3 +772,94 @@ select {
     align-items: center;
   }
 }
+
+/* Denser Practice setup + metronome cards so both fit on shorter phones */
+#view-practice .session-setup,
+#view-practice .metronome-panel {
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+#view-practice .mode-toggle {
+  margin-bottom: 10px;
+  padding: 3px;
+  gap: 4px;
+}
+
+#view-practice .mode-btn {
+  padding: 8px 6px;
+  font-size: 0.8rem;
+}
+
+#view-practice .session-setup .field {
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+#view-practice .session-setup .field span {
+  font-size: 0.75rem;
+}
+
+#view-practice .session-setup input:not([type="checkbox"]),
+#view-practice .session-setup select {
+  padding: 9px 12px;
+  font-size: 0.95rem;
+}
+
+#view-practice .session-setup .field-row {
+  gap: 8px;
+}
+
+#view-practice .tempo-controls {
+  gap: 14px;
+  padding: 2px 0;
+}
+
+#view-practice .session-setup .btn-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 1.25rem;
+}
+
+#view-practice .metronome-options {
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+#view-practice .session-setup .sync-auto-row {
+  margin: 4px 0 8px;
+}
+
+#view-practice .metronome-panel {
+  padding: 14px 12px;
+}
+
+#view-practice .beat-indicator {
+  margin-bottom: 10px;
+}
+
+#view-practice .beat-dot {
+  width: 48px;
+  height: 48px;
+}
+
+#view-practice .live-tempo {
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+
+#view-practice .timer-display {
+  font-size: 2.6rem;
+  margin-bottom: 4px;
+}
+
+#view-practice .session-status {
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+#view-practice .btn-large {
+  padding: 14px 24px;
+  font-size: 1.05rem;
+  margin-top: 4px;
+}
