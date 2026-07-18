@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=22">
+  <link rel="stylesheet" href="css/styles.css?v=23">
 </head>
 <body>
   <header class="app-header">
@@ -38,21 +38,19 @@
         </div>
 
         <div id="fixed-tempo-panel">
-          <div class="field-row">
+          <div class="field-row" id="fixed-tempo-row">
             <label class="field" id="timer-field">
               <span>Timer (min)</span>
               <input type="number" id="timer-minutes" min="1" max="120" value="10">
             </label>
-            <label class="field">
+            <div class="field" id="fixed-tempo-controls">
               <span>Tempo (BPM)</span>
-              <input type="number" id="tempo-bpm" min="40" max="300" value="80">
-            </label>
-          </div>
-
-          <div class="tempo-controls" id="fixed-tempo-controls">
-            <button type="button" class="btn-icon" id="tempo-down" aria-label="Decrease tempo">−</button>
-            <span id="setup-tempo-display">80 BPM</span>
-            <button type="button" class="btn-icon" id="tempo-up" aria-label="Increase tempo">+</button>
+              <div class="tempo-stepper">
+                <button type="button" class="btn-icon" id="tempo-down" aria-label="Decrease tempo">−</button>
+                <input type="number" id="tempo-bpm" min="40" max="300" value="80" aria-label="Tempo BPM">
+                <button type="button" class="btn-icon" id="tempo-up" aria-label="Increase tempo">+</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -289,11 +287,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=22"></script>
-  <script src="js/storage.js?v=22"></script>
-  <script src="js/metronome.js?v=22"></script>
-  <script src="js/charts.js?v=22"></script>
-  <script src="js/app.js?v=22"></script>
+  <script src="js/github-sync.js?v=23"></script>
+  <script src="js/storage.js?v=23"></script>
+  <script src="js/metronome.js?v=23"></script>
+  <script src="js/charts.js?v=23"></script>
+  <script src="js/app.js?v=23"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});

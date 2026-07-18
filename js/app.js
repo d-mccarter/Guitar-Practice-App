@@ -99,7 +99,6 @@ const App = {
       const bpm = clampBpm(tempoInput.value, 80);
       tempoInput.value = bpm;
       updateTempoDisplay(bpm);
-      document.getElementById('setup-tempo-display').textContent = `${bpm} BPM`;
       this.metronome.setBpm(bpm);
       if (this.session && this.session.mode !== 'ramp') {
         this.session.tempo = bpm;
@@ -113,7 +112,6 @@ const App = {
       if (Number.isNaN(n)) return;
       const bpm = Math.max(40, Math.min(300, n));
       updateTempoDisplay(bpm);
-      document.getElementById('setup-tempo-display').textContent = `${bpm} BPM`;
       this.metronome.setBpm(bpm);
       if (this.session && this.session.mode !== 'ramp') {
         this.session.tempo = bpm;
@@ -247,7 +245,6 @@ const App = {
     const itemField = document.getElementById('practice-item-field');
     const itemLabel = document.getElementById('practice-item-label');
     const fixedPanel = document.getElementById('fixed-tempo-panel');
-    const fixedControls = document.getElementById('fixed-tempo-controls');
     const rampPanel = document.getElementById('ramp-tempo-panel');
     const timerField = document.getElementById('timer-field');
     const tempoDisplay = document.getElementById('tempo-display');
@@ -255,7 +252,6 @@ const App = {
     if (this.practiceMode === 'free') {
       itemField.hidden = true;
       fixedPanel.hidden = false;
-      fixedControls.hidden = false;
       rampPanel.hidden = true;
       timerField.hidden = true;
       const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 80;
@@ -274,7 +270,6 @@ const App = {
     } else {
       itemLabel.textContent = 'Practice item';
       fixedPanel.hidden = false;
-      fixedControls.hidden = false;
       rampPanel.hidden = true;
       timerField.hidden = false;
       const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 80;
