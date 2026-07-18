@@ -29,11 +29,21 @@ class Metronome {
   setBpm(bpm) {
     this.bpm = Math.max(40, Math.min(300, bpm));
     this._reportBpm(this.bpm);
+    this._nudgeSchedule();
   }
 
   setSubdivision(value) {
     const n = parseInt(value, 10);
-    this.subdivisionsPerBeat = [1, 2, 3, 4].includes(n) ? n : 1;
+    const next = [1, 2, 3, 4].includes(n) ? n : 1;
+    if (next === this.subdivisionsPerBeat) return;
+    const prev = this.subdivisionsPerBeat;
+    // Remap the upcoming tick onto the new grid at the same beat position
+    // (or the next subdivision boundary) so we don't replay an accent.
+    if (this.running && prev > 0) {
+      this.tick = Math.ceil((this.tick * next) / prev - 1e-9);
+    }
+    this.subdivisionsPerBeat = next;
+    this._nudgeSchedule();
   }
 
   setAccentDownbeat(enabled) {
@@ -42,6 +52,16 @@ class Metronome {
 
   setAccentQuarterBeats(enabled) {
     this.accentQuarterBeats = !!enabled;
+  }
+
+  /** Pull the next click sooner when live settings shrink the interval. */
+  _nudgeSchedule() {
+    if (!this.running || !this.audioCtx || this.ramp) return;
+    const interval = (60 / this._currentBpm()) / this.subdivisionsPerBeat;
+    const now = this.audioCtx.currentTime;
+    if (this.nextBeatTime - now > interval) {
+      this.nextBeatTime = now + Math.min(0.05, interval);
+    }
   }
 
   setRamp(startBpm, endBpm, durationSec) {
