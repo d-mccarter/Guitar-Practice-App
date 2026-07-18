@@ -863,9 +863,14 @@ select {
   font-size: 1.25rem;
 }
 
-#view-practice .tempo-stepper input {
+#view-practice .session-setup .tempo-stepper input {
   padding: 9px 6px;
   font-size: 0.95rem;
+  border: none;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
 }
 
 #view-practice .metronome-options {
