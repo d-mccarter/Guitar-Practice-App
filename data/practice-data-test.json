@@ -8,5 +8,19 @@
       "createdAt": "2026-07-18T01:04:47.275Z"
     }
   ],
-  "sessions": []
+  "sessions": [
+    {
+      "id": "6571c598-41b9-4136-b102-0bbf057753c3",
+      "itemId": "577bab5d-cae1-4d99-a55d-0f380ddf5530",
+      "itemName": "Exercise 1",
+      "tempo": 80,
+      "startTempo": null,
+      "endTempo": null,
+      "durationSeconds": 13,
+      "plannedDurationSeconds": 60,
+      "startedAt": "2026-07-18T01:05:04.124Z",
+      "completedAt": "2026-07-18T01:05:17.576Z",
+      "completed": false
+    }
+  ]
 }
