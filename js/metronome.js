@@ -37,13 +37,30 @@ class Metronome {
     const next = [1, 2, 3, 4].includes(n) ? n : 1;
     if (next === this.subdivisionsPerBeat) return;
     const prev = this.subdivisionsPerBeat;
-    // Remap the upcoming tick onto the new grid at the same beat position
-    // (or the next subdivision boundary) so we don't replay an accent.
-    if (this.running && prev > 0) {
-      this.tick = Math.ceil((this.tick * next) / prev - 1e-9);
+
+    // Keep the quarter-note grid locked in absolute time. Remap the upcoming
+    // tick onto the new subdivision lattice without pulling the next click
+    // toward "now" (that phase-shifted the beat when switching densities).
+    if (this.running && this.audioCtx && prev > 0) {
+      const beatInterval = 60 / this._currentBpm();
+      const phaseZero = this.nextBeatTime - (this.tick / prev) * beatInterval;
+      this.subdivisionsPerBeat = next;
+
+      const now = this.audioCtx.currentTime;
+      const elapsedQuarters = Math.max(0, (now - phaseZero) / beatInterval);
+      let nextTick = Math.ceil(elapsedQuarters * next - 1e-9);
+      let nextTime = phaseZero + (nextTick / next) * beatInterval;
+      if (nextTime <= now + 0.002) {
+        nextTick += 1;
+        nextTime = phaseZero + (nextTick / next) * beatInterval;
+      }
+
+      this.tick = nextTick;
+      this.nextBeatTime = nextTime;
+      return;
     }
+
     this.subdivisionsPerBeat = next;
-    this._nudgeSchedule();
   }
 
   setAccentDownbeat(enabled) {
