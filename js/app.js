@@ -5,6 +5,7 @@ const App = {
   editingItemId: null,
   practiceMode: 'practice',
   feedbackSessionId: null,
+  feedbackPendingSession: null,
   feedbackRating: 0,
   feedbackEditing: false,
 
@@ -479,9 +480,10 @@ const App = {
     this.setPracticeFormDisabled(false);
 
     // durationSeconds is active practice time only (paused gaps never incremented elapsedSeconds).
-    const shouldLog = session?.itemId && session.elapsedSeconds >= 5 && session.mode !== 'free';
+    const shouldLogItem = session?.itemId && session.elapsedSeconds >= 5 && session.mode !== 'free';
+    const canLogFree = session?.mode === 'free' && session.elapsedSeconds >= 5;
 
-    if (shouldLog) {
+    if (shouldLogItem) {
       const loggedTempo = session.mode === 'ramp'
         ? this.metronome.getRoundedBpm()
         : session.tempo;
@@ -490,6 +492,7 @@ const App = {
         id: generateId(),
         itemId: session.itemId,
         itemName: session.itemName,
+        workedOn: '',
         tempo: loggedTempo,
         startTempo: session.startTempo,
         endTempo: session.endTempo,
@@ -506,6 +509,28 @@ const App = {
       this.showLastSession(recorded);
       statusEl.textContent = completed ? 'Session complete!' : 'Session saved';
       this.openSessionFeedback(recorded, { editing: false });
+      this.refreshItemSelects();
+      this.renderLog();
+    } else if (canLogFree) {
+      const draft = {
+        id: generateId(),
+        itemId: null,
+        itemName: null,
+        workedOn: '',
+        tempo: session.tempo,
+        startTempo: null,
+        endTempo: null,
+        mode: 'free',
+        durationSeconds: session.elapsedSeconds,
+        plannedDurationSeconds: null,
+        startedAt: session.startedAt,
+        completedAt: new Date().toISOString(),
+        completed: true,
+        rating: 0,
+        notes: ''
+      };
+      statusEl.textContent = 'Session ended';
+      this.openSessionFeedback(draft, { editing: false, pending: true });
     } else {
       statusEl.textContent = 'Ready';
     }
@@ -521,11 +546,6 @@ const App = {
     } else {
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
       document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 80} BPM`;
-    }
-
-    if (shouldLog) {
-      this.refreshItemSelects();
-      this.renderLog();
     }
   },
 
@@ -578,8 +598,15 @@ const App = {
       }
     });
 
-    notes.addEventListener('keydown', (e) => {
+    const saveOnModEnter = (e) => {
       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        this.saveSessionFeedback();
+      }
+    };
+    notes.addEventListener('keydown', saveOnModEnter);
+    document.getElementById('session-feedback-worked-on').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
         e.preventDefault();
         this.saveSessionFeedback();
       }
@@ -595,10 +622,11 @@ const App = {
     });
   },
 
-  openSessionFeedback(session, { editing = false } = {}) {
+  openSessionFeedback(session, { editing = false, pending = false } = {}) {
     if (!session?.id) return;
 
-    this.feedbackSessionId = session.id;
+    this.feedbackPendingSession = pending ? session : null;
+    this.feedbackSessionId = pending ? null : session.id;
     this.feedbackEditing = editing;
     this.feedbackRating = normalizeSessionRating(session.rating);
 
@@ -607,36 +635,93 @@ const App = {
     const summary = document.getElementById('session-feedback-summary');
     const notes = document.getElementById('session-feedback-notes');
     const skipBtn = document.getElementById('session-feedback-skip-btn');
+    const workedOnField = document.getElementById('session-feedback-worked-on-field');
+    const workedOnInput = document.getElementById('session-feedback-worked-on');
+    const isFree = session.mode === 'free';
 
-    title.textContent = editing ? 'Edit session notes' : 'Session notes';
-    skipBtn.textContent = editing ? 'Cancel' : 'Skip';
+    if (pending && isFree) {
+      title.textContent = 'Log free session';
+      skipBtn.textContent = "Don't log";
+    } else if (editing) {
+      title.textContent = 'Edit session notes';
+      skipBtn.textContent = 'Cancel';
+    } else {
+      title.textContent = 'Session notes';
+      skipBtn.textContent = 'Skip';
+    }
 
     const tempoText = session.mode === 'ramp' && session.startTempo != null
       ? `${session.startTempo}→${session.tempo} BPM`
       : `${session.tempo} BPM`;
-    summary.textContent = `${sessionDisplayName(session)} — ${formatDuration(session.durationSeconds)} at ${tempoText}`;
+    const name = sessionDisplayName(session);
+    summary.textContent = isFree && (!name || name === 'Untitled')
+      ? `${formatDuration(session.durationSeconds)} at ${tempoText}`
+      : `${name} — ${formatDuration(session.durationSeconds)} at ${tempoText}`;
 
+    workedOnField.hidden = !isFree;
+    workedOnInput.value = session.workedOn || '';
     notes.value = session.notes || '';
     this.renderFeedbackStars();
     modal.hidden = false;
-    notes.focus();
+    if (isFree) workedOnInput.focus();
+    else notes.focus();
   },
 
   closeSessionFeedback() {
     const modal = document.getElementById('session-feedback-modal');
     modal.hidden = true;
     this.feedbackSessionId = null;
+    this.feedbackPendingSession = null;
     this.feedbackRating = 0;
     this.feedbackEditing = false;
+    document.getElementById('session-feedback-worked-on').value = '';
+    document.getElementById('session-feedback-notes').value = '';
   },
 
   saveSessionFeedback() {
-    if (!this.feedbackSessionId) return;
-
     const notes = document.getElementById('session-feedback-notes').value.trim();
     const rating = normalizeSessionRating(this.feedbackRating);
-    const updated = Storage.updateSession(this.feedbackSessionId, { rating, notes });
+    const workedOn = document.getElementById('session-feedback-worked-on').value.trim();
 
+    if (this.feedbackPendingSession) {
+      const draft = this.feedbackPendingSession;
+      if (draft.mode === 'free' && !workedOn) {
+        alert("Enter what you worked on, or tap Don't log.");
+        document.getElementById('session-feedback-worked-on').focus();
+        return;
+      }
+
+      const recorded = Storage.addSession({
+        ...draft,
+        workedOn,
+        itemName: workedOn || draft.itemName,
+        rating,
+        notes,
+        completedAt: new Date().toISOString()
+      });
+
+      this.closeSessionFeedback();
+      this.showLastSession(recorded);
+      document.getElementById('session-status').textContent = 'Session saved';
+      this.renderLog();
+      return;
+    }
+
+    if (!this.feedbackSessionId) return;
+
+    const existing = Storage.getSessionById(this.feedbackSessionId);
+    const updates = { rating, notes };
+    if (existing?.mode === 'free') {
+      if (!workedOn) {
+        alert('Enter what you worked on.');
+        document.getElementById('session-feedback-worked-on').focus();
+        return;
+      }
+      updates.workedOn = workedOn;
+      updates.itemName = workedOn;
+    }
+
+    const updated = Storage.updateSession(this.feedbackSessionId, updates);
     this.closeSessionFeedback();
 
     if (updated) {
@@ -1012,15 +1097,17 @@ const App = {
       if (notes) {
         feedbackBits.push(`<div class="log-feedback"><div class="log-notes">${escapeHtml(notes)}</div></div>`);
       }
-      const editLabel = stars || notes ? 'Edit notes' : 'Add notes';
+      const hasFeedback = stars || notes || (s.workedOn || '').trim();
+      const editLabel = hasFeedback ? 'Edit notes' : 'Add notes';
+      const modeLabel = s.mode === 'free' ? ' <span class="log-mode">Free</span>' : '';
       return `
       <li class="log-row">
         <div class="log-info">
           <div class="log-date">${formatDate(s.startedAt)}</div>
           <div class="log-detail">
             <strong>${escapeHtml(sessionDisplayName(s))}</strong> — ${formatDuration(s.durationSeconds)} at
-            <span class="log-tempo">${tempoText}</span>
-            ${s.completed ? '' : ' (stopped early)'}
+            <span class="log-tempo">${tempoText}</span>${modeLabel}
+            ${s.completed || s.mode === 'free' ? '' : ' (stopped early)'}
           </div>
           ${feedbackBits.join('')}
         </div>
