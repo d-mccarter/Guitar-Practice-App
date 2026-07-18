@@ -17,6 +17,22 @@
   ],
   "sessions": [
     {
+      "id": "ab189a6b-ebd4-4dc4-87c8-38b6b1924771",
+      "itemId": "577bab5d-cae1-4d99-a55d-0f380ddf5530",
+      "itemName": "Exercise 1",
+      "tempo": 80,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 5,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-07-18T01:51:04.183Z",
+      "completedAt": "2026-07-18T01:51:09.366Z",
+      "completed": false,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "914a343c-23ea-4d11-92e7-684ebd69b0c8",
       "itemId": "577bab5d-cae1-4d99-a55d-0f380ddf5530",
       "itemName": "Exercise 1",
