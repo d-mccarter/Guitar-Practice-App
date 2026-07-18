@@ -1,4 +1,12 @@
 {
-  "items": [],
+  "items": [
+    {
+      "id": "577bab5d-cae1-4d99-a55d-0f380ddf5530",
+      "name": "Exercise 1",
+      "description": "",
+      "targetTempo": null,
+      "createdAt": "2026-07-18T01:04:47.275Z"
+    }
+  ],
   "sessions": []
 }
