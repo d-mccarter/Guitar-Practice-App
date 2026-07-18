@@ -471,8 +471,43 @@ select {
   border-top: 1px solid var(--border);
 }
 
-.metronome-options .sync-auto-row {
+.metronome-options-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 10px 12px;
+  align-items: start;
+}
+
+.metronome-subdivision-field span {
+  display: block;
   margin-bottom: 0;
+}
+
+.metronome-subdivision-field {
+  margin-bottom: 0;
+}
+
+.metronome-accent-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.metronome-options .sync-auto-row {
+  margin: 0;
+  min-height: 42px;
+}
+
+.metronome-options .sync-auto-row > span {
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.metronome-options .sync-switch {
+  min-width: 52px;
+  padding: 7px 10px;
+  font-size: 0.8rem;
 }
 
 .metronome-panel {
@@ -878,8 +913,17 @@ select {
   padding-top: 10px;
 }
 
-#view-practice .session-setup .sync-auto-row {
-  margin: 4px 0 8px;
+#view-practice .metronome-options-row {
+  gap: 8px 10px;
+}
+
+#view-practice .metronome-accent-stack {
+  gap: 4px;
+}
+
+#view-practice .metronome-options .sync-auto-row {
+  margin: 0;
+  min-height: 38px;
 }
 
 #view-practice .metronome-panel {
