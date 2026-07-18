@@ -515,8 +515,10 @@ select {
 }
 
 .beat-indicator {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 10px;
   margin-bottom: 20px;
 }
 
@@ -527,6 +529,7 @@ select {
   background: var(--surface-2);
   border: 2px solid var(--border);
   transition: background 0.05s, transform 0.05s, box-shadow 0.05s;
+  justify-self: center;
 }
 
 .beat-indicator.active .beat-dot {
@@ -542,13 +545,22 @@ select {
   box-shadow: 0 0 32px rgba(255, 255, 255, 0.3);
 }
 
-.measure-beat {
-  font-size: 1.05rem;
+.measure-beat-side {
+  font-size: 0.95rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   color: var(--text);
-  margin: -4px 0 12px;
+  line-height: 1.1;
+  min-width: 0;
+}
+
+#measure-count {
+  text-align: right;
+}
+
+#beat-count {
+  text-align: left;
 }
 
 .live-tempo {
@@ -1015,6 +1027,7 @@ select {
 
 #view-practice .beat-indicator {
   margin-bottom: 8px;
+  column-gap: 8px;
 }
 
 #view-practice .beat-dot {
@@ -1022,9 +1035,8 @@ select {
   height: 48px;
 }
 
-#view-practice .measure-beat {
-  font-size: 0.95rem;
-  margin: 0 0 8px;
+#view-practice .measure-beat-side {
+  font-size: 0.85rem;
 }
 
 #view-practice .live-tempo {
