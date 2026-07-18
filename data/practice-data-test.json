@@ -17,6 +17,23 @@
   ],
   "sessions": [
     {
+      "id": "ef3cad97-3a23-4001-b737-cf070cba6834",
+      "itemId": "04ae2f7a-2eef-4c14-b865-ffb76ae7efbd",
+      "itemName": "Exercise 2",
+      "workedOn": "",
+      "tempo": 80,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 6,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-07-18T14:39:13.932Z",
+      "completedAt": "2026-07-18T14:39:22.758Z",
+      "completed": false,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "3929166f-8b26-46c0-9a90-b803d44592d9",
       "itemId": null,
       "itemName": "Here comes the sun - intro",
