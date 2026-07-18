@@ -8,6 +8,7 @@ const App = {
   feedbackPendingSession: null,
   feedbackRating: 0,
   feedbackEditing: false,
+  manualLogRating: 0,
 
   init() {
     this.loadBuildLabel();
@@ -16,6 +17,7 @@ const App = {
     this.bindItems();
     this.bindSync();
     this.bindLog();
+    this.bindManualLog();
     this.bindSessionFeedback();
     this.bindProgress();
     this.refreshAll();
@@ -994,6 +996,206 @@ const App = {
     });
   },
 
+  bindManualLog() {
+    const modal = document.getElementById('manual-log-modal');
+    const durationInput = document.getElementById('manual-log-duration');
+    const tempoInput = document.getElementById('manual-log-tempo');
+    const itemSelect = document.getElementById('manual-log-item');
+
+    const clampBpm = (raw, fallback = 80) => {
+      const n = parseInt(String(raw).trim(), 10);
+      if (Number.isNaN(n)) return fallback;
+      return Math.max(40, Math.min(300, n));
+    };
+
+    const commitDuration = () => {
+      durationInput.value = formatTimerMinutes(parseTimerMinutes(durationInput.value, 3));
+    };
+
+    const commitTempo = () => {
+      tempoInput.value = clampBpm(tempoInput.value, 80);
+    };
+
+    document.getElementById('manual-log-btn').addEventListener('click', () => this.openManualLog());
+    document.getElementById('manual-log-save-btn').addEventListener('click', () => this.saveManualLog());
+    document.getElementById('manual-log-cancel-btn').addEventListener('click', () => this.closeManualLog());
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) this.closeManualLog();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) {
+        this.closeManualLog();
+      }
+    });
+
+    document.getElementById('manual-log-duration-up').addEventListener('click', () => {
+      durationInput.value = formatTimerMinutes(parseTimerMinutes(durationInput.value, 3) + 0.25);
+      commitDuration();
+    });
+    document.getElementById('manual-log-duration-down').addEventListener('click', () => {
+      durationInput.value = formatTimerMinutes(parseTimerMinutes(durationInput.value, 3) - 0.25);
+      commitDuration();
+    });
+    durationInput.addEventListener('blur', commitDuration);
+
+    document.getElementById('manual-log-tempo-up').addEventListener('click', () => {
+      tempoInput.value = Math.min(300, clampBpm(tempoInput.value, 80) + 1);
+      commitTempo();
+    });
+    document.getElementById('manual-log-tempo-down').addEventListener('click', () => {
+      tempoInput.value = Math.max(40, clampBpm(tempoInput.value, 80) - 1);
+      commitTempo();
+    });
+    tempoInput.addEventListener('blur', commitTempo);
+
+    itemSelect.addEventListener('change', () => {
+      this.updateManualLogItemUI();
+      if (itemSelect.value && itemSelect.value !== '__other__') {
+        const item = Storage.getItemById(itemSelect.value);
+        if (item?.targetTempo) {
+          tempoInput.value = item.targetTempo;
+          commitTempo();
+        }
+      }
+    });
+
+    document.querySelectorAll('#manual-log-stars .star-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const value = parseInt(btn.dataset.rating, 10);
+        this.manualLogRating = this.manualLogRating === value ? 0 : value;
+        this.renderManualLogStars();
+      });
+    });
+  },
+
+  updateManualLogItemUI() {
+    const itemSelect = document.getElementById('manual-log-item');
+    const workedOnField = document.getElementById('manual-log-worked-on-field');
+    const isOther = itemSelect.value === '__other__';
+    workedOnField.hidden = !isOther;
+  },
+
+  renderManualLogStars() {
+    const rating = normalizeSessionRating(this.manualLogRating);
+    document.querySelectorAll('#manual-log-stars .star-btn').forEach((btn) => {
+      const value = parseInt(btn.dataset.rating, 10);
+      btn.classList.toggle('active', value <= rating && rating > 0);
+      btn.setAttribute('aria-checked', String(value === rating && rating > 0));
+    });
+  },
+
+  openManualLog() {
+    this.refreshItemSelects();
+    this.manualLogRating = 0;
+    this.renderManualLogStars();
+
+    const itemSelect = document.getElementById('manual-log-item');
+    const durationInput = document.getElementById('manual-log-duration');
+    const tempoInput = document.getElementById('manual-log-tempo');
+    const whenInput = document.getElementById('manual-log-when');
+    const notes = document.getElementById('manual-log-notes');
+    const workedOn = document.getElementById('manual-log-worked-on');
+    const practiceItem = document.getElementById('practice-item-select').value;
+
+    itemSelect.value = practiceItem && [...itemSelect.options].some((o) => o.value === practiceItem)
+      ? practiceItem
+      : '';
+    durationInput.value = formatTimerMinutes(document.getElementById('timer-minutes').value || 3);
+    tempoInput.value = parseInt(document.getElementById('tempo-bpm').value, 10) || 80;
+    whenInput.value = toDatetimeLocalValue(new Date());
+    notes.value = '';
+    workedOn.value = '';
+    this.updateManualLogItemUI();
+
+    document.getElementById('manual-log-modal').hidden = false;
+    itemSelect.focus();
+  },
+
+  closeManualLog() {
+    document.getElementById('manual-log-modal').hidden = true;
+    this.manualLogRating = 0;
+    document.getElementById('manual-log-worked-on').value = '';
+    document.getElementById('manual-log-notes').value = '';
+  },
+
+  saveManualLog() {
+    const itemSelect = document.getElementById('manual-log-item');
+    const itemId = itemSelect.value;
+    const isOther = itemId === '__other__';
+    const workedOn = document.getElementById('manual-log-worked-on').value.trim();
+    const durationMinutes = parseTimerMinutes(document.getElementById('manual-log-duration').value, 3);
+    const durationSeconds = timerMinutesToSeconds(durationMinutes);
+    const tempoRaw = parseInt(document.getElementById('manual-log-tempo').value, 10);
+    const tempo = Number.isNaN(tempoRaw) ? 80 : Math.max(40, Math.min(300, tempoRaw));
+    const whenValue = document.getElementById('manual-log-when').value;
+    const notes = document.getElementById('manual-log-notes').value.trim();
+    const rating = normalizeSessionRating(this.manualLogRating);
+
+    if (!itemId) {
+      alert('Select a practice item, or choose Other…');
+      itemSelect.focus();
+      return;
+    }
+
+    if (isOther && !workedOn) {
+      alert('Enter what you worked on.');
+      document.getElementById('manual-log-worked-on').focus();
+      return;
+    }
+
+    if (!whenValue) {
+      alert('Choose when you practiced.');
+      document.getElementById('manual-log-when').focus();
+      return;
+    }
+
+    const startedAt = fromDatetimeLocalValue(whenValue);
+    if (!startedAt) {
+      alert('Enter a valid date and time.');
+      document.getElementById('manual-log-when').focus();
+      return;
+    }
+
+    const item = isOther ? null : Storage.getItemById(itemId);
+    if (!isOther && !item) {
+      alert('Select a practice item, or choose Other…');
+      itemSelect.focus();
+      return;
+    }
+
+    const completedAt = new Date(startedAt.getTime() + durationSeconds * 1000);
+    const recorded = {
+      id: generateId(),
+      itemId: isOther ? null : item.id,
+      itemName: isOther ? workedOn : itemDisplayName(item),
+      workedOn: isOther ? workedOn : '',
+      tempo,
+      startTempo: null,
+      endTempo: null,
+      mode: 'manual',
+      durationSeconds,
+      plannedDurationSeconds: durationSeconds,
+      startedAt: startedAt.toISOString(),
+      completedAt: completedAt.toISOString(),
+      completed: true,
+      rating,
+      notes
+    };
+
+    // Insert + sort so past sessions land in chronological order.
+    const data = Storage.load();
+    data.sessions.push(recorded);
+    data.sessions.sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
+    Storage.save(data);
+
+    this.closeManualLog();
+    this.showLastSession(recorded);
+    this.refreshItemSelects();
+    this.renderLog();
+  },
+
   bindProgress() {
     document.getElementById('progress-item-select').addEventListener('change', () => this.renderProgress());
   },
@@ -1006,20 +1208,34 @@ const App = {
 
   refreshItemSelects() {
     const items = Storage.getItems();
-    const selects = [
-      document.getElementById('practice-item-select'),
-      document.getElementById('log-filter-item'),
-      document.getElementById('progress-item-select')
+    const configs = [
+      {
+        el: document.getElementById('practice-item-select'),
+        placeholder: '<option value="">Select an item…</option>'
+      },
+      {
+        el: document.getElementById('log-filter-item'),
+        placeholder: '<option value="">All items</option>'
+      },
+      {
+        el: document.getElementById('progress-item-select'),
+        placeholder: '<option value="">Select an item…</option>'
+      },
+      {
+        el: document.getElementById('manual-log-item'),
+        placeholder: '<option value="">Select an item…</option>',
+        extra: '<option value="__other__">Other…</option>'
+      }
     ];
 
-    selects.forEach((select, idx) => {
-      const current = select.value;
-      const placeholder = idx === 0 || idx === 2
-        ? '<option value="">Select an item…</option>'
-        : '<option value="">All items</option>';
-      select.innerHTML = placeholder +
+    configs.forEach(({ el, placeholder, extra = '' }) => {
+      if (!el) return;
+      const current = el.value;
+      el.innerHTML = placeholder + extra +
         items.map((i) => `<option value="${i.id}">${itemSelectLabel(i)}</option>`).join('');
-      if (current && items.some((i) => i.id === current)) select.value = current;
+      if (current && [...el.options].some((o) => o.value === current)) {
+        el.value = current;
+      }
     });
   },
 
@@ -1070,7 +1286,9 @@ const App = {
 
   renderLog() {
     const filterId = document.getElementById('log-filter-item').value;
-    let sessions = Storage.getSessions();
+    let sessions = Storage.getSessions()
+      .slice()
+      .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
     if (filterId) sessions = sessions.filter((s) => s.itemId === filterId);
 
     const list = document.getElementById('log-list');
@@ -1099,7 +1317,11 @@ const App = {
       }
       const hasFeedback = stars || notes || (s.workedOn || '').trim();
       const editLabel = hasFeedback ? 'Edit notes' : 'Add notes';
-      const modeLabel = s.mode === 'free' ? ' <span class="log-mode">Free</span>' : '';
+      const modeLabel = s.mode === 'free'
+        ? ' <span class="log-mode">Free</span>'
+        : s.mode === 'manual'
+          ? ' <span class="log-mode">Manual</span>'
+          : '';
       return `
       <li class="log-row">
         <div class="log-info">
@@ -1107,7 +1329,7 @@ const App = {
           <div class="log-detail">
             <strong>${escapeHtml(sessionDisplayName(s))}</strong> — ${formatDuration(s.durationSeconds)} at
             <span class="log-tempo">${tempoText}</span>${modeLabel}
-            ${s.completed || s.mode === 'free' ? '' : ' (stopped early)'}
+            ${s.completed || s.mode === 'free' || s.mode === 'manual' ? '' : ' (stopped early)'}
           </div>
           ${feedbackBits.join('')}
         </div>

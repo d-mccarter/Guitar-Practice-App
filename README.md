@@ -10,6 +10,7 @@ Works on iPhone: open in Safari, tap **Share → Add to Home Screen** for a full
 - **Practice items** — Configure routines by name (e.g. `5k`, `scales`, `warm-up`) with optional target tempo
 - **Timed sessions** — Set duration and tempo; timer starts when the metronome starts
 - **Session log** — Tracks time and tempo for every practice session
+- **Manual logging** — Add past sessions from the Log tab without running the metronome
 - **Progress charts** — Tempo over time and weekly practice minutes
 - **Local storage** — All data saved in your browser (persists on iPhone when installed to home screen)
 
@@ -38,7 +39,7 @@ Your practice data stays on your phone in local storage.
 
 1. **Items** — Add your book routines or exercises by name
 2. **Practice** — Select an item, set timer length and tempo, tap **Start**
-3. **Log** — Review past sessions with tempo and duration
+3. **Log** — Review past sessions, or tap **Log practice** to enter a session by hand
 4. **Progress** — Pick an item to see tempo trends and weekly practice time
 
 ## Data

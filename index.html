@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=28">
+  <link rel="stylesheet" href="css/styles.css?v=29">
 </head>
 <body>
   <header class="app-header">
@@ -189,16 +189,19 @@
     <!-- Log View -->
     <section id="view-log" class="view">
       <div class="card">
-        <div class="log-filters">
-          <label class="field">
-            <span>Filter by item</span>
-            <select id="log-filter-item">
-              <option value="">All items</option>
-            </select>
-          </label>
+        <div class="log-header">
+          <div class="log-filters">
+            <label class="field">
+              <span>Filter by item</span>
+              <select id="log-filter-item">
+                <option value="">All items</option>
+              </select>
+            </label>
+          </div>
+          <button type="button" class="btn btn-primary btn-small" id="manual-log-btn">Log practice</button>
         </div>
         <ul id="log-list" class="log-list"></ul>
-        <p class="empty-state" id="log-empty">No sessions logged yet.</p>
+        <p class="empty-state" id="log-empty">No sessions logged yet. Tap Log practice to add one.</p>
       </div>
     </section>
 
@@ -297,11 +300,69 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=28"></script>
-  <script src="js/storage.js?v=28"></script>
-  <script src="js/metronome.js?v=28"></script>
-  <script src="js/charts.js?v=28"></script>
-  <script src="js/app.js?v=28"></script>
+  <div class="modal-backdrop" id="manual-log-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="manual-log-title">
+      <h3 id="manual-log-title">Log practice</h3>
+      <p class="field-hint">Add a session you practiced without the metronome timer.</p>
+      <label class="field">
+        <span>Practice item</span>
+        <select id="manual-log-item">
+          <option value="">Select an item…</option>
+        </select>
+      </label>
+      <label class="field" id="manual-log-worked-on-field" hidden>
+        <span>What did you work on?</span>
+        <input type="text" id="manual-log-worked-on" maxlength="120" placeholder="Song passage, lick, section…" autocomplete="off">
+      </label>
+      <div class="field-row">
+        <div class="field">
+          <span>Duration (min)</span>
+          <div class="number-stepper">
+            <button type="button" class="btn-icon" id="manual-log-duration-down" aria-label="Decrease duration">−</button>
+            <input type="number" id="manual-log-duration" min="0.25" max="120" step="0.25" value="3" aria-label="Duration minutes">
+            <button type="button" class="btn-icon" id="manual-log-duration-up" aria-label="Increase duration">+</button>
+          </div>
+        </div>
+        <div class="field">
+          <span>Tempo (BPM)</span>
+          <div class="number-stepper">
+            <button type="button" class="btn-icon" id="manual-log-tempo-down" aria-label="Decrease tempo">−</button>
+            <input type="number" id="manual-log-tempo" min="40" max="300" value="80" aria-label="Tempo BPM">
+            <button type="button" class="btn-icon" id="manual-log-tempo-up" aria-label="Increase tempo">+</button>
+          </div>
+        </div>
+      </div>
+      <label class="field">
+        <span>When</span>
+        <input type="datetime-local" id="manual-log-when">
+      </label>
+      <div class="field">
+        <span>Rating</span>
+        <div class="star-rating" id="manual-log-stars" role="radiogroup" aria-label="Session rating">
+          <button type="button" class="star-btn" data-rating="1" aria-label="1 star">★</button>
+          <button type="button" class="star-btn" data-rating="2" aria-label="2 stars">★</button>
+          <button type="button" class="star-btn" data-rating="3" aria-label="3 stars">★</button>
+          <button type="button" class="star-btn" data-rating="4" aria-label="4 stars">★</button>
+          <button type="button" class="star-btn" data-rating="5" aria-label="5 stars">★</button>
+        </div>
+        <p class="field-hint">Tap a star to rate · tap again to clear</p>
+      </div>
+      <label class="field">
+        <span>Notes</span>
+        <textarea id="manual-log-notes" rows="3" maxlength="1000" placeholder="How did it feel? Spots to tweak…"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary" id="manual-log-save-btn">Save session</button>
+        <button type="button" class="btn btn-secondary" id="manual-log-cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/github-sync.js?v=29"></script>
+  <script src="js/storage.js?v=29"></script>
+  <script src="js/metronome.js?v=29"></script>
+  <script src="js/charts.js?v=29"></script>
+  <script src="js/app.js?v=29"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
