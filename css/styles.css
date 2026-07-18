@@ -825,8 +825,9 @@ select {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 16px;
-  padding-bottom: calc(16px + var(--safe-bottom));
+  padding: 12px;
+  padding-bottom: calc(12px + var(--safe-bottom));
+  overflow-x: hidden;
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
@@ -838,18 +839,51 @@ select {
 
 .modal-card {
   width: 100%;
-  max-width: 420px;
+  max-width: min(420px, 100%);
   max-height: min(85dvh, 640px);
+  overflow-x: hidden;
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px 16px;
+  padding: 20px 14px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
 }
 
 .modal-card h3 {
   margin-bottom: 4px;
+}
+
+/* Keep two-up steppers inside narrow phone widths */
+.modal-card .field-row {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.modal-card .field {
+  min-width: 0;
+}
+
+.modal-card .number-stepper .btn-icon {
+  width: 36px;
+  min-height: 42px;
+  font-size: 1.25rem;
+}
+
+.modal-card .number-stepper input {
+  padding: 9px 4px;
+  font-size: 0.95rem;
+}
+
+.modal-card .star-rating {
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.modal-card .star-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 1.6rem;
 }
 
 .star-rating {
