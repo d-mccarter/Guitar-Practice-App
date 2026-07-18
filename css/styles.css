@@ -484,9 +484,28 @@ select {
   color: var(--accent);
 }
 
-#start-stop-btn.running {
-  background: var(--danger);
-  color: #fff;
+.session-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.session-controls[hidden] {
+  display: none;
+}
+
+.session-controls .btn-large {
+  margin-top: 0;
+}
+
+.btn-end-session {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-end-session:hover {
+  background: rgba(220, 80, 80, 0.12);
 }
 
 .items-list, .log-list {

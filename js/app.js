@@ -129,11 +129,11 @@ const App = {
       timerDisplay.textContent = formatDuration((parseInt(timerInput.value, 10) || 10) * 60);
     };
 
-    document.querySelectorAll('.mode-btn').forEach((btn) => {
+    document.querySelectorAll('#view-practice .mode-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
-        if (this.metronome.isRunning()) return;
+        if (this.session) return;
         this.practiceMode = btn.dataset.mode;
-        document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('active'));
+        document.querySelectorAll('#view-practice .mode-btn').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
         this.updatePracticeModeUI();
         resetTimerDisplay();
@@ -209,11 +209,21 @@ const App = {
     };
 
     startBtn.addEventListener('click', async () => {
-      if (this.metronome.isRunning()) {
-        this.stopSession(this.session?.remainingSeconds <= 0);
-        return;
-      }
       await this.startSession();
+    });
+
+    document.getElementById('pause-resume-btn').addEventListener('click', async () => {
+      if (!this.session) return;
+      if (this.session.paused) {
+        await this.resumeSession();
+      } else {
+        this.pauseSession();
+      }
+    });
+
+    document.getElementById('end-session-btn').addEventListener('click', () => {
+      if (!this.session) return;
+      this.stopSession(this.session.remainingSeconds != null && this.session.remainingSeconds <= 0);
     });
 
     document.getElementById('practice-item-select').addEventListener('change', (e) => {
@@ -271,7 +281,7 @@ const App = {
   setPracticeFormDisabled(disabled) {
     // Lock session setup fields while running; metronome settings stay editable
     // so tempo/subdivision/accents can change and take effect immediately.
-    document.querySelectorAll('.mode-btn').forEach((b) => { b.disabled = disabled; });
+    document.querySelectorAll('#view-practice .mode-btn').forEach((b) => { b.disabled = disabled; });
     document.getElementById('practice-item-select').disabled = disabled;
     document.getElementById('timer-minutes').disabled = disabled;
     document.getElementById('ramp-start-bpm').disabled = disabled;
@@ -279,8 +289,43 @@ const App = {
     document.getElementById('ramp-minutes').disabled = disabled;
   },
 
-  async startSession() {
+  setSessionControlsVisible(active) {
     const startBtn = document.getElementById('start-stop-btn');
+    const controls = document.getElementById('session-controls');
+    const pauseBtn = document.getElementById('pause-resume-btn');
+    startBtn.hidden = active;
+    controls.hidden = !active;
+    if (active) {
+      pauseBtn.textContent = 'Pause';
+    }
+  },
+
+  startSessionTimer() {
+    const timerDisplay = document.getElementById('session-timer');
+    clearInterval(this.timerInterval);
+    this.timerInterval = setInterval(() => {
+      if (!this.session || this.session.paused) return;
+
+      // Only active (unpaused) metronome time counts toward elapsed/logging.
+      this.session.elapsedSeconds++;
+
+      if (this.session.mode === 'free') {
+        timerDisplay.textContent = formatDuration(this.session.elapsedSeconds);
+        return;
+      }
+
+      this.session.remainingSeconds--;
+      timerDisplay.textContent = formatDuration(Math.max(0, this.session.remainingSeconds));
+
+      if (this.session.remainingSeconds <= 0) {
+        this.stopSession(true);
+      }
+    }, 1000);
+  },
+
+  async startSession() {
+    if (this.session) return;
+
     const statusEl = document.getElementById('session-status');
     const timerDisplay = document.getElementById('session-timer');
     const tempoInput = document.getElementById('tempo-bpm');
@@ -334,13 +379,14 @@ const App = {
       plannedDurationSeconds: totalSeconds,
       remainingSeconds: totalSeconds,
       elapsedSeconds: 0,
+      paused: false,
       startedAt: new Date().toISOString()
     };
 
     await this.metronome.start();
-    startBtn.textContent = 'Stop';
-    startBtn.classList.add('running');
+    this.setSessionControlsVisible(true);
     statusEl.textContent = this.practiceMode === 'free' ? 'Playing…' : 'Practicing…';
+    statusEl.classList.remove('paused');
     statusEl.classList.add('running');
     this.setPracticeFormDisabled(true);
 
@@ -348,21 +394,39 @@ const App = {
       timerDisplay.textContent = '0:00';
     }
 
-    this.timerInterval = setInterval(() => {
-      this.session.elapsedSeconds++;
+    this.startSessionTimer();
+  },
 
-      if (this.practiceMode === 'free') {
-        timerDisplay.textContent = formatDuration(this.session.elapsedSeconds);
-        return;
-      }
+  pauseSession() {
+    if (!this.session || this.session.paused) return;
 
-      this.session.remainingSeconds--;
-      timerDisplay.textContent = formatDuration(Math.max(0, this.session.remainingSeconds));
+    this.session.paused = true;
+    this.metronome.pause();
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
 
-      if (this.session.remainingSeconds <= 0) {
-        this.stopSession(true);
-      }
-    }, 1000);
+    const statusEl = document.getElementById('session-status');
+    const pauseBtn = document.getElementById('pause-resume-btn');
+    statusEl.textContent = 'Paused';
+    statusEl.classList.remove('running');
+    statusEl.classList.add('paused');
+    pauseBtn.textContent = 'Resume';
+  },
+
+  async resumeSession() {
+    if (!this.session || !this.session.paused) return;
+
+    this.session.paused = false;
+    await this.metronome.resume();
+
+    const statusEl = document.getElementById('session-status');
+    const pauseBtn = document.getElementById('pause-resume-btn');
+    statusEl.textContent = this.session.mode === 'free' ? 'Playing…' : 'Practicing…';
+    statusEl.classList.remove('paused');
+    statusEl.classList.add('running');
+    pauseBtn.textContent = 'Pause';
+
+    this.startSessionTimer();
   },
 
   stopSession(completed) {
@@ -371,17 +435,16 @@ const App = {
     clearInterval(this.timerInterval);
     this.timerInterval = null;
 
-    const startBtn = document.getElementById('start-stop-btn');
     const statusEl = document.getElementById('session-status');
     const timerDisplay = document.getElementById('session-timer');
     const tempoInput = document.getElementById('tempo-bpm');
     const session = this.session;
 
-    startBtn.textContent = 'Start';
-    startBtn.classList.remove('running');
-    statusEl.classList.remove('running');
+    this.setSessionControlsVisible(false);
+    statusEl.classList.remove('running', 'paused');
     this.setPracticeFormDisabled(false);
 
+    // durationSeconds is active practice time only (paused gaps never incremented elapsedSeconds).
     const shouldLog = session?.itemId && session.elapsedSeconds >= 5 && session.mode !== 'free';
 
     if (shouldLog) {
