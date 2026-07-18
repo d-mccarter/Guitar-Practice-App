@@ -69,7 +69,8 @@ class Metronome {
       startBpm: Math.max(40, Math.min(300, startBpm)),
       endBpm: Math.max(40, Math.min(300, endBpm)),
       durationSec: Math.max(1, durationSec),
-      startAudioTime: null
+      startAudioTime: null,
+      elapsedBeforePause: 0
     };
     this.bpm = this.ramp.startBpm;
     this._lastReportedBpm = null;
@@ -80,11 +81,19 @@ class Metronome {
     this._lastReportedBpm = null;
   }
 
+  _rampElapsed() {
+    if (!this.ramp) return 0;
+    const live = this.ramp.startAudioTime != null && this.audioCtx
+      ? this.audioCtx.currentTime - this.ramp.startAudioTime
+      : 0;
+    return Math.max(0, (this.ramp.elapsedBeforePause || 0) + live);
+  }
+
   _currentBpm() {
-    if (!this.ramp || this.ramp.startAudioTime == null) {
+    if (!this.ramp || (this.ramp.startAudioTime == null && !this.ramp.elapsedBeforePause)) {
       return this.bpm;
     }
-    const elapsed = this.audioCtx.currentTime - this.ramp.startAudioTime;
+    const elapsed = this._rampElapsed();
     const t = Math.min(1, Math.max(0, elapsed / this.ramp.durationSec));
     const bpm = this.ramp.startBpm + (this.ramp.endBpm - this.ramp.startBpm) * t;
     return Math.max(40, Math.min(300, bpm));
@@ -153,13 +162,48 @@ class Metronome {
     this.tick = 0;
     this.nextBeatTime = this.audioCtx.currentTime + 0.05;
     if (this.ramp) {
+      this.ramp.elapsedBeforePause = 0;
       this.ramp.startAudioTime = this.audioCtx.currentTime;
       this._reportBpm(this.ramp.startBpm);
     }
     this._tick();
   }
 
+  /** Pause clicks without resetting beat position or ramp progress. */
+  pause() {
+    if (!this.running) return;
+    if (this.ramp && this.ramp.startAudioTime != null && this.audioCtx) {
+      this.ramp.elapsedBeforePause = this._rampElapsed();
+      this.ramp.startAudioTime = null;
+      this.bpm = this._currentBpm();
+    }
+    this.running = false;
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+  }
+
+  /** Resume after pause; keeps tick count and ramp progress. */
+  async resume() {
+    await this.init();
+    if (this.running) return;
+    this.running = true;
+    this.nextBeatTime = this.audioCtx.currentTime + 0.05;
+    if (this.ramp) {
+      this.ramp.startAudioTime = this.audioCtx.currentTime;
+      this._reportBpm(this._currentBpm());
+    }
+    this._tick();
+  }
+
   stop() {
+    // Freeze ramp progress so getRoundedBpm() remains accurate until clearRamp().
+    if (this.ramp && this.ramp.startAudioTime != null && this.audioCtx) {
+      this.ramp.elapsedBeforePause = this._rampElapsed();
+      this.ramp.startAudioTime = null;
+      this.bpm = this._currentBpm();
+    }
     this.running = false;
     if (this.timerId) {
       clearTimeout(this.timerId);
