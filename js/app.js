@@ -232,11 +232,15 @@ const App = {
 
     this.applyMetronomeOptions();
 
-    this.metronome.onBeat = (_beat, accent) => {
+    this.metronome.onBeat = (_beat, accent, info) => {
       beatIndicator.classList.add('active');
       if (accent) beatIndicator.classList.add('accent');
       else beatIndicator.classList.remove('accent');
       setTimeout(() => beatIndicator.classList.remove('active'), 80);
+      // Advance measure/beat on quarter onsets only (ignore subdivision ticks).
+      if (info?.isBeatStart) {
+        this.updateMeasureBeatDisplay(info.measure, info.beat);
+      }
     };
 
     this.metronome.onBpmChange = (bpm) => {
@@ -420,6 +424,7 @@ const App = {
       startedAt: new Date().toISOString()
     };
 
+    this.resetMeasureBeatDisplay();
     await this.metronome.start();
     this.setSessionControlsVisible(true);
     statusEl.textContent = this.practiceMode === 'free' ? 'Playing…' : 'Practicing…';
@@ -466,11 +471,24 @@ const App = {
     this.startSessionTimer();
   },
 
+  updateMeasureBeatDisplay(measure, beat) {
+    const el = document.getElementById('measure-beat');
+    if (!el) return;
+    const m = Math.max(1, measure || 1);
+    const b = Math.max(1, beat || 1);
+    el.textContent = `Bar ${m} · Beat ${b}`;
+  },
+
+  resetMeasureBeatDisplay() {
+    this.updateMeasureBeatDisplay(1, 1);
+  },
+
   stopSession(completed) {
     this.metronome.stop();
     this.metronome.clearRamp();
     clearInterval(this.timerInterval);
     this.timerInterval = null;
+    this.resetMeasureBeatDisplay();
 
     const statusEl = document.getElementById('session-status');
     const timerDisplay = document.getElementById('session-timer');

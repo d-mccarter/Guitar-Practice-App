@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=30">
+  <link rel="stylesheet" href="css/styles.css?v=31">
 </head>
 <body>
   <header class="app-header">
@@ -103,6 +103,7 @@
         <div class="beat-indicator" id="beat-indicator">
           <div class="beat-dot"></div>
         </div>
+        <div class="measure-beat" id="measure-beat" aria-live="polite">Bar 1 · Beat 1</div>
         <div class="live-tempo" id="tempo-display">80 BPM</div>
         <div class="timer-display" id="session-timer">3:00</div>
         <div class="session-status" id="session-status">Ready</div>
@@ -358,11 +359,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=30"></script>
-  <script src="js/storage.js?v=30"></script>
-  <script src="js/metronome.js?v=30"></script>
-  <script src="js/charts.js?v=30"></script>
-  <script src="js/app.js?v=30"></script>
+  <script src="js/github-sync.js?v=31"></script>
+  <script src="js/storage.js?v=31"></script>
+  <script src="js/metronome.js?v=31"></script>
+  <script src="js/charts.js?v=31"></script>
+  <script src="js/app.js?v=31"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
