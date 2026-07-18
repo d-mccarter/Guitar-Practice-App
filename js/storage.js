@@ -320,6 +320,14 @@ function formatDate(iso) {
   });
 }
 
+/** Format a Date for <input type="datetime-local"> in local time. */
+function toDatetimeLocalValue(date) {
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function itemDisplayName(item) {
   return item.name || item.code || 'Untitled';
 }

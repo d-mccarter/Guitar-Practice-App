@@ -26,6 +26,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   touch-action: manipulation;
+  color-scheme: dark;
 }
 
 body {
@@ -636,6 +637,27 @@ select {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 2px;
+}
+
+.log-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.log-header .log-filters {
+  flex: 1;
+  min-width: 0;
+}
+
+.log-header .log-filters .field {
+  margin-bottom: 0;
+}
+
+.log-header .btn {
+  flex-shrink: 0;
 }
 
 .log-date {
