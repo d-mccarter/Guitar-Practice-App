@@ -101,14 +101,14 @@ const App = {
       tempoDisplay.textContent = `${bpm} BPM`;
     };
 
-    const clampBpm = (raw, fallback = 80) => {
+    const clampBpm = (raw, fallback = 120) => {
       const n = parseInt(String(raw).trim(), 10);
       if (Number.isNaN(n)) return fallback;
       return Math.max(40, Math.min(300, n));
     };
 
     const commitTempo = () => {
-      const bpm = clampBpm(tempoInput.value, 80);
+      const bpm = clampBpm(tempoInput.value, 120);
       tempoInput.value = bpm;
       updateTempoDisplay(bpm);
       this.metronome.setBpm(bpm);
@@ -165,11 +165,11 @@ const App = {
     tempoInput.addEventListener('input', onTempoInput);
     tempoInput.addEventListener('blur', commitTempo);
     document.getElementById('tempo-up').addEventListener('click', () => {
-      tempoInput.value = Math.min(300, clampBpm(tempoInput.value, 80) + 1);
+      tempoInput.value = Math.min(300, clampBpm(tempoInput.value, 120) + 1);
       commitTempo();
     });
     document.getElementById('tempo-down').addEventListener('click', () => {
-      tempoInput.value = Math.max(40, clampBpm(tempoInput.value, 80) - 1);
+      tempoInput.value = Math.max(40, clampBpm(tempoInput.value, 120) - 1);
       commitTempo();
     });
 
@@ -293,7 +293,7 @@ const App = {
       fixedPanel.hidden = false;
       rampPanel.hidden = true;
       timerField.hidden = true;
-      const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 80;
+      const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 120;
       tempoDisplay.textContent = `${bpm} BPM`;
       return;
     }
@@ -311,7 +311,7 @@ const App = {
       fixedPanel.hidden = false;
       rampPanel.hidden = true;
       timerField.hidden = false;
-      const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 80;
+      const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 120;
       tempoDisplay.textContent = `${bpm} BPM`;
     }
   },
@@ -398,13 +398,13 @@ const App = {
       document.getElementById('tempo-display').textContent = `${startTempo} BPM`;
     } else if (this.practiceMode === 'free') {
       totalSeconds = null;
-      tempo = parseInt(tempoInput.value, 10) || 80;
+      tempo = parseInt(tempoInput.value, 10) || 120;
       this.metronome.setBpm(tempo);
     } else {
       const minutes = parseTimerMinutes(document.getElementById('timer-minutes').value, 3);
       document.getElementById('timer-minutes').value = formatTimerMinutes(minutes);
       totalSeconds = timerMinutesToSeconds(minutes);
-      tempo = parseInt(tempoInput.value, 10) || 80;
+      tempo = parseInt(tempoInput.value, 10) || 120;
       this.metronome.setBpm(tempo);
     }
 
@@ -472,11 +472,12 @@ const App = {
   },
 
   updateMeasureBeatDisplay(measure, beat) {
-    const el = document.getElementById('measure-beat');
-    if (!el) return;
+    const measureEl = document.getElementById('measure-count');
+    const beatEl = document.getElementById('beat-count');
     const m = Math.max(1, measure || 1);
     const b = Math.max(1, beat || 1);
-    el.textContent = `Bar ${m} · Beat ${b}`;
+    if (measureEl) measureEl.textContent = `Bar ${m}`;
+    if (beatEl) beatEl.textContent = `Beat ${b}`;
   },
 
   resetMeasureBeatDisplay() {
@@ -565,7 +566,7 @@ const App = {
       this.updatePracticeModeUI();
     } else {
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
-      document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 80} BPM`;
+      document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
     }
   },
 
@@ -1020,7 +1021,7 @@ const App = {
     const tempoInput = document.getElementById('manual-log-tempo');
     const itemSelect = document.getElementById('manual-log-item');
 
-    const clampBpm = (raw, fallback = 80) => {
+    const clampBpm = (raw, fallback = 120) => {
       const n = parseInt(String(raw).trim(), 10);
       if (Number.isNaN(n)) return fallback;
       return Math.max(40, Math.min(300, n));
@@ -1031,7 +1032,7 @@ const App = {
     };
 
     const commitTempo = () => {
-      tempoInput.value = clampBpm(tempoInput.value, 80);
+      tempoInput.value = clampBpm(tempoInput.value, 120);
     };
 
     document.getElementById('manual-log-btn').addEventListener('click', () => this.openManualLog());
@@ -1059,11 +1060,11 @@ const App = {
     durationInput.addEventListener('blur', commitDuration);
 
     document.getElementById('manual-log-tempo-up').addEventListener('click', () => {
-      tempoInput.value = Math.min(300, clampBpm(tempoInput.value, 80) + 1);
+      tempoInput.value = Math.min(300, clampBpm(tempoInput.value, 120) + 1);
       commitTempo();
     });
     document.getElementById('manual-log-tempo-down').addEventListener('click', () => {
-      tempoInput.value = Math.max(40, clampBpm(tempoInput.value, 80) - 1);
+      tempoInput.value = Math.max(40, clampBpm(tempoInput.value, 120) - 1);
       commitTempo();
     });
     tempoInput.addEventListener('blur', commitTempo);
@@ -1121,7 +1122,7 @@ const App = {
       ? practiceItem
       : '';
     durationInput.value = formatTimerMinutes(document.getElementById('timer-minutes').value || 3);
-    tempoInput.value = parseInt(document.getElementById('tempo-bpm').value, 10) || 80;
+    tempoInput.value = parseInt(document.getElementById('tempo-bpm').value, 10) || 120;
     whenInput.value = toDatetimeLocalValue(new Date());
     notes.value = '';
     workedOn.value = '';
@@ -1146,7 +1147,7 @@ const App = {
     const durationMinutes = parseTimerMinutes(document.getElementById('manual-log-duration').value, 3);
     const durationSeconds = timerMinutesToSeconds(durationMinutes);
     const tempoRaw = parseInt(document.getElementById('manual-log-tempo').value, 10);
-    const tempo = Number.isNaN(tempoRaw) ? 80 : Math.max(40, Math.min(300, tempoRaw));
+    const tempo = Number.isNaN(tempoRaw) ? 120 : Math.max(40, Math.min(300, tempoRaw));
     const whenValue = document.getElementById('manual-log-when').value;
     const notes = document.getElementById('manual-log-notes').value.trim();
     const rating = normalizeSessionRating(this.manualLogRating);

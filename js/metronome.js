@@ -1,6 +1,6 @@
 class Metronome {
   constructor() {
-    this.bpm = 80;
+    this.bpm = 120;
     this.beatsPerMeasure = 4;
     this.subdivisionsPerBeat = 1;
     this.accentDownbeat = true;
