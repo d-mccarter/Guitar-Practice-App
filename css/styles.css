@@ -67,6 +67,21 @@ body {
   pointer-events: none;
 }
 
+.profile-badge {
+  position: absolute;
+  left: 12px;
+  bottom: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1a1200;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 2px 8px;
+  pointer-events: none;
+}
+
 .app-header h1 {
   font-size: 1.1rem;
   font-weight: 600;
@@ -133,6 +148,11 @@ body {
   background: var(--surface-2);
   border-radius: 12px;
   border: 1px solid var(--border);
+}
+
+.mode-toggle.data-profile-toggle {
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 8px;
 }
 
 .mode-btn {

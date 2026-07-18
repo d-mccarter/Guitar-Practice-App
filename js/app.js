@@ -497,6 +497,23 @@ const App = {
     document.getElementById('item-cancel-btn').hidden = true;
   },
 
+  updateDataProfileUI() {
+    const profile = Storage.getProfile();
+    document.querySelectorAll('[data-profile]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.profile === profile.id);
+    });
+
+    const pathEl = document.getElementById('sync-data-path');
+    if (pathEl) pathEl.textContent = `File: ${profile.path}`;
+
+    const badge = document.getElementById('profile-badge');
+    if (badge) {
+      const isTest = profile.id === 'test';
+      badge.hidden = !isTest;
+      badge.textContent = 'Test data';
+    }
+  },
+
   bindSync() {
     const enabledBtn = document.getElementById('sync-enabled-btn');
     const statusEl = document.getElementById('sync-status');
@@ -525,7 +542,7 @@ const App = {
       owner: fields.owner.value,
       repo: fields.repo.value,
       branch: 'main',
-      path: 'data/practice-data.json',
+      path: Storage.getProfile().path,
       token: fields.token.value
     });
 
@@ -549,10 +566,6 @@ const App = {
       }
     };
 
-    Storage.onSyncStatus = (message, type) => setStatus(message, type);
-
-    applySettings(Storage.getSyncSettings());
-
     const runInitialSync = async (settings) => {
       const { data: remote, sha } = await GitHubSync.fetchRemote(settings);
       const local = Storage.load();
@@ -568,6 +581,43 @@ const App = {
         refreshAfterSync();
       }
     };
+
+    const switchDataProfile = async (profileId) => {
+      if (profileId === Storage.getProfileId()) return;
+      if (this.metronome.isRunning() || this.session) {
+        setStatus('Stop the metronome before switching data profiles.', 'error');
+        this.updateDataProfileUI();
+        return;
+      }
+
+      const profile = Storage.setProfile(profileId);
+      this.updateDataProfileUI();
+      refreshAfterSync();
+
+      const settings = saveSettingsFromForm();
+      setStatus(`Switched to ${profile.label} data (${profile.path}).`, 'info');
+
+      if (GitHubSync.isAutoSyncEnabled(settings)) {
+        setStatus(`Loading ${profile.label} data…`, 'info');
+        try {
+          await runInitialSync(settings);
+          setStatus(`Using ${profile.label} data.`, 'success');
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+    };
+
+    Storage.onSyncStatus = (message, type) => setStatus(message, type);
+
+    applySettings(Storage.getSyncSettings());
+    this.updateDataProfileUI();
+
+    document.querySelectorAll('[data-profile]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        switchDataProfile(btn.dataset.profile);
+      });
+    });
 
     enabledBtn.addEventListener('click', async () => {
       updateAutoSyncButton(!isAutoSyncEnabled());

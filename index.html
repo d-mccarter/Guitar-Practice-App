@@ -14,6 +14,7 @@
 <body>
   <header class="app-header">
     <h1 id="page-title">Practice</h1>
+    <span class="profile-badge" id="profile-badge" hidden>Test data</span>
     <span class="build-label" id="build-label">Build …</span>
   </header>
 
@@ -142,6 +143,12 @@
         <h3>Sync with GitHub</h3>
         <p class="field-hint">Store practice data in your repo so it follows you on every device.</p>
         <div id="sync-settings">
+          <div class="mode-toggle data-profile-toggle" role="tablist" aria-label="Data profile">
+            <button type="button" class="mode-btn active" data-profile="real" id="data-profile-real">Real</button>
+            <button type="button" class="mode-btn" data-profile="test" id="data-profile-test">Test</button>
+          </div>
+          <p class="field-hint">Real is your actual practice history. Test is a separate sandbox for trying features.</p>
+          <p class="field-hint" id="sync-data-path">File: data/practice-data.json</p>
           <label class="field">
             <span>Personal access token</span>
             <textarea id="sync-token" class="token-input" rows="2" placeholder="Paste token here (Ctrl+V)" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
@@ -252,11 +259,11 @@
     </button>
   </nav>
 
-  <script src="js/github-sync.js?v=19"></script>
-  <script src="js/storage.js?v=19"></script>
-  <script src="js/metronome.js?v=19"></script>
-  <script src="js/charts.js?v=19"></script>
-  <script src="js/app.js?v=19"></script>
+  <script src="js/github-sync.js?v=20"></script>
+  <script src="js/storage.js?v=20"></script>
+  <script src="js/metronome.js?v=20"></script>
+  <script src="js/charts.js?v=20"></script>
+  <script src="js/app.js?v=20"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
