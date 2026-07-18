@@ -653,6 +653,21 @@ select {
   color: var(--accent);
 }
 
+.log-mode {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
 .log-feedback {
   margin-top: 6px;
   font-size: 0.85rem;

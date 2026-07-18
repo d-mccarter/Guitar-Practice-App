@@ -598,8 +598,15 @@ const App = {
       }
     });
 
-    notes.addEventListener('keydown', (e) => {
+    const saveOnModEnter = (e) => {
       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        this.saveSessionFeedback();
+      }
+    };
+    notes.addEventListener('keydown', saveOnModEnter);
+    document.getElementById('session-feedback-worked-on').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
         e.preventDefault();
         this.saveSessionFeedback();
       }
@@ -679,7 +686,7 @@ const App = {
     if (this.feedbackPendingSession) {
       const draft = this.feedbackPendingSession;
       if (draft.mode === 'free' && !workedOn) {
-        alert('Enter what you worked on, or tap Don’t log.');
+        alert("Enter what you worked on, or tap Don't log.");
         document.getElementById('session-feedback-worked-on').focus();
         return;
       }
@@ -1090,15 +1097,17 @@ const App = {
       if (notes) {
         feedbackBits.push(`<div class="log-feedback"><div class="log-notes">${escapeHtml(notes)}</div></div>`);
       }
-      const editLabel = stars || notes ? 'Edit notes' : 'Add notes';
+      const hasFeedback = stars || notes || (s.workedOn || '').trim();
+      const editLabel = hasFeedback ? 'Edit notes' : 'Add notes';
+      const modeLabel = s.mode === 'free' ? ' <span class="log-mode">Free</span>' : '';
       return `
       <li class="log-row">
         <div class="log-info">
           <div class="log-date">${formatDate(s.startedAt)}</div>
           <div class="log-detail">
             <strong>${escapeHtml(sessionDisplayName(s))}</strong> — ${formatDuration(s.durationSeconds)} at
-            <span class="log-tempo">${tempoText}</span>
-            ${s.completed ? '' : ' (stopped early)'}
+            <span class="log-tempo">${tempoText}</span>${modeLabel}
+            ${s.completed || s.mode === 'free' ? '' : ' (stopped early)'}
           </div>
           ${feedbackBits.join('')}
         </div>
