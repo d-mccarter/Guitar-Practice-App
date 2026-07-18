@@ -268,7 +268,7 @@ body {
   display: none !important;
 }
 
-input:not([type="checkbox"]), select {
+input:not([type="checkbox"]), select, textarea {
   width: 100%;
   padding: 12px 14px;
   background: var(--surface-2);
@@ -276,11 +276,18 @@ input:not([type="checkbox"]), select {
   border-radius: 10px;
   color: var(--text);
   font-size: 1rem;
+  font-family: inherit;
   -webkit-appearance: none;
   appearance: none;
 }
 
-input:focus, select:focus {
+textarea {
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.4;
+}
+
+input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
@@ -566,6 +573,29 @@ select {
   color: var(--accent);
 }
 
+.log-feedback {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.log-stars {
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  font-size: 0.95rem;
+}
+
+.log-notes {
+  margin-top: 4px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.log-row .btn-small {
+  flex-shrink: 0;
+}
+
 .empty-state {
   text-align: center;
   color: var(--text-muted);
@@ -671,8 +701,74 @@ select {
   color: var(--text);
 }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  padding-bottom: calc(16px + var(--safe-bottom));
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-backdrop[hidden] {
+  display: none !important;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 420px;
+  max-height: min(85dvh, 640px);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+.modal-card h3 {
+  margin-bottom: 4px;
+}
+
+.star-rating {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+}
+
+.star-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--border);
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.1s, transform 0.1s;
+}
+
+.star-btn:active {
+  transform: scale(0.94);
+}
+
+.star-btn.active {
+  color: var(--accent);
+}
+
 @media (min-width: 481px) {
   body {
     background: linear-gradient(180deg, #0a0a0d 0%, var(--bg) 120px);
+  }
+
+  .modal-backdrop {
+    align-items: center;
   }
 }

@@ -4,6 +4,9 @@ const App = {
   timerInterval: null,
   editingItemId: null,
   practiceMode: 'practice',
+  feedbackSessionId: null,
+  feedbackRating: 0,
+  feedbackEditing: false,
 
   init() {
     this.loadBuildLabel();
@@ -12,6 +15,7 @@ const App = {
     this.bindItems();
     this.bindSync();
     this.bindLog();
+    this.bindSessionFeedback();
     this.bindProgress();
     this.refreshAll();
   },
@@ -464,11 +468,14 @@ const App = {
         plannedDurationSeconds: session.plannedDurationSeconds,
         startedAt: session.startedAt,
         completedAt: new Date().toISOString(),
-        completed: completed
+        completed: completed,
+        rating: 0,
+        notes: ''
       });
 
       this.showLastSession(recorded);
       statusEl.textContent = completed ? 'Session complete!' : 'Session saved';
+      this.openSessionFeedback(recorded, { editing: false });
     } else {
       statusEl.textContent = 'Ready';
     }
@@ -499,7 +506,116 @@ const App = {
     const tempoLabel = session.mode === 'ramp' && session.startTempo != null
       ? `<strong>${session.startTempo}→${session.tempo} BPM</strong>`
       : `<strong>${session.tempo} BPM</strong>`;
-    summary.innerHTML = `<strong>${sessionDisplayName(session)}</strong> — ${formatDuration(session.durationSeconds)} at ${tempoLabel}`;
+    const rating = normalizeSessionRating(session.rating);
+    const stars = formatStarRating(rating);
+    const notes = (session.notes || '').trim();
+    let feedbackHtml = '';
+    if (stars) {
+      feedbackHtml += `<div class="log-feedback"><span class="log-stars">${stars}</span></div>`;
+    }
+    if (notes) {
+      feedbackHtml += `<div class="log-feedback"><div class="log-notes">${escapeHtml(notes)}</div></div>`;
+    }
+    summary.innerHTML = `<strong>${escapeHtml(sessionDisplayName(session))}</strong> — ${formatDuration(session.durationSeconds)} at ${tempoLabel}${feedbackHtml}`;
+  },
+
+  bindSessionFeedback() {
+    const modal = document.getElementById('session-feedback-modal');
+    const stars = document.getElementById('session-feedback-stars');
+    const notes = document.getElementById('session-feedback-notes');
+    const saveBtn = document.getElementById('session-feedback-save-btn');
+    const skipBtn = document.getElementById('session-feedback-skip-btn');
+
+    stars.querySelectorAll('.star-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const value = parseInt(btn.dataset.rating, 10);
+        // Tap the current rating again to clear (0 = unrated).
+        this.feedbackRating = this.feedbackRating === value ? 0 : value;
+        this.renderFeedbackStars();
+      });
+    });
+
+    saveBtn.addEventListener('click', () => this.saveSessionFeedback());
+    skipBtn.addEventListener('click', () => this.closeSessionFeedback());
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) this.closeSessionFeedback();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) {
+        this.closeSessionFeedback();
+      }
+    });
+
+    notes.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        this.saveSessionFeedback();
+      }
+    });
+  },
+
+  renderFeedbackStars() {
+    const rating = normalizeSessionRating(this.feedbackRating);
+    document.querySelectorAll('#session-feedback-stars .star-btn').forEach((btn) => {
+      const value = parseInt(btn.dataset.rating, 10);
+      btn.classList.toggle('active', value <= rating && rating > 0);
+      btn.setAttribute('aria-checked', String(value === rating && rating > 0));
+    });
+  },
+
+  openSessionFeedback(session, { editing = false } = {}) {
+    if (!session?.id) return;
+
+    this.feedbackSessionId = session.id;
+    this.feedbackEditing = editing;
+    this.feedbackRating = normalizeSessionRating(session.rating);
+
+    const modal = document.getElementById('session-feedback-modal');
+    const title = document.getElementById('session-feedback-title');
+    const summary = document.getElementById('session-feedback-summary');
+    const notes = document.getElementById('session-feedback-notes');
+    const skipBtn = document.getElementById('session-feedback-skip-btn');
+
+    title.textContent = editing ? 'Edit session notes' : 'Session notes';
+    skipBtn.textContent = editing ? 'Cancel' : 'Skip';
+
+    const tempoText = session.mode === 'ramp' && session.startTempo != null
+      ? `${session.startTempo}→${session.tempo} BPM`
+      : `${session.tempo} BPM`;
+    summary.textContent = `${sessionDisplayName(session)} — ${formatDuration(session.durationSeconds)} at ${tempoText}`;
+
+    notes.value = session.notes || '';
+    this.renderFeedbackStars();
+    modal.hidden = false;
+    notes.focus();
+  },
+
+  closeSessionFeedback() {
+    const modal = document.getElementById('session-feedback-modal');
+    modal.hidden = true;
+    this.feedbackSessionId = null;
+    this.feedbackRating = 0;
+    this.feedbackEditing = false;
+  },
+
+  saveSessionFeedback() {
+    if (!this.feedbackSessionId) return;
+
+    const notes = document.getElementById('session-feedback-notes').value.trim();
+    const rating = normalizeSessionRating(this.feedbackRating);
+    const updated = Storage.updateSession(this.feedbackSessionId, { rating, notes });
+
+    this.closeSessionFeedback();
+
+    if (updated) {
+      const newest = Storage.getSessions()[0];
+      if (newest?.id === updated.id) {
+        this.showLastSession(updated);
+      }
+      this.renderLog();
+    }
   },
 
   bindItems() {
@@ -755,6 +871,12 @@ const App = {
 
   bindLog() {
     document.getElementById('log-filter-item').addEventListener('change', () => this.renderLog());
+    document.getElementById('log-list').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-edit-session]');
+      if (!btn) return;
+      const session = Storage.getSessionById(btn.dataset.editSession);
+      if (session) this.openSessionFeedback(session, { editing: true });
+    });
   },
 
   bindProgress() {
@@ -850,16 +972,29 @@ const App = {
       const tempoText = s.mode === 'ramp' && s.startTempo != null
         ? `${s.startTempo}→${s.tempo} BPM`
         : `${s.tempo} BPM`;
+      const rating = normalizeSessionRating(s.rating);
+      const stars = formatStarRating(rating);
+      const notes = (s.notes || '').trim();
+      const feedbackBits = [];
+      if (stars) {
+        feedbackBits.push(`<div class="log-feedback"><span class="log-stars" aria-label="${rating} of 5 stars">${stars}</span></div>`);
+      }
+      if (notes) {
+        feedbackBits.push(`<div class="log-feedback"><div class="log-notes">${escapeHtml(notes)}</div></div>`);
+      }
+      const editLabel = stars || notes ? 'Edit notes' : 'Add notes';
       return `
       <li class="log-row">
         <div class="log-info">
           <div class="log-date">${formatDate(s.startedAt)}</div>
           <div class="log-detail">
-            <strong>${sessionDisplayName(s)}</strong> — ${formatDuration(s.durationSeconds)} at
+            <strong>${escapeHtml(sessionDisplayName(s))}</strong> — ${formatDuration(s.durationSeconds)} at
             <span class="log-tempo">${tempoText}</span>
             ${s.completed ? '' : ' (stopped early)'}
           </div>
+          ${feedbackBits.join('')}
         </div>
+        <button type="button" class="btn btn-secondary btn-small" data-edit-session="${s.id}">${editLabel}</button>
       </li>
     `;
     }).join('');

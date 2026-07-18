@@ -263,11 +263,37 @@
     </button>
   </nav>
 
-  <script src="js/github-sync.js?v=20"></script>
-  <script src="js/storage.js?v=20"></script>
-  <script src="js/metronome.js?v=20"></script>
-  <script src="js/charts.js?v=20"></script>
-  <script src="js/app.js?v=20"></script>
+  <div class="modal-backdrop" id="session-feedback-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="session-feedback-title">
+      <h3 id="session-feedback-title">Session notes</h3>
+      <p class="field-hint" id="session-feedback-summary"></p>
+      <div class="field">
+        <span>Rating</span>
+        <div class="star-rating" id="session-feedback-stars" role="radiogroup" aria-label="Session rating">
+          <button type="button" class="star-btn" data-rating="1" aria-label="1 star">★</button>
+          <button type="button" class="star-btn" data-rating="2" aria-label="2 stars">★</button>
+          <button type="button" class="star-btn" data-rating="3" aria-label="3 stars">★</button>
+          <button type="button" class="star-btn" data-rating="4" aria-label="4 stars">★</button>
+          <button type="button" class="star-btn" data-rating="5" aria-label="5 stars">★</button>
+        </div>
+        <p class="field-hint" id="session-feedback-rating-hint">Tap a star to rate · tap again to clear</p>
+      </div>
+      <label class="field">
+        <span>Notes</span>
+        <textarea id="session-feedback-notes" rows="4" maxlength="1000" placeholder="How did it feel? Spots to tweak…"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary" id="session-feedback-save-btn">Save</button>
+        <button type="button" class="btn btn-secondary" id="session-feedback-skip-btn">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/github-sync.js?v=21"></script>
+  <script src="js/storage.js?v=21"></script>
+  <script src="js/metronome.js?v=21"></script>
+  <script src="js/charts.js?v=21"></script>
+  <script src="js/app.js?v=21"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});

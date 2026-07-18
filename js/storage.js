@@ -256,6 +256,19 @@ const Storage = {
     return session;
   },
 
+  updateSession(id, updates) {
+    const data = this.load();
+    const index = data.sessions.findIndex((s) => s.id === id);
+    if (index === -1) return null;
+    data.sessions[index] = { ...data.sessions[index], ...updates };
+    this.save(data);
+    return data.sessions[index];
+  },
+
+  getSessionById(id) {
+    return this.getSessions().find((s) => s.id === id) || null;
+  },
+
   getSessionsForItem(itemId) {
     return this.getSessions().filter((s) => s.itemId === itemId);
   },
@@ -302,6 +315,27 @@ function itemSelectLabel(item) {
 
 function sessionDisplayName(session) {
   return session.itemName || session.itemCode || 'Untitled';
+}
+
+/** Normalize rating: 0 (or missing) means unrated. */
+function normalizeSessionRating(rating) {
+  const n = parseInt(rating, 10);
+  if (Number.isNaN(n) || n <= 0) return 0;
+  return Math.min(5, n);
+}
+
+function formatStarRating(rating) {
+  const r = normalizeSessionRating(rating);
+  if (r === 0) return '';
+  return '★'.repeat(r) + '☆'.repeat(5 - r);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function formatShortDate(iso) {
