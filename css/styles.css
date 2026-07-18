@@ -542,6 +542,15 @@ select {
   box-shadow: 0 0 32px rgba(255, 255, 255, 0.3);
 }
 
+.measure-beat {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  margin: -4px 0 12px;
+}
+
 .live-tempo {
   font-size: 1.25rem;
   font-weight: 600;
@@ -1005,12 +1014,17 @@ select {
 }
 
 #view-practice .beat-indicator {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 #view-practice .beat-dot {
   width: 48px;
   height: 48px;
+}
+
+#view-practice .measure-beat {
+  font-size: 0.95rem;
+  margin: 0 0 8px;
 }
 
 #view-practice .live-tempo {

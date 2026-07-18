@@ -138,9 +138,15 @@ class Metronome {
       if (this.onBeat) {
         const tickNum = this.tick;
         const isAccent = accent;
+        const beatInfo = {
+          isBeatStart,
+          beatInMeasure,
+          beat: beatInMeasure + 1,
+          measure: Math.floor(Math.floor(tickNum / this.subdivisionsPerBeat) / this.beatsPerMeasure) + 1
+        };
         const delay = Math.max(0, (this.nextBeatTime - this.audioCtx.currentTime) * 1000);
         setTimeout(() => {
-          if (this.running) this.onBeat(tickNum, isAccent);
+          if (this.running) this.onBeat(tickNum, isAccent, beatInfo);
         }, delay);
       }
 
