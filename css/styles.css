@@ -402,7 +402,7 @@ select {
   background: var(--border);
 }
 
-.tempo-stepper {
+.number-stepper {
   display: flex;
   align-items: stretch;
   width: 100%;
@@ -412,7 +412,7 @@ select {
   overflow: hidden;
 }
 
-.tempo-stepper .btn-icon {
+.number-stepper .btn-icon {
   width: 44px;
   height: auto;
   min-height: 44px;
@@ -422,11 +422,11 @@ select {
   flex-shrink: 0;
 }
 
-.tempo-stepper .btn-icon:active {
+.number-stepper .btn-icon:active {
   background: var(--border);
 }
 
-.tempo-stepper input {
+.number-stepper input {
   flex: 1;
   min-width: 0;
   width: auto;
@@ -441,13 +441,13 @@ select {
   appearance: textfield;
 }
 
-.tempo-stepper input::-webkit-outer-spin-button,
-.tempo-stepper input::-webkit-inner-spin-button {
+.number-stepper input::-webkit-outer-spin-button,
+.number-stepper input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-.tempo-stepper input:focus {
+.number-stepper input:focus {
   box-shadow: none;
   border-color: var(--border);
   background: var(--surface);
@@ -902,13 +902,13 @@ select {
   gap: 8px;
 }
 
-#view-practice .tempo-stepper .btn-icon {
+#view-practice .number-stepper .btn-icon {
   width: 40px;
   min-height: 42px;
   font-size: 1.25rem;
 }
 
-#view-practice .session-setup .tempo-stepper input {
+#view-practice .session-setup .number-stepper input {
   padding: 9px 6px;
   font-size: 0.95rem;
   border: none;

@@ -127,6 +127,14 @@ const App = {
       }
     };
 
+    const commitTimerMinutes = () => {
+      const minutes = parseTimerMinutes(timerInput.value, 3);
+      timerInput.value = formatTimerMinutes(minutes);
+      if (!this.session && this.practiceMode === 'practice') {
+        timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
+      }
+    };
+
     const resetTimerDisplay = () => {
       if (this.practiceMode === 'free') {
         timerDisplay.textContent = '0:00';
@@ -137,7 +145,7 @@ const App = {
         timerDisplay.textContent = formatDuration(minutes * 60);
         return;
       }
-      timerDisplay.textContent = formatDuration((parseInt(timerInput.value, 10) || 10) * 60);
+      timerDisplay.textContent = formatDuration(timerMinutesToSeconds(timerInput.value));
     };
 
     document.querySelectorAll('#view-practice .mode-btn').forEach((btn) => {
@@ -163,7 +171,22 @@ const App = {
     });
 
     timerInput.addEventListener('input', () => {
-      if (!this.session && this.practiceMode === 'practice') resetTimerDisplay();
+      if (!this.session && this.practiceMode === 'practice') {
+        const raw = timerInput.value.trim();
+        if (raw === '') return;
+        const n = parseFloat(raw);
+        if (Number.isNaN(n)) return;
+        timerDisplay.textContent = formatDuration(timerMinutesToSeconds(n));
+      }
+    });
+    timerInput.addEventListener('blur', commitTimerMinutes);
+    document.getElementById('timer-up').addEventListener('click', () => {
+      timerInput.value = formatTimerMinutes(parseTimerMinutes(timerInput.value, 3) + 0.25);
+      commitTimerMinutes();
+    });
+    document.getElementById('timer-down').addEventListener('click', () => {
+      timerInput.value = formatTimerMinutes(parseTimerMinutes(timerInput.value, 3) - 0.25);
+      commitTimerMinutes();
     });
 
     document.getElementById('ramp-minutes').addEventListener('input', () => {
@@ -292,6 +315,8 @@ const App = {
     document.querySelectorAll('#view-practice .mode-btn').forEach((b) => { b.disabled = disabled; });
     document.getElementById('practice-item-select').disabled = disabled;
     document.getElementById('timer-minutes').disabled = disabled;
+    document.getElementById('timer-up').disabled = disabled;
+    document.getElementById('timer-down').disabled = disabled;
     document.getElementById('ramp-start-bpm').disabled = disabled;
     document.getElementById('ramp-end-bpm').disabled = disabled;
     document.getElementById('ramp-minutes').disabled = disabled;
@@ -369,8 +394,9 @@ const App = {
       tempo = parseInt(tempoInput.value, 10) || 80;
       this.metronome.setBpm(tempo);
     } else {
-      const minutes = parseInt(document.getElementById('timer-minutes').value, 10) || 10;
-      totalSeconds = minutes * 60;
+      const minutes = parseTimerMinutes(document.getElementById('timer-minutes').value, 3);
+      document.getElementById('timer-minutes').value = formatTimerMinutes(minutes);
+      totalSeconds = timerMinutesToSeconds(minutes);
       tempo = parseInt(tempoInput.value, 10) || 80;
       this.metronome.setBpm(tempo);
     }
@@ -493,7 +519,7 @@ const App = {
       timerDisplay.textContent = formatDuration(minutes * 60);
       this.updatePracticeModeUI();
     } else {
-      timerDisplay.textContent = formatDuration((parseInt(document.getElementById('timer-minutes').value, 10) || 10) * 60);
+      timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
       document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 80} BPM`;
     }
 

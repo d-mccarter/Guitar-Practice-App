@@ -287,9 +287,26 @@ function generateId() {
 }
 
 function formatDuration(seconds) {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
+  const total = Math.max(0, Math.round(seconds));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
   return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+/** Parse timer minutes, rounding to the nearest quarter-minute (0.25). */
+function parseTimerMinutes(raw, fallback = 3) {
+  const n = parseFloat(String(raw ?? '').trim());
+  if (Number.isNaN(n)) return fallback;
+  const rounded = Math.round(n * 4) / 4;
+  return Math.max(0.25, Math.min(120, rounded));
+}
+
+function formatTimerMinutes(minutes) {
+  return String(Math.round(parseTimerMinutes(minutes) * 4) / 4);
+}
+
+function timerMinutesToSeconds(minutes) {
+  return Math.round(parseTimerMinutes(minutes) * 60);
 }
 
 function formatDate(iso) {
