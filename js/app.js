@@ -96,8 +96,9 @@ const App = {
       tempoInput.value = bpm;
       updateTempoDisplay(bpm);
       document.getElementById('setup-tempo-display').textContent = `${bpm} BPM`;
-      if (!this.metronome.isRunning()) {
-        this.metronome.setBpm(bpm);
+      this.metronome.setBpm(bpm);
+      if (this.session && this.session.mode !== 'ramp') {
+        this.session.tempo = bpm;
       }
     };
 
@@ -109,8 +110,9 @@ const App = {
       const bpm = Math.max(40, Math.min(300, n));
       updateTempoDisplay(bpm);
       document.getElementById('setup-tempo-display').textContent = `${bpm} BPM`;
-      if (!this.metronome.isRunning()) {
-        this.metronome.setBpm(bpm);
+      this.metronome.setBpm(bpm);
+      if (this.session && this.session.mode !== 'ramp') {
+        this.session.tempo = bpm;
       }
     };
 
@@ -182,13 +184,11 @@ const App = {
     });
 
     accentBtn.addEventListener('click', () => {
-      if (this.metronome.isRunning()) return;
       updateToggleButton(accentBtn, !accentBtn.classList.contains('on'));
       this.applyMetronomeOptions();
     });
 
     quarterAccentBtn.addEventListener('click', () => {
-      if (this.metronome.isRunning()) return;
       updateToggleButton(quarterAccentBtn, !quarterAccentBtn.classList.contains('on'));
       this.applyMetronomeOptions();
     });
@@ -269,18 +269,14 @@ const App = {
   },
 
   setPracticeFormDisabled(disabled) {
+    // Lock session setup fields while running; metronome settings stay editable
+    // so tempo/subdivision/accents can change and take effect immediately.
     document.querySelectorAll('.mode-btn').forEach((b) => { b.disabled = disabled; });
     document.getElementById('practice-item-select').disabled = disabled;
     document.getElementById('timer-minutes').disabled = disabled;
-    document.getElementById('tempo-bpm').disabled = disabled;
     document.getElementById('ramp-start-bpm').disabled = disabled;
     document.getElementById('ramp-end-bpm').disabled = disabled;
     document.getElementById('ramp-minutes').disabled = disabled;
-    document.getElementById('tempo-up').disabled = disabled;
-    document.getElementById('tempo-down').disabled = disabled;
-    document.getElementById('metronome-subdivision').disabled = disabled;
-    document.getElementById('metronome-accent-btn').disabled = disabled;
-    document.getElementById('metronome-quarter-accent-btn').disabled = disabled;
   },
 
   async startSession() {
