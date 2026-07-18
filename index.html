@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=25">
+  <link rel="stylesheet" href="css/styles.css?v=26">
 </head>
 <body>
   <header class="app-header">
@@ -39,13 +39,17 @@
 
         <div id="fixed-tempo-panel">
           <div class="field-row" id="fixed-tempo-row">
-            <label class="field" id="timer-field">
+            <div class="field" id="timer-field">
               <span>Timer (min)</span>
-              <input type="number" id="timer-minutes" min="1" max="120" value="10">
-            </label>
+              <div class="number-stepper">
+                <button type="button" class="btn-icon" id="timer-down" aria-label="Decrease timer">−</button>
+                <input type="number" id="timer-minutes" min="0.25" max="120" step="0.25" value="3" aria-label="Timer minutes">
+                <button type="button" class="btn-icon" id="timer-up" aria-label="Increase timer">+</button>
+              </div>
+            </div>
             <div class="field" id="fixed-tempo-controls">
               <span>Tempo (BPM)</span>
-              <div class="tempo-stepper">
+              <div class="number-stepper">
                 <button type="button" class="btn-icon" id="tempo-down" aria-label="Decrease tempo">−</button>
                 <input type="number" id="tempo-bpm" min="40" max="300" value="80" aria-label="Tempo BPM">
                 <button type="button" class="btn-icon" id="tempo-up" aria-label="Increase tempo">+</button>
@@ -102,7 +106,7 @@
           <div class="beat-dot"></div>
         </div>
         <div class="live-tempo" id="tempo-display">80 BPM</div>
-        <div class="timer-display" id="session-timer">10:00</div>
+        <div class="timer-display" id="session-timer">3:00</div>
         <div class="session-status" id="session-status">Ready</div>
         <button type="button" class="btn btn-primary btn-large" id="start-stop-btn">Start</button>
         <div class="session-controls" id="session-controls" hidden>
@@ -291,11 +295,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=25"></script>
-  <script src="js/storage.js?v=25"></script>
-  <script src="js/metronome.js?v=25"></script>
-  <script src="js/charts.js?v=25"></script>
-  <script src="js/app.js?v=25"></script>
+  <script src="js/github-sync.js?v=26"></script>
+  <script src="js/storage.js?v=26"></script>
+  <script src="js/metronome.js?v=26"></script>
+  <script src="js/charts.js?v=26"></script>
+  <script src="js/app.js?v=26"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
