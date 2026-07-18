@@ -1151,8 +1151,8 @@ const App = {
       return;
     }
 
-    const startedAt = new Date(whenValue);
-    if (Number.isNaN(startedAt.getTime())) {
+    const startedAt = fromDatetimeLocalValue(whenValue);
+    if (!startedAt) {
       alert('Enter a valid date and time.');
       document.getElementById('manual-log-when').focus();
       return;

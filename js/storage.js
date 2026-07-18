@@ -328,6 +328,22 @@ function toDatetimeLocalValue(date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+/** Parse a datetime-local value as local time (avoids UTC parsing quirks). */
+function fromDatetimeLocalValue(value) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(String(value || '').trim());
+  if (!m) return null;
+  const d = new Date(
+    Number(m[1]),
+    Number(m[2]) - 1,
+    Number(m[3]),
+    Number(m[4]),
+    Number(m[5]),
+    Number(m[6] || 0),
+    0
+  );
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
 function itemDisplayName(item) {
   return item.name || item.code || 'Untitled';
 }
