@@ -61,18 +61,27 @@ const App = {
     const accentBtn = document.getElementById('metronome-accent-btn');
     const quarterAccentBtn = document.getElementById('metronome-quarter-accent-btn');
     const quarterAccentRow = document.getElementById('metronome-quarter-accent-row');
+    const usesSubdivision = subdivisionSelect
+      ? parseInt(subdivisionSelect.value, 10) > 1
+      : false;
+
     if (subdivisionSelect) {
       this.metronome.setSubdivision(subdivisionSelect.value);
-      const usesSubdivision = parseInt(subdivisionSelect.value, 10) > 1;
-      if (quarterAccentRow) {
-        quarterAccentRow.hidden = !usesSubdivision;
-      }
+    }
+    if (quarterAccentRow) {
+      quarterAccentRow.classList.toggle('is-disabled', !usesSubdivision);
+      quarterAccentRow.setAttribute('aria-disabled', String(!usesSubdivision));
+    }
+    if (quarterAccentBtn) {
+      quarterAccentBtn.disabled = !usesSubdivision;
     }
     if (accentBtn) {
       this.metronome.setAccentDownbeat(accentBtn.classList.contains('on'));
     }
     if (quarterAccentBtn) {
-      this.metronome.setAccentQuarterBeats(quarterAccentBtn.classList.contains('on'));
+      this.metronome.setAccentQuarterBeats(
+        usesSubdivision && quarterAccentBtn.classList.contains('on')
+      );
     }
   },
 

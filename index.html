@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=24">
+  <link rel="stylesheet" href="css/styles.css?v=25">
 </head>
 <body>
   <header class="app-header">
@@ -77,10 +77,10 @@
             <label class="field metronome-subdivision-field">
               <span>Subdivision</span>
               <select id="metronome-subdivision">
-                <option value="1">Quarter notes</option>
-                <option value="2">Eighth notes</option>
+                <option value="1">Quarter</option>
+                <option value="2">Eighth</option>
                 <option value="3">Triplets</option>
-                <option value="4">Sixteenth notes</option>
+                <option value="4">Sixteenth</option>
               </select>
             </label>
             <div class="metronome-accent-stack">
@@ -88,7 +88,7 @@
                 <span>First beat</span>
                 <button type="button" id="metronome-accent-btn" class="sync-switch on" aria-pressed="true">On</button>
               </div>
-              <div class="sync-auto-row" id="metronome-quarter-accent-row" hidden>
+              <div class="sync-auto-row" id="metronome-quarter-accent-row">
                 <span>Quarter beats</span>
                 <button type="button" id="metronome-quarter-accent-btn" class="sync-switch on" aria-pressed="true">On</button>
               </div>
@@ -291,11 +291,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=24"></script>
-  <script src="js/storage.js?v=24"></script>
-  <script src="js/metronome.js?v=24"></script>
-  <script src="js/charts.js?v=24"></script>
-  <script src="js/app.js?v=24"></script>
+  <script src="js/github-sync.js?v=25"></script>
+  <script src="js/storage.js?v=25"></script>
+  <script src="js/metronome.js?v=25"></script>
+  <script src="js/charts.js?v=25"></script>
+  <script src="js/app.js?v=25"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
