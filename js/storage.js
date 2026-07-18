@@ -1,10 +1,65 @@
-const STORAGE_KEY = 'guitar-practice-tracker';
+const PROFILE_KEY = 'guitar-practice-tracker-profile';
+
+const DATA_PROFILES = {
+  real: {
+    id: 'real',
+    label: 'Real',
+    storageKey: 'guitar-practice-tracker',
+    path: 'data/practice-data.json'
+  },
+  test: {
+    id: 'test',
+    label: 'Test',
+    storageKey: 'guitar-practice-tracker-test',
+    path: 'data/practice-data-test.json'
+  }
+};
 
 const Storage = {
   _fileSha: null,
   _pushTimer: null,
   _pushInFlight: null,
   onSyncStatus: null,
+
+  getProfiles() {
+    return DATA_PROFILES;
+  },
+
+  getProfileId() {
+    try {
+      const raw = localStorage.getItem(PROFILE_KEY);
+      if (raw && DATA_PROFILES[raw]) return raw;
+    } catch {
+      /* ignore */
+    }
+    return 'real';
+  },
+
+  getProfile() {
+    return DATA_PROFILES[this.getProfileId()] || DATA_PROFILES.real;
+  },
+
+  storageKey() {
+    return this.getProfile().storageKey;
+  },
+
+  setProfile(profileId) {
+    const profile = DATA_PROFILES[profileId];
+    if (!profile || profile.id === this.getProfileId()) return this.getProfile();
+
+    clearTimeout(this._pushTimer);
+    this._pushTimer = null;
+    this._pushInFlight = null;
+    this._fileSha = null;
+
+    localStorage.setItem(PROFILE_KEY, profile.id);
+
+    const settings = this.getSyncSettings();
+    settings.path = profile.path;
+    this.saveSyncSettings(settings);
+
+    return profile;
+  },
 
   normalize(data) {
     return {
@@ -19,7 +74,7 @@ const Storage = {
 
   load() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(this.storageKey());
       if (!raw) return { items: [], sessions: [] };
       return this.normalize(JSON.parse(raw));
     } catch {
@@ -29,7 +84,7 @@ const Storage = {
 
   save(data, options = {}) {
     const normalized = this.normalize(data);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+    localStorage.setItem(this.storageKey(), JSON.stringify(normalized));
     if (options.sync !== false) {
       this.schedulePush();
     }
@@ -37,11 +92,15 @@ const Storage = {
   },
 
   getSyncSettings() {
-    return GitHubSync.getSettings();
+    const settings = GitHubSync.getSettings();
+    settings.path = this.getProfile().path;
+    return settings;
   },
 
   saveSyncSettings(settings) {
-    GitHubSync.saveSettings(settings);
+    const normalized = GitHubSync.normalizeSettings(settings);
+    normalized.path = this.getProfile().path;
+    GitHubSync.saveSettings(normalized);
   },
 
   setSyncStatus(message, type = 'info') {

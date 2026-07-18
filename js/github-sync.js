@@ -18,7 +18,10 @@ const GitHubSync = {
     const normalized = { ...DEFAULT_SYNC_SETTINGS, ...settings };
     normalized.owner = String(normalized.owner || '').trim();
     normalized.repo = String(normalized.repo || '').trim();
+    normalized.branch = String(normalized.branch || DEFAULT_SYNC_SETTINGS.branch).trim() || DEFAULT_SYNC_SETTINGS.branch;
+    normalized.path = String(normalized.path || DEFAULT_SYNC_SETTINGS.path).trim() || DEFAULT_SYNC_SETTINGS.path;
     normalized.token = this.cleanToken(normalized.token);
+    normalized.enabled = !!normalized.enabled;
     return normalized;
   },
 
@@ -149,7 +152,9 @@ const GitHubSync = {
     this.validateToken(settings);
 
     const body = {
-      message: 'Update practice data',
+      message: settings.path.includes('test')
+        ? 'Update test practice data'
+        : 'Update practice data',
       branch: settings.branch,
       content: this.utf8ToBase64(JSON.stringify(data, null, 2))
     };
