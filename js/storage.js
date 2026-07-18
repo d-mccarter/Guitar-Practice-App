@@ -331,6 +331,8 @@ function itemSelectLabel(item) {
 }
 
 function sessionDisplayName(session) {
+  const workedOn = (session.workedOn || '').trim();
+  if (workedOn) return workedOn;
   return session.itemName || session.itemCode || 'Untitled';
 }
 

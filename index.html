@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=27">
+  <link rel="stylesheet" href="css/styles.css?v=28">
 </head>
 <body>
   <header class="app-header">
@@ -271,6 +271,10 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="session-feedback-title">
       <h3 id="session-feedback-title">Session notes</h3>
       <p class="field-hint" id="session-feedback-summary"></p>
+      <label class="field" id="session-feedback-worked-on-field" hidden>
+        <span>What did you work on?</span>
+        <input type="text" id="session-feedback-worked-on" maxlength="120" placeholder="Song passage, lick, section…" autocomplete="off">
+      </label>
       <div class="field">
         <span>Rating</span>
         <div class="star-rating" id="session-feedback-stars" role="radiogroup" aria-label="Session rating">
@@ -293,11 +297,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=27"></script>
-  <script src="js/storage.js?v=27"></script>
-  <script src="js/metronome.js?v=27"></script>
-  <script src="js/charts.js?v=27"></script>
-  <script src="js/app.js?v=27"></script>
+  <script src="js/github-sync.js?v=28"></script>
+  <script src="js/storage.js?v=28"></script>
+  <script src="js/metronome.js?v=28"></script>
+  <script src="js/charts.js?v=28"></script>
+  <script src="js/app.js?v=28"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
