@@ -6,6 +6,13 @@
       "description": "",
       "targetTempo": null,
       "createdAt": "2026-07-18T01:04:47.275Z"
+    },
+    {
+      "id": "04ae2f7a-2eef-4c14-b865-ffb76ae7efbd",
+      "name": "Exercise 2",
+      "description": "",
+      "targetTempo": null,
+      "createdAt": "2026-07-18T01:24:47.682Z"
     }
   ],
   "sessions": [
