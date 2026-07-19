@@ -38,6 +38,27 @@
   ],
   "sessions": [
     {
+      "id": "1c404967-fd0c-496d-8703-fed87e39efb8",
+      "itemId": "04ae2f7a-2eef-4c14-b865-ffb76ae7efbd",
+      "itemName": "Exercise 2",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 30,
+      "plannedDurationSeconds": 30,
+      "startedAt": "2026-07-19T05:21:00.977Z",
+      "completedAt": "2026-07-19T05:21:31.094Z",
+      "completed": true,
+      "rating": 0,
+      "notes": "",
+      "cycleId": "e9822b09-0cd1-4a7a-8bb4-bfbe976c920a",
+      "cycleName": "Cycle 1",
+      "cycleRound": 1,
+      "cycleStepIndex": 1
+    },
+    {
       "id": "7f7f7c40-40aa-4097-a304-0c76e6fd2f78",
       "itemId": "577bab5d-cae1-4d99-a55d-0f380ddf5530",
       "itemName": "Exercise 1",
