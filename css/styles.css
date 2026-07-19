@@ -800,7 +800,27 @@ select {
 }
 
 .cycle-step-duration-stepper {
-  width: 118px;
+  width: 148px;
+}
+
+.cycle-step-duration-stepper .btn-icon {
+  width: 40px;
+  min-height: 42px;
+  font-size: 1.25rem;
+}
+
+.cycle-step-duration-stepper input {
+  flex: 1 1 auto;
+  min-width: 2.5rem;
+  width: auto;
+  padding: 9px 4px;
+  font-size: 0.95rem;
+  border: none;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
 }
 
 .cycle-draft-steps {
