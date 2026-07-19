@@ -11,7 +11,7 @@
   --danger: #e85454;
   --success: #4ade80;
   --radius: 14px;
-  --nav-height: 72px;
+  --nav-height: 48px;
   --header-height: 56px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
@@ -766,14 +766,14 @@ select {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 1px;
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: 500;
   cursor: pointer;
-  padding: 8px 2px;
+  padding: 4px 2px;
   -webkit-tap-highlight-color: transparent;
 }
 
