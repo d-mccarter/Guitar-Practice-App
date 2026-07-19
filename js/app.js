@@ -3,6 +3,9 @@ const App = {
   session: null,
   timerInterval: null,
   editingItemId: null,
+  editingCycleId: null,
+  cycleDraftSteps: [],
+  cycleRun: null,
   practiceMode: 'practice',
   feedbackSessionId: null,
   feedbackPendingSession: null,
@@ -15,6 +18,7 @@ const App = {
     this.bindNavigation();
     this.bindPractice();
     this.bindItems();
+    this.bindCycles();
     this.bindSync();
     this.bindLog();
     this.bindManualLog();
@@ -27,6 +31,7 @@ const App = {
     const titles = {
       practice: 'Practice',
       items: 'Items',
+      cycles: 'Cycles',
       log: 'Log',
       progress: 'Progress'
     };
@@ -42,6 +47,7 @@ const App = {
 
         if (view === 'progress') this.renderProgress();
         if (view === 'log') this.renderLog();
+        if (view === 'cycles') this.renderCycles();
       });
     });
   },
@@ -267,17 +273,104 @@ const App = {
       this.stopSession(this.session.remainingSeconds != null && this.session.remainingSeconds <= 0);
     });
 
-    document.getElementById('practice-item-select').addEventListener('change', (e) => {
-      const item = Storage.getItemById(e.target.value);
-      if (item?.targetTempo && this.practiceMode !== 'ramp') {
-        tempoInput.value = item.targetTempo;
-        commitTempo();
-      }
+    document.getElementById('practice-item-select').addEventListener('change', () => {
+      this.applyPracticeSelection();
     });
 
     this.updatePracticeModeUI();
     commitTempo();
     resetTimerDisplay();
+  },
+
+  applyPracticeSelection() {
+    if (this.session) return;
+
+    const tempoInput = document.getElementById('tempo-bpm');
+    const timerInput = document.getElementById('timer-minutes');
+    const timerDisplay = document.getElementById('session-timer');
+    const tempoDisplay = document.getElementById('tempo-display');
+    const hint = document.getElementById('cycle-preview-hint');
+    const statusEl = document.getElementById('session-status');
+    const selection = parsePracticeSelection(document.getElementById('practice-item-select').value);
+
+    if (selection.type === 'cycle') {
+      const cycle = Storage.getCycleById(selection.cycleId);
+      const steps = this.resolveCycleSteps(cycle);
+      if (!cycle || !steps.length) {
+        if (hint) {
+          hint.hidden = true;
+          hint.textContent = '';
+        }
+        return;
+      }
+
+      const first = steps[0];
+      if (this.practiceMode !== 'ramp') {
+        tempoInput.value = first.tempo;
+        tempoDisplay.textContent = `${first.tempo} BPM`;
+        this.metronome.setBpm(first.tempo);
+      }
+      if (this.practiceMode === 'practice') {
+        timerInput.value = formatTimerMinutes(first.durationMinutes);
+        timerDisplay.textContent = formatDuration(timerMinutesToSeconds(first.durationMinutes));
+      }
+
+      const totalSeconds = steps.reduce((sum, step) => sum + timerMinutesToSeconds(step.durationMinutes), 0) * (cycle.rounds || 1);
+      const totalLabel = totalSeconds >= 60
+        ? `${Math.round(totalSeconds / 60)} min`
+        : formatDuration(totalSeconds);
+      if (hint) {
+        hint.hidden = false;
+        hint.textContent = `${steps.length} steps · ${cycle.rounds} rounds · ~${totalLabel} total`;
+      }
+      if (statusEl && !statusEl.classList.contains('running') && !statusEl.classList.contains('paused')) {
+        statusEl.textContent = 'Ready';
+      }
+      return;
+    }
+
+    if (hint) {
+      hint.hidden = true;
+      hint.textContent = '';
+    }
+
+    if (selection.type === 'item') {
+      const item = Storage.getItemById(selection.itemId);
+      if (item?.targetTempo && this.practiceMode !== 'ramp') {
+        tempoInput.value = item.targetTempo;
+        tempoDisplay.textContent = `${item.targetTempo} BPM`;
+        this.metronome.setBpm(item.targetTempo);
+      }
+    }
+  },
+
+  resolveCycleSteps(cycle) {
+    if (!cycle || !Array.isArray(cycle.steps)) return [];
+    return cycle.steps.map((step) => {
+      const item = Storage.getItemById(step.itemId);
+      if (!item) return null;
+      const durationMinutes = step.durationMinutes != null
+        ? parseTimerMinutes(step.durationMinutes, 1)
+        : 1;
+      const tempo = step.tempoBpm
+        || item.targetTempo
+        || parseInt(document.getElementById('tempo-bpm')?.value, 10)
+        || 120;
+      return {
+        itemId: item.id,
+        itemName: itemDisplayName(item),
+        durationMinutes,
+        tempo: Math.max(40, Math.min(300, tempo))
+      };
+    }).filter(Boolean);
+  },
+
+  cycleStatusText() {
+    if (!this.cycleRun) return 'Practicing…';
+    const { roundIndex, rounds, stepIndex, steps, cycleName } = this.cycleRun;
+    const step = steps[stepIndex];
+    const name = step?.itemName || 'Step';
+    return `${cycleName}: R${roundIndex + 1}/${rounds} · ${stepIndex + 1}/${steps.length} · ${name}`;
   },
 
   updatePracticeModeUI() {
@@ -287,12 +380,14 @@ const App = {
     const rampPanel = document.getElementById('ramp-tempo-panel');
     const timerField = document.getElementById('timer-field');
     const tempoDisplay = document.getElementById('tempo-display');
+    const hint = document.getElementById('cycle-preview-hint');
 
     if (this.practiceMode === 'free') {
       itemField.hidden = true;
       fixedPanel.hidden = false;
       rampPanel.hidden = true;
       timerField.hidden = true;
+      if (hint) hint.hidden = true;
       const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 120;
       tempoDisplay.textContent = `${bpm} BPM`;
       return;
@@ -303,16 +398,18 @@ const App = {
       itemLabel.textContent = 'Practice item (optional)';
       fixedPanel.hidden = true;
       rampPanel.hidden = false;
+      if (hint) hint.hidden = true;
       const start = parseInt(document.getElementById('ramp-start-bpm').value, 10) || 60;
       const end = parseInt(document.getElementById('ramp-end-bpm').value, 10) || 120;
       tempoDisplay.textContent = `${start} → ${end} BPM`;
     } else {
-      itemLabel.textContent = 'Practice item';
+      itemLabel.textContent = 'Practice item or cycle';
       fixedPanel.hidden = false;
       rampPanel.hidden = true;
       timerField.hidden = false;
       const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 120;
       tempoDisplay.textContent = `${bpm} BPM`;
+      this.applyPracticeSelection();
     }
   },
 
@@ -366,15 +463,27 @@ const App = {
   async startSession() {
     if (this.session) return;
 
+    const selection = parsePracticeSelection(document.getElementById('practice-item-select').value);
+
+    if (this.practiceMode === 'practice' && selection.type === 'cycle') {
+      await this.startCycle(selection.cycleId);
+      return;
+    }
+
+    if (this.practiceMode === 'practice' && selection.type === 'none') {
+      alert('Please select a practice item or cycle first.');
+      return;
+    }
+
+    if (selection.type === 'cycle' && this.practiceMode !== 'practice') {
+      alert('Cycles only run in Practice mode. Switch to Practice, or pick a single item.');
+      return;
+    }
+
     const statusEl = document.getElementById('session-status');
     const timerDisplay = document.getElementById('session-timer');
     const tempoInput = document.getElementById('tempo-bpm');
-    const itemId = document.getElementById('practice-item-select').value || null;
-
-    if (this.practiceMode === 'practice' && !itemId) {
-      alert('Please select a practice item first.');
-      return;
-    }
+    const itemId = selection.type === 'item' ? selection.itemId : null;
 
     let totalSeconds;
     let tempo;
@@ -439,6 +548,147 @@ const App = {
     this.startSessionTimer();
   },
 
+  async startCycle(cycleId) {
+    const cycle = Storage.getCycleById(cycleId);
+    const steps = this.resolveCycleSteps(cycle);
+    if (!cycle) {
+      alert('That cycle no longer exists.');
+      return;
+    }
+    if (steps.length < 1) {
+      alert('This cycle has no valid practice items. Edit it in the Cycles tab.');
+      return;
+    }
+
+    this.cycleRun = {
+      cycleId: cycle.id,
+      cycleName: cycle.name || 'Cycle',
+      rounds: cycle.rounds || 1,
+      steps,
+      roundIndex: 0,
+      stepIndex: 0
+    };
+
+    await this.beginCycleStep();
+  },
+
+  async beginCycleStep() {
+    if (!this.cycleRun) return;
+
+    const step = this.cycleRun.steps[this.cycleRun.stepIndex];
+    if (!step) {
+      this.finishCycleRun(true);
+      return;
+    }
+
+    const statusEl = document.getElementById('session-status');
+    const timerDisplay = document.getElementById('session-timer');
+    const tempoInput = document.getElementById('tempo-bpm');
+    const tempoDisplay = document.getElementById('tempo-display');
+    const totalSeconds = timerMinutesToSeconds(step.durationMinutes);
+
+    this.metronome.clearRamp();
+    this.applyMetronomeOptions();
+    tempoInput.value = step.tempo;
+    tempoDisplay.textContent = `${step.tempo} BPM`;
+    this.metronome.setBpm(step.tempo);
+    document.getElementById('timer-minutes').value = formatTimerMinutes(step.durationMinutes);
+    timerDisplay.textContent = formatDuration(totalSeconds);
+
+    this.session = {
+      mode: 'practice',
+      itemId: step.itemId,
+      itemName: step.itemName,
+      tempo: step.tempo,
+      startTempo: null,
+      endTempo: null,
+      plannedDurationSeconds: totalSeconds,
+      remainingSeconds: totalSeconds,
+      elapsedSeconds: 0,
+      paused: false,
+      startedAt: new Date().toISOString(),
+      cycleId: this.cycleRun.cycleId,
+      cycleName: this.cycleRun.cycleName,
+      cycleRound: this.cycleRun.roundIndex + 1,
+      cycleStepIndex: this.cycleRun.stepIndex
+    };
+
+    this.resetMeasureBeatDisplay();
+    await this.metronome.start();
+    this.setSessionControlsVisible(true);
+    statusEl.textContent = this.cycleStatusText();
+    statusEl.classList.remove('paused');
+    statusEl.classList.add('running');
+    this.setPracticeFormDisabled(true);
+    this.startSessionTimer();
+  },
+
+  async advanceCycle() {
+    if (!this.cycleRun) return;
+
+    let { stepIndex, roundIndex, steps, rounds } = this.cycleRun;
+    stepIndex += 1;
+    if (stepIndex >= steps.length) {
+      stepIndex = 0;
+      roundIndex += 1;
+    }
+
+    if (roundIndex >= rounds) {
+      this.finishCycleRun(true);
+      return;
+    }
+
+    this.cycleRun.stepIndex = stepIndex;
+    this.cycleRun.roundIndex = roundIndex;
+    await this.beginCycleStep();
+  },
+
+  finishCycleRun(completed) {
+    this.cycleRun = null;
+    this.setSessionControlsVisible(false);
+    this.setPracticeFormDisabled(false);
+
+    const statusEl = document.getElementById('session-status');
+    statusEl.classList.remove('running', 'paused');
+    statusEl.textContent = completed ? 'Cycle complete!' : 'Cycle stopped';
+
+    const timerDisplay = document.getElementById('session-timer');
+    const tempoInput = document.getElementById('tempo-bpm');
+    timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
+    document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
+    this.applyPracticeSelection();
+    this.renderLog();
+  },
+
+  logCycleStepSession(session, completed) {
+    if (!session?.itemId || session.elapsedSeconds < 5) return null;
+
+    const recorded = Storage.addSession({
+      id: generateId(),
+      itemId: session.itemId,
+      itemName: session.itemName,
+      workedOn: '',
+      tempo: session.tempo,
+      startTempo: null,
+      endTempo: null,
+      mode: 'practice',
+      durationSeconds: session.elapsedSeconds,
+      plannedDurationSeconds: session.plannedDurationSeconds,
+      startedAt: session.startedAt,
+      completedAt: new Date().toISOString(),
+      completed,
+      rating: 0,
+      notes: '',
+      cycleId: session.cycleId || null,
+      cycleName: session.cycleName || null,
+      cycleRound: session.cycleRound || null,
+      cycleStepIndex: session.cycleStepIndex != null ? session.cycleStepIndex : null
+    });
+
+    this.showLastSession(recorded);
+    return recorded;
+  },
+
   pauseSession() {
     if (!this.session || this.session.paused) return;
 
@@ -463,7 +713,9 @@ const App = {
 
     const statusEl = document.getElementById('session-status');
     const pauseBtn = document.getElementById('pause-resume-btn');
-    statusEl.textContent = this.session.mode === 'free' ? 'Playing…' : 'Practicing…';
+    statusEl.textContent = this.cycleRun
+      ? this.cycleStatusText()
+      : (this.session.mode === 'free' ? 'Playing…' : 'Practicing…');
     statusEl.classList.remove('paused');
     statusEl.classList.add('running');
     pauseBtn.textContent = 'Pause';
@@ -495,6 +747,22 @@ const App = {
     const timerDisplay = document.getElementById('session-timer');
     const tempoInput = document.getElementById('tempo-bpm');
     const session = this.session;
+    const inCycle = !!this.cycleRun;
+
+    this.session = null;
+
+    if (inCycle) {
+      this.logCycleStepSession(session, completed);
+      if (completed) {
+        // Keep controls locked while auto-advancing to the next step/round.
+        statusEl.classList.remove('paused');
+        statusEl.classList.add('running');
+        this.advanceCycle();
+      } else {
+        this.finishCycleRun(false);
+      }
+      return;
+    }
 
     this.setSessionControlsVisible(false);
     statusEl.classList.remove('running', 'paused');
@@ -555,8 +823,6 @@ const App = {
     } else {
       statusEl.textContent = 'Ready';
     }
-
-    this.session = null;
 
     if (this.practiceMode === 'free') {
       timerDisplay.textContent = '0:00';
@@ -812,6 +1078,222 @@ const App = {
     document.getElementById('item-cancel-btn').hidden = true;
   },
 
+  bindCycles() {
+    const durationInput = document.getElementById('cycle-step-duration');
+
+    const commitDuration = () => {
+      durationInput.value = formatTimerMinutes(parseTimerMinutes(durationInput.value, 1));
+    };
+
+    durationInput.addEventListener('blur', commitDuration);
+    document.getElementById('cycle-step-duration-up').addEventListener('click', () => {
+      durationInput.value = formatTimerMinutes(parseTimerMinutes(durationInput.value, 1) + 0.25);
+    });
+    document.getElementById('cycle-step-duration-down').addEventListener('click', () => {
+      durationInput.value = formatTimerMinutes(parseTimerMinutes(durationInput.value, 1) - 0.25);
+    });
+
+    document.getElementById('cycle-add-step-btn').addEventListener('click', () => {
+      const itemId = document.getElementById('cycle-step-item').value;
+      if (!itemId) {
+        alert('Select a practice item to add.');
+        return;
+      }
+      const item = Storage.getItemById(itemId);
+      if (!item) {
+        alert('That practice item no longer exists.');
+        return;
+      }
+      this.cycleDraftSteps.push({
+        itemId,
+        durationMinutes: parseTimerMinutes(durationInput.value, 1),
+        tempoBpm: item.targetTempo || null
+      });
+      document.getElementById('cycle-step-item').value = '';
+      this.renderCycleDraftSteps();
+    });
+
+    document.getElementById('cycle-draft-steps').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-cycle-step-action]');
+      if (!btn) return;
+      const index = parseInt(btn.dataset.cycleStepIndex, 10);
+      if (Number.isNaN(index) || index < 0 || index >= this.cycleDraftSteps.length) return;
+
+      const action = btn.dataset.cycleStepAction;
+      if (action === 'remove') {
+        this.cycleDraftSteps.splice(index, 1);
+      } else if (action === 'up' && index > 0) {
+        const [step] = this.cycleDraftSteps.splice(index, 1);
+        this.cycleDraftSteps.splice(index - 1, 0, step);
+      } else if (action === 'down' && index < this.cycleDraftSteps.length - 1) {
+        const [step] = this.cycleDraftSteps.splice(index, 1);
+        this.cycleDraftSteps.splice(index + 1, 0, step);
+      }
+      this.renderCycleDraftSteps();
+    });
+
+    document.getElementById('cycle-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('cycle-name').value.trim();
+      const rounds = Math.max(1, Math.min(10, parseInt(document.getElementById('cycle-rounds').value, 10) || 3));
+      if (!name) return;
+      if (this.cycleDraftSteps.length < 2) {
+        alert('Add at least two steps to make a cycle.');
+        return;
+      }
+
+      const cycleData = {
+        name,
+        rounds,
+        steps: this.cycleDraftSteps.map((step) => ({
+          itemId: step.itemId,
+          durationMinutes: step.durationMinutes,
+          tempoBpm: step.tempoBpm
+        }))
+      };
+
+      if (this.editingCycleId) {
+        Storage.updateCycle(this.editingCycleId, cycleData);
+      } else {
+        Storage.addCycle({
+          id: generateId(),
+          ...cycleData,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      this.cancelEditCycle();
+      this.refreshAll();
+    });
+
+    document.getElementById('cycle-cancel-btn').addEventListener('click', () => {
+      this.cancelEditCycle();
+      this.renderCycles();
+    });
+  },
+
+  renderCycleDraftSteps() {
+    const list = document.getElementById('cycle-draft-steps');
+    const empty = document.getElementById('cycle-draft-empty');
+    if (!this.cycleDraftSteps.length) {
+      list.innerHTML = '';
+      empty.hidden = false;
+      return;
+    }
+
+    empty.hidden = true;
+    list.innerHTML = this.cycleDraftSteps.map((step, index) => {
+      const item = Storage.getItemById(step.itemId);
+      const title = item ? itemDisplayName(item) : 'Missing item';
+      const tempo = step.tempoBpm || item?.targetTempo;
+      const tempoText = tempo ? ` · ${tempo} BPM` : '';
+      return `<li class="cycle-draft-step">
+        <div class="cycle-draft-step-info">
+          <div class="cycle-draft-step-title">${index + 1}. ${escapeHtml(title)}</div>
+          <div class="cycle-draft-step-meta">${formatTimerMinutes(step.durationMinutes)} min${tempoText}</div>
+        </div>
+        <div class="cycle-draft-step-actions">
+          <button type="button" class="btn btn-secondary btn-small" data-cycle-step-action="up" data-cycle-step-index="${index}" ${index === 0 ? 'disabled' : ''}>Up</button>
+          <button type="button" class="btn btn-secondary btn-small" data-cycle-step-action="down" data-cycle-step-index="${index}" ${index === this.cycleDraftSteps.length - 1 ? 'disabled' : ''}>Down</button>
+          <button type="button" class="btn btn-danger btn-small" data-cycle-step-action="remove" data-cycle-step-index="${index}">Remove</button>
+        </div>
+      </li>`;
+    }).join('');
+  },
+
+  refreshCycleStepSelect() {
+    const select = document.getElementById('cycle-step-item');
+    if (!select) return;
+    const current = select.value;
+    const items = Storage.getItems();
+    select.innerHTML = '<option value="">Add an item…</option>' +
+      items.map((item) => `<option value="${item.id}">${escapeHtml(itemSelectLabel(item))}</option>`).join('');
+    if (current && [...select.options].some((o) => o.value === current)) {
+      select.value = current;
+    }
+  },
+
+  startEditCycle(id) {
+    const cycle = Storage.getCycleById(id);
+    if (!cycle) return;
+
+    this.editingCycleId = id;
+    this.cycleDraftSteps = (cycle.steps || []).map((step) => ({
+      itemId: step.itemId,
+      durationMinutes: step.durationMinutes != null ? parseTimerMinutes(step.durationMinutes, 1) : 1,
+      tempoBpm: step.tempoBpm || null
+    }));
+
+    document.getElementById('cycle-form-title').textContent = 'Edit practice cycle';
+    document.getElementById('cycle-name').value = cycle.name || '';
+    document.getElementById('cycle-rounds').value = cycle.rounds || 3;
+    document.getElementById('cycle-submit-btn').textContent = 'Save changes';
+    document.getElementById('cycle-cancel-btn').hidden = false;
+    this.renderCycleDraftSteps();
+    this.renderCycles();
+    document.getElementById('cycle-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  },
+
+  cancelEditCycle() {
+    this.editingCycleId = null;
+    this.cycleDraftSteps = [];
+    document.getElementById('cycle-form').reset();
+    document.getElementById('cycle-rounds').value = 3;
+    document.getElementById('cycle-step-duration').value = 1;
+    document.getElementById('cycle-form-title').textContent = 'Add practice cycle';
+    document.getElementById('cycle-submit-btn').textContent = 'Add cycle';
+    document.getElementById('cycle-cancel-btn').hidden = true;
+    this.renderCycleDraftSteps();
+  },
+
+  renderCycles() {
+    this.refreshCycleStepSelect();
+    this.renderCycleDraftSteps();
+
+    const cycles = Storage.getCycles();
+    const list = document.getElementById('cycles-list');
+    const empty = document.getElementById('cycles-empty');
+
+    if (!cycles.length) {
+      list.innerHTML = '';
+      empty.hidden = false;
+      return;
+    }
+
+    empty.hidden = true;
+    list.innerHTML = cycles.map((cycle) => {
+      const steps = this.resolveCycleSteps(cycle);
+      const stepNames = steps.map((s) => s.itemName).join(' → ') || 'No valid items';
+      const perRound = steps.reduce((sum, step) => sum + step.durationMinutes, 0);
+      const total = Math.round(perRound * (cycle.rounds || 1) * 4) / 4;
+      return `<li class="item-row${this.editingCycleId === cycle.id ? ' editing' : ''}">
+        <div class="item-info">
+          <div class="item-title">${escapeHtml(cycle.name || 'Untitled cycle')}</div>
+          <div class="item-description">${escapeHtml(stepNames)}</div>
+          <div class="item-meta">${steps.length} steps · ${cycle.rounds} rounds · ~${total} min</div>
+        </div>
+        <div class="item-actions">
+          <button type="button" class="btn btn-secondary btn-small" data-edit-cycle="${cycle.id}">Edit</button>
+          <button type="button" class="btn btn-danger btn-small" data-delete-cycle="${cycle.id}">Delete</button>
+        </div>
+      </li>`;
+    }).join('');
+
+    list.querySelectorAll('[data-edit-cycle]').forEach((btn) => {
+      btn.addEventListener('click', () => this.startEditCycle(btn.dataset.editCycle));
+    });
+
+    list.querySelectorAll('[data-delete-cycle]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (this.editingCycleId === btn.dataset.deleteCycle) this.cancelEditCycle();
+        if (confirm('Delete this cycle? Practice history for its items will remain.')) {
+          Storage.deleteCycle(btn.dataset.deleteCycle);
+          this.refreshAll();
+        }
+      });
+    });
+  },
+
   updateDataProfileUI() {
     const profile = Storage.getProfile();
     document.querySelectorAll('[data-profile]').forEach((btn) => {
@@ -884,8 +1366,8 @@ const App = {
     const runInitialSync = async (settings) => {
       const { data: remote, sha } = await GitHubSync.fetchRemote(settings);
       const local = Storage.load();
-      const remoteEmpty = !remote.items?.length && !remote.sessions?.length;
-      const localHasData = local.items.length || local.sessions.length;
+      const remoteEmpty = !remote.items?.length && !remote.sessions?.length && !remote.cycles?.length;
+      const localHasData = local.items.length || local.sessions.length || local.cycles.length;
 
       Storage._fileSha = sha;
 
@@ -1230,15 +1712,18 @@ const App = {
   refreshAll() {
     this.refreshItemSelects();
     this.renderItems();
+    this.renderCycles();
     this.renderLog();
   },
 
   refreshItemSelects() {
     const items = Storage.getItems();
+    const cycles = Storage.getCycles();
     const configs = [
       {
         el: document.getElementById('practice-item-select'),
-        placeholder: '<option value="">Select an item…</option>'
+        placeholder: '<option value="">Select an item or cycle…</option>',
+        includeCycles: true
       },
       {
         el: document.getElementById('log-filter-item'),
@@ -1255,15 +1740,37 @@ const App = {
       }
     ];
 
-    configs.forEach(({ el, placeholder, extra = '' }) => {
+    configs.forEach(({ el, placeholder, extra = '', includeCycles = false }) => {
       if (!el) return;
       const current = el.value;
-      el.innerHTML = placeholder + extra +
-        items.map((i) => `<option value="${i.id}">${itemSelectLabel(i)}</option>`).join('');
+      let html = placeholder + extra;
+
+      if (includeCycles && cycles.length) {
+        html += '<optgroup label="Cycles">' +
+          cycles.map((cycle) => {
+            const steps = this.resolveCycleSteps(cycle).length;
+            if (!steps) return '';
+            return `<option value="cycle:${cycle.id}">${escapeHtml(cycleSelectLabel(cycle))}</option>`;
+          }).join('') +
+          '</optgroup>';
+      }
+
+      if (includeCycles && items.length) {
+        html += '<optgroup label="Items">' +
+          items.map((i) => `<option value="${i.id}">${escapeHtml(itemSelectLabel(i))}</option>`).join('') +
+          '</optgroup>';
+      } else {
+        html += items.map((i) => `<option value="${i.id}">${escapeHtml(itemSelectLabel(i))}</option>`).join('');
+      }
+
+      el.innerHTML = html;
       if (current && [...el.options].some((o) => o.value === current)) {
         el.value = current;
       }
     });
+
+    this.refreshCycleStepSelect();
+    if (!this.session) this.applyPracticeSelection();
   },
 
   renderItems() {
@@ -1348,7 +1855,12 @@ const App = {
         ? ' <span class="log-mode">Free</span>'
         : s.mode === 'manual'
           ? ' <span class="log-mode">Manual</span>'
-          : '';
+          : s.cycleName
+            ? ` <span class="log-mode">Cycle</span>`
+            : '';
+      const cycleMeta = s.cycleName
+        ? `<div class="cycle-meta-line">${escapeHtml(s.cycleName)}${s.cycleRound ? ` · round ${s.cycleRound}` : ''}</div>`
+        : '';
       return `
       <li class="log-row">
         <div class="log-info">
@@ -1358,6 +1870,7 @@ const App = {
             <span class="log-tempo">${tempoText}</span>${modeLabel}
             ${s.completed || s.mode === 'free' || s.mode === 'manual' ? '' : ' (stopped early)'}
           </div>
+          ${cycleMeta}
           ${feedbackBits.join('')}
         </div>
         <div class="item-actions">

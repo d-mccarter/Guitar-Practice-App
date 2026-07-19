@@ -68,17 +68,43 @@ const Storage = {
         name: item.name || item.code || 'Untitled',
         description: item.description || ''
       })),
+      cycles: (Array.isArray(data.cycles) ? data.cycles : []).map((cycle) => this.normalizeCycle(cycle)),
       sessions: Array.isArray(data.sessions) ? data.sessions : []
+    };
+  },
+
+  normalizeCycle(cycle = {}) {
+    const rounds = parseInt(cycle.rounds, 10);
+    return {
+      ...cycle,
+      id: cycle.id || generateId(),
+      name: cycle.name || 'Untitled cycle',
+      description: cycle.description || '',
+      rounds: Number.isNaN(rounds) ? 3 : Math.max(1, Math.min(10, rounds)),
+      steps: (Array.isArray(cycle.steps) ? cycle.steps : [])
+        .filter((step) => step && step.itemId)
+        .map((step) => ({
+          itemId: step.itemId,
+          durationMinutes: step.durationMinutes != null && step.durationMinutes !== ''
+            ? parseTimerMinutes(step.durationMinutes, 1)
+            : null,
+          tempoBpm: (() => {
+            const n = parseInt(step.tempoBpm, 10);
+            if (Number.isNaN(n)) return null;
+            return Math.max(40, Math.min(300, n));
+          })()
+        })),
+      createdAt: cycle.createdAt || new Date().toISOString()
     };
   },
 
   load() {
     try {
       const raw = localStorage.getItem(this.storageKey());
-      if (!raw) return { items: [], sessions: [] };
+      if (!raw) return { items: [], cycles: [], sessions: [] };
       return this.normalize(JSON.parse(raw));
     } catch {
-      return { items: [], sessions: [] };
+      return { items: [], cycles: [], sessions: [] };
     }
   },
 
@@ -114,8 +140,8 @@ const Storage = {
       const settings = this.getSyncSettings();
       const { data: remote, sha } = await GitHubSync.fetchRemote(settings);
       const local = this.load();
-      const remoteEmpty = !remote.items?.length && !remote.sessions?.length;
-      const localHasData = local.items.length || local.sessions.length;
+      const remoteEmpty = !remote.items?.length && !remote.sessions?.length && !remote.cycles?.length;
+      const localHasData = local.items.length || local.sessions.length || local.cycles.length;
 
       this._fileSha = sha;
 
@@ -197,14 +223,21 @@ const Storage = {
   },
 
   mergeData(remote, local) {
+    const remoteNorm = this.normalize(remote);
+    const localNorm = this.normalize(local);
+
     const itemsById = new Map();
-    [...remote.items, ...local.items].forEach((item) => itemsById.set(item.id, item));
+    [...remoteNorm.items, ...localNorm.items].forEach((item) => itemsById.set(item.id, item));
+
+    const cyclesById = new Map();
+    [...remoteNorm.cycles, ...localNorm.cycles].forEach((cycle) => cyclesById.set(cycle.id, cycle));
 
     const sessionsById = new Map();
-    [...remote.sessions, ...local.sessions].forEach((session) => sessionsById.set(session.id, session));
+    [...remoteNorm.sessions, ...localNorm.sessions].forEach((session) => sessionsById.set(session.id, session));
 
     return {
       items: [...itemsById.values()],
+      cycles: [...cyclesById.values()],
       sessions: [...sessionsById.values()].sort(
         (a, b) => new Date(b.startedAt) - new Date(a.startedAt)
       )
@@ -223,6 +256,10 @@ const Storage = {
     return this.load().items;
   },
 
+  getCycles() {
+    return this.load().cycles;
+  },
+
   getSessions() {
     return this.load().sessions;
   },
@@ -237,6 +274,11 @@ const Storage = {
   deleteItem(id) {
     const data = this.load();
     data.items = data.items.filter((i) => i.id !== id);
+    // Drop deleted items from cycle steps so cycles stay playable.
+    data.cycles = data.cycles.map((cycle) => ({
+      ...cycle,
+      steps: cycle.steps.filter((step) => step.itemId !== id)
+    }));
     this.save(data);
   },
 
@@ -247,6 +289,33 @@ const Storage = {
     data.items[index] = { ...data.items[index], ...updates };
     this.save(data);
     return data.items[index];
+  },
+
+  addCycle(cycle) {
+    const data = this.load();
+    const normalized = this.normalizeCycle(cycle);
+    data.cycles.push(normalized);
+    this.save(data);
+    return normalized;
+  },
+
+  updateCycle(id, updates) {
+    const data = this.load();
+    const index = data.cycles.findIndex((c) => c.id === id);
+    if (index === -1) return null;
+    data.cycles[index] = this.normalizeCycle({ ...data.cycles[index], ...updates, id });
+    this.save(data);
+    return data.cycles[index];
+  },
+
+  deleteCycle(id) {
+    const data = this.load();
+    data.cycles = data.cycles.filter((c) => c.id !== id);
+    this.save(data);
+  },
+
+  getCycleById(id) {
+    return this.getCycles().find((c) => c.id === id) || null;
   },
 
   addSession(session) {
@@ -358,6 +427,27 @@ function itemSelectLabel(item) {
   const name = itemDisplayName(item);
   const desc = (item.description || '').trim();
   return desc && desc !== name ? `${name} — ${desc}` : name;
+}
+
+function cycleSelectLabel(cycle) {
+  const steps = Array.isArray(cycle.steps) ? cycle.steps.length : 0;
+  const rounds = cycle.rounds || 1;
+  return `${cycle.name || 'Untitled cycle'} (${steps}×${rounds})`;
+}
+
+function parsePracticeSelection(value) {
+  const raw = String(value || '');
+  if (!raw) return { type: 'none' };
+  if (raw.startsWith('cycle:')) {
+    return { type: 'cycle', cycleId: raw.slice('cycle:'.length) };
+  }
+  return { type: 'item', itemId: raw };
+}
+
+function practiceSelectionValue(selection) {
+  if (!selection || selection.type === 'none') return '';
+  if (selection.type === 'cycle') return `cycle:${selection.cycleId}`;
+  return selection.itemId || '';
 }
 
 function sessionDisplayName(session) {

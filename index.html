@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=33">
+  <link rel="stylesheet" href="css/styles.css?v=34">
 </head>
 <body>
   <header class="app-header">
@@ -30,11 +30,12 @@
 
         <div id="practice-item-field">
           <label class="field">
-            <span id="practice-item-label">Practice item</span>
+            <span id="practice-item-label">Practice item or cycle</span>
             <select id="practice-item-select">
-              <option value="">Select an item…</option>
+              <option value="">Select an item or cycle…</option>
             </select>
           </label>
+          <p class="field-hint" id="cycle-preview-hint" hidden></p>
         </div>
 
         <div id="fixed-tempo-panel">
@@ -188,6 +189,48 @@
       </div>
     </section>
 
+    <!-- Cycles View -->
+    <section id="view-cycles" class="view">
+      <form id="cycle-form" class="card">
+        <h3 id="cycle-form-title">Add practice cycle</h3>
+        <p class="field-hint">Sequence short exercises, then repeat for a few rounds — like a practice circuit.</p>
+        <label class="field">
+          <span>Name</span>
+          <input type="text" id="cycle-name" placeholder="Pentatonic circuit" required maxlength="100">
+        </label>
+        <label class="field">
+          <span>Rounds</span>
+          <input type="number" id="cycle-rounds" min="1" max="10" value="3">
+        </label>
+        <div class="field">
+          <span>Steps</span>
+          <div class="cycle-step-add">
+            <select id="cycle-step-item">
+              <option value="">Add an item…</option>
+            </select>
+            <div class="number-stepper cycle-step-duration-stepper">
+              <button type="button" class="btn-icon" id="cycle-step-duration-down" aria-label="Decrease step duration">−</button>
+              <input type="number" id="cycle-step-duration" min="0.25" max="120" step="0.25" value="1" aria-label="Step duration minutes">
+              <button type="button" class="btn-icon" id="cycle-step-duration-up" aria-label="Increase step duration">+</button>
+            </div>
+            <button type="button" class="btn btn-secondary btn-small" id="cycle-add-step-btn">Add</button>
+          </div>
+          <ul id="cycle-draft-steps" class="cycle-draft-steps"></ul>
+          <p class="empty-state" id="cycle-draft-empty">Add at least two practice items to build a cycle.</p>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="cycle-submit-btn">Add cycle</button>
+          <button type="button" class="btn btn-secondary" id="cycle-cancel-btn" hidden>Cancel</button>
+        </div>
+      </form>
+
+      <div class="card">
+        <h3>Your cycles</h3>
+        <ul id="cycles-list" class="items-list"></ul>
+        <p class="empty-state" id="cycles-empty">No cycles yet. Build one above, then pick it on the Practice screen.</p>
+      </div>
+    </section>
+
     <!-- Log View -->
     <section id="view-log" class="view">
       <div class="card">
@@ -261,6 +304,10 @@
     <button type="button" class="nav-btn" data-view="items">
       <span class="nav-icon">☰</span>
       <span>Items</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="cycles">
+      <span class="nav-icon">⟳</span>
+      <span>Cycles</span>
     </button>
     <button type="button" class="nav-btn" data-view="log">
       <span class="nav-icon">📋</span>
@@ -360,11 +407,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=33"></script>
-  <script src="js/storage.js?v=33"></script>
-  <script src="js/metronome.js?v=33"></script>
-  <script src="js/charts.js?v=33"></script>
-  <script src="js/app.js?v=33"></script>
+  <script src="js/github-sync.js?v=34"></script>
+  <script src="js/storage.js?v=34"></script>
+  <script src="js/metronome.js?v=34"></script>
+  <script src="js/charts.js?v=34"></script>
+  <script src="js/app.js?v=34"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
