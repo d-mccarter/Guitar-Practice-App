@@ -127,7 +127,7 @@ const GitHubSync = {
     });
 
     if (response.status === 404) {
-      return { data: { items: [], sessions: [] }, sha: null };
+      return { data: { items: [], cycles: [], sessions: [] }, sha: null };
     }
 
     if (response.status === 401) {
