@@ -1008,10 +1008,18 @@ const App = {
   bindLog() {
     document.getElementById('log-filter-item').addEventListener('change', () => this.renderLog());
     document.getElementById('log-list').addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-edit-session]');
-      if (!btn) return;
-      const session = Storage.getSessionById(btn.dataset.editSession);
-      if (session) this.openSessionFeedback(session, { editing: true });
+      const editBtn = e.target.closest('[data-edit-session]');
+      if (editBtn) {
+        const session = Storage.getSessionById(editBtn.dataset.editSession);
+        if (session) this.openSessionFeedback(session, { editing: true });
+        return;
+      }
+
+      const deleteBtn = e.target.closest('[data-delete-session]');
+      if (!deleteBtn) return;
+      if (!confirm('Delete this log entry? This cannot be undone.')) return;
+      Storage.deleteSession(deleteBtn.dataset.deleteSession);
+      this.refreshAll();
     });
   },
 
@@ -1352,7 +1360,10 @@ const App = {
           </div>
           ${feedbackBits.join('')}
         </div>
-        <button type="button" class="btn btn-secondary btn-small" data-edit-session="${s.id}">${editLabel}</button>
+        <div class="item-actions">
+          <button type="button" class="btn btn-secondary btn-small" data-edit-session="${s.id}">${editLabel}</button>
+          <button type="button" class="btn btn-danger btn-small" data-delete-session="${s.id}">Delete</button>
+        </div>
       </li>
     `;
     }).join('');
