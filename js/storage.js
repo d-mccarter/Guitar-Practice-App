@@ -265,6 +265,12 @@ const Storage = {
     return data.sessions[index];
   },
 
+  deleteSession(id) {
+    const data = this.load();
+    data.sessions = data.sessions.filter((s) => s.id !== id);
+    this.save(data);
+  },
+
   getSessionById(id) {
     return this.getSessions().find((s) => s.id === id) || null;
   },
