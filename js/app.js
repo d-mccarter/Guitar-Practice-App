@@ -6,8 +6,6 @@ const App = {
   editingCycleId: null,
   cycleDraftSteps: [],
   cycleRun: null,
-  /** When non-null, cycle is paused for session notes; true = advance after dismiss. */
-  cycleFeedbackAdvance: null,
   practiceMode: 'practice',
   feedbackSessionId: null,
   feedbackPendingSession: null,
@@ -568,7 +566,8 @@ const App = {
       rounds: cycle.rounds || 1,
       steps,
       roundIndex: 0,
-      stepIndex: 0
+      stepIndex: 0,
+      lastLoggedSession: null
     };
 
     await this.beginCycleStep();
@@ -646,8 +645,8 @@ const App = {
   },
 
   finishCycleRun(completed) {
+    const feedbackSession = this.cycleRun?.lastLoggedSession || null;
     this.cycleRun = null;
-    this.cycleFeedbackAdvance = null;
     this.setSessionControlsVisible(false);
     this.setPracticeFormDisabled(false);
 
@@ -661,6 +660,11 @@ const App = {
     document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
     this.applyPracticeSelection();
     this.renderLog();
+
+    // Prompt once when the cycle ends — not after each step.
+    if (feedbackSession) {
+      this.openSessionFeedback(feedbackSession, { editing: false, cycleComplete: true });
+    }
   },
 
   logCycleStepSession(session, completed) {
@@ -688,6 +692,9 @@ const App = {
       cycleStepIndex: session.cycleStepIndex != null ? session.cycleStepIndex : null
     });
 
+    if (this.cycleRun) {
+      this.cycleRun.lastLoggedSession = recorded;
+    }
     this.showLastSession(recorded);
     return recorded;
   },
@@ -755,19 +762,12 @@ const App = {
     this.session = null;
 
     if (inCycle) {
-      const recorded = this.logCycleStepSession(session, completed);
-      this.setSessionControlsVisible(false);
-      statusEl.classList.remove('running', 'paused');
-      this.setPracticeFormDisabled(true);
-
-      if (recorded) {
-        // Same rating/notes prompt as a normal exercise; continue after Save/Skip.
-        this.cycleFeedbackAdvance = !!completed;
-        statusEl.textContent = completed ? 'Session complete!' : 'Session saved';
-        this.openSessionFeedback(recorded, { editing: false });
-        this.renderLog();
-      } else if (completed) {
+      this.logCycleStepSession(session, completed);
+      if (completed) {
+        // Keep controls locked while auto-advancing; notes prompt waits until cycle end.
+        statusEl.classList.remove('paused');
         statusEl.classList.add('running');
+        this.setPracticeFormDisabled(true);
         this.advanceCycle();
       } else {
         this.finishCycleRun(false);
@@ -920,7 +920,7 @@ const App = {
     });
   },
 
-  openSessionFeedback(session, { editing = false, pending = false } = {}) {
+  openSessionFeedback(session, { editing = false, pending = false, cycleComplete = false } = {}) {
     if (!session?.id) return;
 
     this.feedbackPendingSession = pending ? session : null;
@@ -943,6 +943,9 @@ const App = {
     } else if (editing) {
       title.textContent = 'Edit session notes';
       skipBtn.textContent = 'Cancel';
+    } else if (cycleComplete && session.cycleName) {
+      title.textContent = 'Cycle notes';
+      skipBtn.textContent = 'Skip';
     } else {
       title.textContent = 'Session notes';
       skipBtn.textContent = 'Skip';
@@ -952,12 +955,20 @@ const App = {
       ? `${session.startTempo}→${session.tempo} BPM`
       : `${session.tempo} BPM`;
     const name = sessionDisplayName(session);
-    let summaryText = isFree && (!name || name === 'Untitled')
-      ? `${formatDuration(session.durationSeconds)} at ${tempoText}`
-      : `${name} — ${formatDuration(session.durationSeconds)} at ${tempoText}`;
-    if (session.cycleName) {
-      summaryText += ` · ${session.cycleName}`;
-      if (session.cycleRound) summaryText += ` round ${session.cycleRound}`;
+    let summaryText;
+    if (cycleComplete && session.cycleName) {
+      summaryText = `${session.cycleName} complete`;
+      if (name && name !== 'Untitled') {
+        summaryText += ` · last step ${name} — ${formatDuration(session.durationSeconds)} at ${tempoText}`;
+      }
+    } else if (isFree && (!name || name === 'Untitled')) {
+      summaryText = `${formatDuration(session.durationSeconds)} at ${tempoText}`;
+    } else {
+      summaryText = `${name} — ${formatDuration(session.durationSeconds)} at ${tempoText}`;
+      if (session.cycleName) {
+        summaryText += ` · ${session.cycleName}`;
+        if (session.cycleRound) summaryText += ` round ${session.cycleRound}`;
+      }
     }
     summary.textContent = summaryText;
 
@@ -979,28 +990,6 @@ const App = {
     this.feedbackEditing = false;
     document.getElementById('session-feedback-worked-on').value = '';
     document.getElementById('session-feedback-notes').value = '';
-    this.continueAfterCycleFeedback();
-  },
-
-  continueAfterCycleFeedback() {
-    if (this.cycleFeedbackAdvance == null || !this.cycleRun) {
-      this.cycleFeedbackAdvance = null;
-      return;
-    }
-
-    const shouldAdvance = this.cycleFeedbackAdvance;
-    this.cycleFeedbackAdvance = null;
-
-    if (shouldAdvance) {
-      const statusEl = document.getElementById('session-status');
-      statusEl.classList.remove('paused');
-      statusEl.classList.add('running');
-      this.setPracticeFormDisabled(true);
-      this.advanceCycle();
-      return;
-    }
-
-    this.finishCycleRun(false);
   },
 
   saveSessionFeedback() {
