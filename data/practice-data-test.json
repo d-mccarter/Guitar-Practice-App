@@ -15,27 +15,7 @@
       "createdAt": "2026-07-18T01:24:47.682Z"
     }
   ],
-  "cycles": [
-    {
-      "id": "2c8a817b-c880-4fa1-a58d-05e9548408f3",
-      "name": "Cycle 1",
-      "rounds": 3,
-      "steps": [
-        {
-          "itemId": "577bab5d-cae1-4d99-a55d-0f380ddf5530",
-          "durationMinutes": 2,
-          "tempoBpm": null
-        },
-        {
-          "itemId": "04ae2f7a-2eef-4c14-b865-ffb76ae7efbd",
-          "durationMinutes": 2,
-          "tempoBpm": null
-        }
-      ],
-      "createdAt": "2026-07-19T05:12:11.753Z",
-      "description": ""
-    }
-  ],
+  "cycles": [],
   "sessions": [
     {
       "id": "f38da5cd-bce0-435c-9bb2-9c07097c6e49",
