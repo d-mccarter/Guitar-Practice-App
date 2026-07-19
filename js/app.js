@@ -6,6 +6,8 @@ const App = {
   editingCycleId: null,
   cycleDraftSteps: [],
   cycleRun: null,
+  /** When non-null, cycle is paused for session notes; true = advance after dismiss. */
+  cycleFeedbackAdvance: null,
   practiceMode: 'practice',
   feedbackSessionId: null,
   feedbackPendingSession: null,
@@ -645,6 +647,7 @@ const App = {
 
   finishCycleRun(completed) {
     this.cycleRun = null;
+    this.cycleFeedbackAdvance = null;
     this.setSessionControlsVisible(false);
     this.setPracticeFormDisabled(false);
 
@@ -752,10 +755,18 @@ const App = {
     this.session = null;
 
     if (inCycle) {
-      this.logCycleStepSession(session, completed);
-      if (completed) {
-        // Keep controls locked while auto-advancing to the next step/round.
-        statusEl.classList.remove('paused');
+      const recorded = this.logCycleStepSession(session, completed);
+      this.setSessionControlsVisible(false);
+      statusEl.classList.remove('running', 'paused');
+      this.setPracticeFormDisabled(true);
+
+      if (recorded) {
+        // Same rating/notes prompt as a normal exercise; continue after Save/Skip.
+        this.cycleFeedbackAdvance = !!completed;
+        statusEl.textContent = completed ? 'Session complete!' : 'Session saved';
+        this.openSessionFeedback(recorded, { editing: false });
+        this.renderLog();
+      } else if (completed) {
         statusEl.classList.add('running');
         this.advanceCycle();
       } else {
@@ -941,9 +952,14 @@ const App = {
       ? `${session.startTempo}→${session.tempo} BPM`
       : `${session.tempo} BPM`;
     const name = sessionDisplayName(session);
-    summary.textContent = isFree && (!name || name === 'Untitled')
+    let summaryText = isFree && (!name || name === 'Untitled')
       ? `${formatDuration(session.durationSeconds)} at ${tempoText}`
       : `${name} — ${formatDuration(session.durationSeconds)} at ${tempoText}`;
+    if (session.cycleName) {
+      summaryText += ` · ${session.cycleName}`;
+      if (session.cycleRound) summaryText += ` round ${session.cycleRound}`;
+    }
+    summary.textContent = summaryText;
 
     workedOnField.hidden = !isFree;
     workedOnInput.value = session.workedOn || '';
@@ -963,6 +979,28 @@ const App = {
     this.feedbackEditing = false;
     document.getElementById('session-feedback-worked-on').value = '';
     document.getElementById('session-feedback-notes').value = '';
+    this.continueAfterCycleFeedback();
+  },
+
+  continueAfterCycleFeedback() {
+    if (this.cycleFeedbackAdvance == null || !this.cycleRun) {
+      this.cycleFeedbackAdvance = null;
+      return;
+    }
+
+    const shouldAdvance = this.cycleFeedbackAdvance;
+    this.cycleFeedbackAdvance = null;
+
+    if (shouldAdvance) {
+      const statusEl = document.getElementById('session-status');
+      statusEl.classList.remove('paused');
+      statusEl.classList.add('running');
+      this.setPracticeFormDisabled(true);
+      this.advanceCycle();
+      return;
+    }
+
+    this.finishCycleRun(false);
   },
 
   saveSessionFeedback() {
