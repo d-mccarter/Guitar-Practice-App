@@ -21,6 +21,7 @@ class Metronome {
     this.accentDownbeat = true;
     this.accentQuarterBeats = true;
     this.clickSound = 'beep';
+    this.countInSound = 'same';
     this.bellSound = 'bell';
     this.tick = 0;
     this.running = false;
@@ -98,6 +99,10 @@ class Metronome {
 
   setClickSound(sound) {
     this.clickSound = CLICK_SOUND_PRESETS[sound] ? sound : 'beep';
+  }
+
+  setCountInSound(sound) {
+    this.countInSound = sound === 'same' || CLICK_SOUND_PRESETS[sound] ? sound : 'same';
   }
 
   setBellSound(sound) {
@@ -199,8 +204,8 @@ class Metronome {
     source.stop(time + duration + 0.02);
   }
 
-  _click(time, accent) {
-    switch (this.clickSound) {
+  _click(time, accent, soundKey = this.clickSound) {
+    switch (soundKey) {
       case 'wood':
         this._playOsc(time, accent ? 280 : 220, accent ? 0.45 : 0.3, 0.06, 'triangle');
         break;
@@ -219,6 +224,11 @@ class Metronome {
         this._playOsc(time, accent ? 1000 : 800, accent ? 0.35 : 0.2, 0.05, 'sine');
         break;
     }
+  }
+
+  _countInClick(time, accent) {
+    const sound = this.countInSound === 'same' ? this.clickSound : this.countInSound;
+    this._click(time, accent, sound);
   }
 
   playBell() {
@@ -249,17 +259,21 @@ class Metronome {
     }
   }
 
-  /** Play quarter-note count-in clicks before the session starts. */
+  /**
+   * Play quarter-note count-in clicks, then return the audio time of the first session beat
+   * so the running metronome can continue on the same grid without a gap.
+   */
   async playCountIn(beats, onBeat) {
     await this.init();
     const bpm = this._currentBpm();
     const interval = 60 / bpm;
     const startTime = this.audioCtx.currentTime + 0.05;
+    const nextBeatTime = startTime + beats * interval;
 
     for (let i = 0; i < beats; i++) {
       const time = startTime + i * interval;
       const accent = i === 0;
-      this._click(time, accent);
+      this._countInClick(time, accent);
 
       if (onBeat) {
         const delay = Math.max(0, (time - this.audioCtx.currentTime) * 1000);
@@ -267,8 +281,10 @@ class Metronome {
       }
     }
 
-    const totalMs = (beats * interval + 0.08) * 1000;
-    await new Promise((resolve) => setTimeout(resolve, totalMs));
+    const handoffLeadSec = 0.01;
+    const handoffMs = Math.max(0, (nextBeatTime - this.audioCtx.currentTime - handoffLeadSec) * 1000);
+    await new Promise((resolve) => setTimeout(resolve, handoffMs));
+    return nextBeatTime;
   }
 
   _schedule() {
@@ -311,12 +327,16 @@ class Metronome {
     this.timerId = setTimeout(() => this._tick(), 25);
   }
 
-  async start() {
+  async start(options = {}) {
     await this.init();
     if (this.running) return;
     this.running = true;
     this.tick = 0;
-    this.nextBeatTime = this.audioCtx.currentTime + 0.05;
+    const now = this.audioCtx.currentTime;
+    const handoff = options.nextBeatTime;
+    this.nextBeatTime = handoff != null && handoff > now
+      ? handoff
+      : now + 0.05;
     if (this.ramp) {
       this.ramp.elapsedBeforePause = 0;
       this.ramp.startAudioTime = this.audioCtx.currentTime;

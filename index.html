@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=39">
+  <link rel="stylesheet" href="css/styles.css?v=40">
 </head>
 <body>
   <header class="app-header">
@@ -149,6 +149,17 @@
         <label class="field">
           <span>Click sound</span>
           <select id="metronome-click-sound">
+            <option value="beep">Beep</option>
+            <option value="wood">Wood block</option>
+            <option value="hihat">Hi-hat</option>
+            <option value="clave">Clave</option>
+            <option value="rim">Rim shot</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Count-in sound</span>
+          <select id="metronome-count-in-sound">
+            <option value="same">Same as click</option>
             <option value="beep">Beep</option>
             <option value="wood">Wood block</option>
             <option value="hihat">Hi-hat</option>
@@ -458,11 +469,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=39"></script>
-  <script src="js/storage.js?v=39"></script>
-  <script src="js/metronome.js?v=39"></script>
-  <script src="js/charts.js?v=39"></script>
-  <script src="js/app.js?v=39"></script>
+  <script src="js/github-sync.js?v=40"></script>
+  <script src="js/storage.js?v=40"></script>
+  <script src="js/metronome.js?v=40"></script>
+  <script src="js/charts.js?v=40"></script>
+  <script src="js/app.js?v=40"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
