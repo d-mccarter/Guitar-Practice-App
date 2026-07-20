@@ -1,3 +1,18 @@
+const CLICK_SOUND_PRESETS = {
+  beep: { label: 'Beep' },
+  wood: { label: 'Wood block' },
+  hihat: { label: 'Hi-hat' },
+  clave: { label: 'Clave' },
+  rim: { label: 'Rim shot' }
+};
+
+const BELL_SOUND_PRESETS = {
+  bell: { label: 'Bell' },
+  chime: { label: 'Chime' },
+  gong: { label: 'Gong' },
+  ding: { label: 'Ding' }
+};
+
 class Metronome {
   constructor() {
     this.bpm = 120;
@@ -5,6 +20,8 @@ class Metronome {
     this.subdivisionsPerBeat = 1;
     this.accentDownbeat = true;
     this.accentQuarterBeats = true;
+    this.clickSound = 'beep';
+    this.bellSound = 'bell';
     this.tick = 0;
     this.running = false;
     this.nextBeatTime = 0;
@@ -14,6 +31,14 @@ class Metronome {
     this.onBpmChange = null;
     this.ramp = null;
     this._lastReportedBpm = null;
+  }
+
+  static getClickSoundPresets() {
+    return CLICK_SOUND_PRESETS;
+  }
+
+  static getBellSoundPresets() {
+    return BELL_SOUND_PRESETS;
   }
 
   async init() {
@@ -71,6 +96,14 @@ class Metronome {
     this.accentQuarterBeats = !!enabled;
   }
 
+  setClickSound(sound) {
+    this.clickSound = CLICK_SOUND_PRESETS[sound] ? sound : 'beep';
+  }
+
+  setBellSound(sound) {
+    this.bellSound = BELL_SOUND_PRESETS[sound] ? sound : 'bell';
+  }
+
   /** Pull the next click sooner when live settings shrink the interval. */
   _nudgeSchedule() {
     if (!this.running || !this.audioCtx || this.ramp) return;
@@ -124,18 +157,118 @@ class Metronome {
     }
   }
 
-  _click(time, accent) {
-    const osc = this.audioCtx.createOscillator();
+  _connectGain(time, peak, decay) {
     const gain = this.audioCtx.createGain();
-    osc.connect(gain);
     gain.connect(this.audioCtx.destination);
+    gain.gain.setValueAtTime(peak, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
+    return gain;
+  }
 
-    osc.frequency.value = accent ? 1000 : 800;
-    gain.gain.setValueAtTime(accent ? 0.35 : 0.2, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
-
+  _playOsc(time, frequency, peak, decay, type = 'sine') {
+    const osc = this.audioCtx.createOscillator();
+    const gain = this._connectGain(time, peak, decay);
+    osc.type = type;
+    osc.frequency.setValueAtTime(frequency, time);
+    osc.connect(gain);
     osc.start(time);
-    osc.stop(time + 0.05);
+    osc.stop(time + decay + 0.02);
+  }
+
+  _playNoiseBurst(time, peak, decay, filterFreq) {
+    const duration = Math.max(decay, 0.04);
+    const bufferSize = Math.ceil(this.audioCtx.sampleRate * duration);
+    const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+
+    const source = this.audioCtx.createBufferSource();
+    source.buffer = buffer;
+
+    const filter = this.audioCtx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = filterFreq;
+    filter.Q.value = 0.8;
+
+    const gain = this._connectGain(time, peak, decay);
+    source.connect(filter);
+    filter.connect(gain);
+    source.start(time);
+    source.stop(time + duration + 0.02);
+  }
+
+  _click(time, accent) {
+    switch (this.clickSound) {
+      case 'wood':
+        this._playOsc(time, accent ? 280 : 220, accent ? 0.45 : 0.3, 0.06, 'triangle');
+        break;
+      case 'hihat':
+        this._playNoiseBurst(time, accent ? 0.28 : 0.16, accent ? 0.04 : 0.03, accent ? 7800 : 6200);
+        break;
+      case 'clave':
+        this._playOsc(time, accent ? 2200 : 1800, accent ? 0.32 : 0.22, 0.035, 'sine');
+        break;
+      case 'rim':
+        this._playOsc(time, accent ? 560 : 430, accent ? 0.34 : 0.22, 0.04, 'triangle');
+        this._playNoiseBurst(time, accent ? 0.08 : 0.05, 0.025, 2400);
+        break;
+      case 'beep':
+      default:
+        this._playOsc(time, accent ? 1000 : 800, accent ? 0.35 : 0.2, 0.05, 'sine');
+        break;
+    }
+  }
+
+  playBell() {
+    if (!this.audioCtx) return;
+    const time = this.audioCtx.currentTime + 0.02;
+
+    switch (this.bellSound) {
+      case 'chime':
+        this._playOsc(time, 880, 0.22, 0.35, 'sine');
+        this._playOsc(time + 0.12, 1175, 0.18, 0.45, 'sine');
+        this._playOsc(time + 0.24, 1568, 0.14, 0.55, 'sine');
+        break;
+      case 'gong':
+        this._playOsc(time, 110, 0.5, 1.4, 'sine');
+        this._playOsc(time, 220, 0.18, 1.0, 'triangle');
+        this._playNoiseBurst(time, 0.06, 0.35, 420);
+        break;
+      case 'ding':
+        this._playOsc(time, 1568, 0.35, 0.75, 'sine');
+        this._playOsc(time, 784, 0.12, 0.55, 'triangle');
+        break;
+      case 'bell':
+      default:
+        this._playOsc(time, 988, 0.28, 0.9, 'sine');
+        this._playOsc(time, 1482, 0.16, 0.75, 'sine');
+        this._playOsc(time, 1976, 0.08, 0.55, 'sine');
+        break;
+    }
+  }
+
+  /** Play quarter-note count-in clicks before the session starts. */
+  async playCountIn(beats, onBeat) {
+    await this.init();
+    const bpm = this._currentBpm();
+    const interval = 60 / bpm;
+    const startTime = this.audioCtx.currentTime + 0.05;
+
+    for (let i = 0; i < beats; i++) {
+      const time = startTime + i * interval;
+      const accent = i === 0;
+      this._click(time, accent);
+
+      if (onBeat) {
+        const delay = Math.max(0, (time - this.audioCtx.currentTime) * 1000);
+        setTimeout(() => onBeat(i + 1, accent), delay);
+      }
+    }
+
+    const totalMs = (beats * interval + 0.08) * 1000;
+    await new Promise((resolve) => setTimeout(resolve, totalMs));
   }
 
   _schedule() {
