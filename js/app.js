@@ -74,6 +74,7 @@ const App = {
     const quarterAccentBtn = document.getElementById('metronome-quarter-accent-btn');
     const quarterAccentRow = document.getElementById('metronome-quarter-accent-row');
     const clickSoundSelect = document.getElementById('metronome-click-sound');
+    const countInSoundSelect = document.getElementById('metronome-count-in-sound');
     const bellSoundSelect = document.getElementById('metronome-bell-sound');
     const usesSubdivision = subdivisionSelect
       ? parseInt(subdivisionSelect.value, 10) > 1
@@ -100,6 +101,9 @@ const App = {
     if (clickSoundSelect) {
       this.metronome.setClickSound(clickSoundSelect.value);
     }
+    if (countInSoundSelect) {
+      this.metronome.setCountInSound(countInSoundSelect.value);
+    }
     if (bellSoundSelect) {
       this.metronome.setBellSound(bellSoundSelect.value);
     }
@@ -112,6 +116,7 @@ const App = {
       countIn: document.getElementById('metronome-count-in-btn')?.classList.contains('on') ?? false,
       timerBell: document.getElementById('metronome-timer-bell-btn')?.classList.contains('on') ?? true,
       clickSound: document.getElementById('metronome-click-sound')?.value || 'beep',
+      countInSound: document.getElementById('metronome-count-in-sound')?.value || 'same',
       bellSound: document.getElementById('metronome-bell-sound')?.value || 'bell'
     };
   },
@@ -140,8 +145,10 @@ const App = {
       setToggle('metronome-count-in-btn', !!options.countIn);
       setToggle('metronome-timer-bell-btn', options.timerBell !== false);
       const clickSelect = document.getElementById('metronome-click-sound');
+      const countInSelect = document.getElementById('metronome-count-in-sound');
       const bellSelect = document.getElementById('metronome-bell-sound');
       if (clickSelect && options.clickSound) clickSelect.value = options.clickSound;
+      if (countInSelect && options.countInSound) countInSelect.value = options.countInSound;
       if (bellSelect && options.bellSound) bellSelect.value = options.bellSound;
     }
 
@@ -172,6 +179,7 @@ const App = {
     const countInBtn = document.getElementById('metronome-count-in-btn');
     const timerBellBtn = document.getElementById('metronome-timer-bell-btn');
     const clickSoundSelect = document.getElementById('metronome-click-sound');
+    const countInSoundSelect = document.getElementById('metronome-count-in-sound');
     const bellSoundSelect = document.getElementById('metronome-bell-sound');
     const previewBellBtn = document.getElementById('metronome-preview-bell-btn');
 
@@ -201,6 +209,7 @@ const App = {
     });
 
     clickSoundSelect?.addEventListener('change', onChange);
+    countInSoundSelect?.addEventListener('change', onChange);
     bellSoundSelect?.addEventListener('change', onChange);
 
     previewBellBtn?.addEventListener('click', async () => {
@@ -219,14 +228,14 @@ const App = {
   },
 
   async runCountInIfEnabled() {
-    if (!this.isCountInEnabled()) return;
+    if (!this.isCountInEnabled()) return null;
 
     const statusEl = document.getElementById('session-status');
     const beatIndicator = document.getElementById('beat-indicator');
     statusEl.textContent = 'Count in…';
     statusEl.classList.remove('running', 'paused');
 
-    await this.metronome.playCountIn(4, (_beat, accent) => {
+    return this.metronome.playCountIn(4, (_beat, accent) => {
       beatIndicator.classList.add('active');
       if (accent) beatIndicator.classList.add('accent');
       else beatIndicator.classList.remove('accent');
@@ -660,8 +669,8 @@ const App = {
     };
 
     this.resetMeasureBeatDisplay();
-    await this.runCountInIfEnabled();
-    await this.metronome.start();
+    const nextBeatTime = await this.runCountInIfEnabled();
+    await this.metronome.start(nextBeatTime != null ? { nextBeatTime } : undefined);
     this.setSessionControlsVisible(true);
     statusEl.textContent = this.practiceMode === 'free' ? 'Playing…' : 'Practicing…';
     statusEl.classList.remove('paused');
@@ -742,8 +751,8 @@ const App = {
     };
 
     this.resetMeasureBeatDisplay();
-    await this.runCountInIfEnabled();
-    await this.metronome.start();
+    const nextBeatTime = await this.runCountInIfEnabled();
+    await this.metronome.start(nextBeatTime != null ? { nextBeatTime } : undefined);
     this.setSessionControlsVisible(true);
     statusEl.textContent = this.cycleStatusText();
     statusEl.classList.remove('paused');
