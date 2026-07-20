@@ -15,8 +15,10 @@ const App = {
 
   init() {
     this.loadBuildLabel();
+    this.loadMetronomeOptions();
     this.bindNavigation();
     this.bindPractice();
+    this.bindMetronomeOptions();
     this.bindItems();
     this.bindCycles();
     this.bindSync();
@@ -30,6 +32,7 @@ const App = {
   bindNavigation() {
     const titles = {
       practice: 'Practice',
+      metronome: 'Metronome',
       items: 'Items',
       cycles: 'Cycles',
       log: 'Log',
@@ -70,6 +73,8 @@ const App = {
     const accentBtn = document.getElementById('metronome-accent-btn');
     const quarterAccentBtn = document.getElementById('metronome-quarter-accent-btn');
     const quarterAccentRow = document.getElementById('metronome-quarter-accent-row');
+    const clickSoundSelect = document.getElementById('metronome-click-sound');
+    const bellSoundSelect = document.getElementById('metronome-bell-sound');
     const usesSubdivision = subdivisionSelect
       ? parseInt(subdivisionSelect.value, 10) > 1
       : false;
@@ -92,6 +97,146 @@ const App = {
         usesSubdivision && quarterAccentBtn.classList.contains('on')
       );
     }
+    if (clickSoundSelect) {
+      this.metronome.setClickSound(clickSoundSelect.value);
+    }
+    if (bellSoundSelect) {
+      this.metronome.setBellSound(bellSoundSelect.value);
+    }
+  },
+
+  getMetronomeOptionsFromDom() {
+    return {
+      accentDownbeat: document.getElementById('metronome-accent-btn')?.classList.contains('on') ?? true,
+      accentQuarterBeats: document.getElementById('metronome-quarter-accent-btn')?.classList.contains('on') ?? true,
+      countIn: document.getElementById('metronome-count-in-btn')?.classList.contains('on') ?? false,
+      timerBell: document.getElementById('metronome-timer-bell-btn')?.classList.contains('on') ?? true,
+      clickSound: document.getElementById('metronome-click-sound')?.value || 'beep',
+      bellSound: document.getElementById('metronome-bell-sound')?.value || 'bell'
+    };
+  },
+
+  loadMetronomeOptions() {
+    let options = null;
+    try {
+      const raw = localStorage.getItem('guitar-practice-tracker-metronome-options');
+      if (raw) options = JSON.parse(raw);
+    } catch {
+      /* ignore */
+    }
+
+    const setToggle = (id, enabled) => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      btn.textContent = enabled ? 'On' : 'Off';
+      btn.classList.toggle('on', enabled);
+      btn.classList.toggle('off', !enabled);
+      btn.setAttribute('aria-pressed', String(enabled));
+    };
+
+    if (options) {
+      setToggle('metronome-accent-btn', options.accentDownbeat !== false);
+      setToggle('metronome-quarter-accent-btn', options.accentQuarterBeats !== false);
+      setToggle('metronome-count-in-btn', !!options.countIn);
+      setToggle('metronome-timer-bell-btn', options.timerBell !== false);
+      const clickSelect = document.getElementById('metronome-click-sound');
+      const bellSelect = document.getElementById('metronome-bell-sound');
+      if (clickSelect && options.clickSound) clickSelect.value = options.clickSound;
+      if (bellSelect && options.bellSound) bellSelect.value = options.bellSound;
+    }
+
+    this.applyMetronomeOptions();
+  },
+
+  saveMetronomeOptions() {
+    try {
+      localStorage.setItem(
+        'guitar-practice-tracker-metronome-options',
+        JSON.stringify(this.getMetronomeOptionsFromDom())
+      );
+    } catch {
+      /* ignore */
+    }
+  },
+
+  updateToggleButton(btn, enabled) {
+    btn.textContent = enabled ? 'On' : 'Off';
+    btn.classList.toggle('on', enabled);
+    btn.classList.toggle('off', !enabled);
+    btn.setAttribute('aria-pressed', String(enabled));
+  },
+
+  bindMetronomeOptions() {
+    const accentBtn = document.getElementById('metronome-accent-btn');
+    const quarterAccentBtn = document.getElementById('metronome-quarter-accent-btn');
+    const countInBtn = document.getElementById('metronome-count-in-btn');
+    const timerBellBtn = document.getElementById('metronome-timer-bell-btn');
+    const clickSoundSelect = document.getElementById('metronome-click-sound');
+    const bellSoundSelect = document.getElementById('metronome-bell-sound');
+    const previewBellBtn = document.getElementById('metronome-preview-bell-btn');
+
+    const onChange = () => {
+      this.applyMetronomeOptions();
+      this.saveMetronomeOptions();
+    };
+
+    accentBtn?.addEventListener('click', () => {
+      this.updateToggleButton(accentBtn, !accentBtn.classList.contains('on'));
+      onChange();
+    });
+
+    quarterAccentBtn?.addEventListener('click', () => {
+      this.updateToggleButton(quarterAccentBtn, !quarterAccentBtn.classList.contains('on'));
+      onChange();
+    });
+
+    countInBtn?.addEventListener('click', () => {
+      this.updateToggleButton(countInBtn, !countInBtn.classList.contains('on'));
+      onChange();
+    });
+
+    timerBellBtn?.addEventListener('click', () => {
+      this.updateToggleButton(timerBellBtn, !timerBellBtn.classList.contains('on'));
+      onChange();
+    });
+
+    clickSoundSelect?.addEventListener('change', onChange);
+    bellSoundSelect?.addEventListener('change', onChange);
+
+    previewBellBtn?.addEventListener('click', async () => {
+      this.applyMetronomeOptions();
+      await this.metronome.init();
+      this.metronome.playBell();
+    });
+  },
+
+  isCountInEnabled() {
+    return document.getElementById('metronome-count-in-btn')?.classList.contains('on') ?? false;
+  },
+
+  isTimerBellEnabled() {
+    return document.getElementById('metronome-timer-bell-btn')?.classList.contains('on') ?? true;
+  },
+
+  async runCountInIfEnabled() {
+    if (!this.isCountInEnabled()) return;
+
+    const statusEl = document.getElementById('session-status');
+    const beatIndicator = document.getElementById('beat-indicator');
+    statusEl.textContent = 'Count in…';
+    statusEl.classList.remove('running', 'paused');
+
+    await this.metronome.playCountIn(4, (_beat, accent) => {
+      beatIndicator.classList.add('active');
+      if (accent) beatIndicator.classList.add('accent');
+      else beatIndicator.classList.remove('accent');
+      setTimeout(() => beatIndicator.classList.remove('active'), 80);
+    });
+  },
+
+  playTimerBellIfEnabled() {
+    if (!this.isTimerBellEnabled()) return;
+    this.metronome.playBell();
   },
 
   bindPractice() {
@@ -209,30 +354,11 @@ const App = {
     });
 
     const subdivisionSelect = document.getElementById('metronome-subdivision');
-    const accentBtn = document.getElementById('metronome-accent-btn');
-    const quarterAccentBtn = document.getElementById('metronome-quarter-accent-btn');
-
-    const updateToggleButton = (btn, enabled) => {
-      btn.textContent = enabled ? 'On' : 'Off';
-      btn.classList.toggle('on', enabled);
-      btn.classList.toggle('off', !enabled);
-      btn.setAttribute('aria-pressed', String(enabled));
-    };
 
     subdivisionSelect.addEventListener('change', () => {
       this.applyMetronomeOptions();
     });
     subdivisionSelect.addEventListener('input', () => {
-      this.applyMetronomeOptions();
-    });
-
-    accentBtn.addEventListener('click', () => {
-      updateToggleButton(accentBtn, !accentBtn.classList.contains('on'));
-      this.applyMetronomeOptions();
-    });
-
-    quarterAccentBtn.addEventListener('click', () => {
-      updateToggleButton(quarterAccentBtn, !quarterAccentBtn.classList.contains('on'));
       this.applyMetronomeOptions();
     });
 
@@ -534,6 +660,7 @@ const App = {
     };
 
     this.resetMeasureBeatDisplay();
+    await this.runCountInIfEnabled();
     await this.metronome.start();
     this.setSessionControlsVisible(true);
     statusEl.textContent = this.practiceMode === 'free' ? 'Playing…' : 'Practicing…';
@@ -615,6 +742,7 @@ const App = {
     };
 
     this.resetMeasureBeatDisplay();
+    await this.runCountInIfEnabled();
     await this.metronome.start();
     this.setSessionControlsVisible(true);
     statusEl.textContent = this.cycleStatusText();
@@ -747,6 +875,10 @@ const App = {
   },
 
   stopSession(completed) {
+    if (completed) {
+      this.playTimerBellIfEnabled();
+    }
+
     this.metronome.stop();
     this.metronome.clearRamp();
     clearInterval(this.timerInterval);

@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=38">
+  <link rel="stylesheet" href="css/styles.css?v=39">
 </head>
 <body>
   <header class="app-header">
@@ -78,25 +78,15 @@
         </div>
 
         <div class="metronome-options">
-          <div class="metronome-options-row">
-            <label class="field metronome-subdivision-field">
-              <span>Subdivision</span>
-              <select id="metronome-subdivision">
-                <option value="1">Quarter</option>
-                <option value="2">Eighth</option>
-                <option value="3">Triplets</option>
-                <option value="4">Sixteenth</option>
-              </select>
-            </label>
-            <div class="field metronome-accent-field">
-              <span>First beat</span>
-              <button type="button" id="metronome-accent-btn" class="sync-switch on" aria-pressed="true">On</button>
-            </div>
-            <div class="field metronome-accent-field" id="metronome-quarter-accent-row">
-              <span>Quarter beats</span>
-              <button type="button" id="metronome-quarter-accent-btn" class="sync-switch on" aria-pressed="true">On</button>
-            </div>
-          </div>
+          <label class="field metronome-subdivision-field">
+            <span>Subdivision</span>
+            <select id="metronome-subdivision">
+              <option value="1">Quarter</option>
+              <option value="2">Eighth</option>
+              <option value="3">Triplets</option>
+              <option value="4">Sixteenth</option>
+            </select>
+          </label>
         </div>
       </div>
 
@@ -119,6 +109,63 @@
       <div class="card last-session" id="last-session-card" hidden>
         <h3>Last session</h3>
         <p id="last-session-summary"></p>
+      </div>
+    </section>
+
+    <!-- Metronome Options View -->
+    <section id="view-metronome" class="view">
+      <div class="card">
+        <h3>Accent</h3>
+        <p class="field-hint">Control which beats get a stronger click during practice.</p>
+        <div class="metronome-settings-grid">
+          <div class="field metronome-accent-field">
+            <span>First beat</span>
+            <button type="button" id="metronome-accent-btn" class="sync-switch on" aria-pressed="true">On</button>
+          </div>
+          <div class="field metronome-accent-field" id="metronome-quarter-accent-row">
+            <span>Quarter beats</span>
+            <button type="button" id="metronome-quarter-accent-btn" class="sync-switch on" aria-pressed="true">On</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Start &amp; finish</h3>
+        <div class="metronome-settings-grid">
+          <div class="field metronome-accent-field">
+            <span>4-beat count-in</span>
+            <button type="button" id="metronome-count-in-btn" class="sync-switch off" aria-pressed="false">Off</button>
+          </div>
+          <div class="field metronome-accent-field">
+            <span>Timer bell</span>
+            <button type="button" id="metronome-timer-bell-btn" class="sync-switch on" aria-pressed="true">On</button>
+          </div>
+        </div>
+        <p class="field-hint">Count-in plays four quarter-note clicks before the session starts. The timer bell plays when a timed session finishes.</p>
+      </div>
+
+      <div class="card">
+        <h3>Sounds</h3>
+        <label class="field">
+          <span>Click sound</span>
+          <select id="metronome-click-sound">
+            <option value="beep">Beep</option>
+            <option value="wood">Wood block</option>
+            <option value="hihat">Hi-hat</option>
+            <option value="clave">Clave</option>
+            <option value="rim">Rim shot</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Timer bell sound</span>
+          <select id="metronome-bell-sound">
+            <option value="bell">Bell</option>
+            <option value="chime">Chime</option>
+            <option value="gong">Gong</option>
+            <option value="ding">Ding</option>
+          </select>
+        </label>
+        <button type="button" class="btn btn-secondary btn-small" id="metronome-preview-bell-btn">Preview bell</button>
       </div>
     </section>
 
@@ -301,6 +348,10 @@
       <span class="nav-icon">♪</span>
       <span>Practice</span>
     </button>
+    <button type="button" class="nav-btn" data-view="metronome">
+      <span class="nav-icon">⚙</span>
+      <span>Metronome</span>
+    </button>
     <button type="button" class="nav-btn" data-view="items">
       <span class="nav-icon">☰</span>
       <span>Items</span>
@@ -407,11 +458,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=38"></script>
-  <script src="js/storage.js?v=38"></script>
-  <script src="js/metronome.js?v=38"></script>
-  <script src="js/charts.js?v=38"></script>
-  <script src="js/app.js?v=38"></script>
+  <script src="js/github-sync.js?v=39"></script>
+  <script src="js/storage.js?v=39"></script>
+  <script src="js/metronome.js?v=39"></script>
+  <script src="js/charts.js?v=39"></script>
+  <script src="js/app.js?v=39"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
