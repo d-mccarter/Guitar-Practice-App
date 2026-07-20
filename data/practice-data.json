@@ -74,6 +74,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "f6f5b150-c32d-4c85-92f2-a07dc21b67dd",
+      "itemId": "5b062e04-590e-4c6a-86d3-08eac2f699da",
+      "itemName": "E-shape triplets",
+      "workedOn": "",
+      "tempo": 110,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 180,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-07-20T12:00:44.443Z",
+      "completedAt": "2026-07-20T12:03:45.143Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "228765f6-ae74-4b0e-a1d2-7902a385a1e8",
       "itemId": "89970727-7224-4dd3-ad8d-dfb4170b8be6",
       "itemName": "C-shape triplets",
