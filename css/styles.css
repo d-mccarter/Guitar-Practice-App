@@ -1216,29 +1216,30 @@ select {
 
 .modal-card .star-rating {
   width: 100%;
-  gap: 6px;
+  gap: 4px;
 }
 
 .modal-card .star-btn {
   width: auto;
-  min-height: 56px;
-  height: 56px;
+  min-height: 64px;
+  height: 64px;
 }
 
 .star-rating {
   display: flex;
   width: 100%;
-  gap: 6px;
+  gap: 4px;
   justify-content: stretch;
   align-items: stretch;
 }
 
 .star-btn {
+  /* Flex only spreads tap targets — glyph size is independent of gap/width. */
   flex: 1 1 0;
   min-width: 0;
   width: auto;
-  min-height: 56px;
-  height: 56px;
+  min-height: 64px;
+  height: 64px;
   border: none;
   border-radius: 12px;
   background: transparent;
@@ -1251,6 +1252,8 @@ select {
   align-items: center;
   justify-content: center;
   padding: 0;
+  /* Anchor glyph size here so spacing/flex cannot shrink the star. */
+  font-size: 48px;
 }
 
 .star-hit {
@@ -1274,7 +1277,7 @@ select {
   z-index: 0;
   pointer-events: none;
   line-height: 1;
-  font-size: 2.6rem;
+  font-size: 1em;
   color: var(--border);
   -webkit-text-fill-color: var(--border);
   background-image: none;
