@@ -805,8 +805,27 @@ select {
   margin-bottom: 0;
 }
 
+.log-filter-row {
+  margin-bottom: 0;
+}
+
 .log-header .btn {
   flex-shrink: 0;
+  align-self: flex-end;
+}
+
+@media (max-width: 420px) {
+  .log-header {
+    flex-wrap: wrap;
+  }
+
+  .log-filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .log-header .btn {
+    width: 100%;
+  }
 }
 
 .log-date {

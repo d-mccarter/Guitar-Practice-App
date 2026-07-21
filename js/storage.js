@@ -395,6 +395,48 @@ function formatDate(iso) {
   });
 }
 
+function startOfLocalDay(date = new Date()) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function monthKeyFromDate(date) {
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return '';
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** Match a session against log date filter values (preset or YYYY-MM). */
+function sessionMatchesDateFilter(session, filter) {
+  if (!filter) return true;
+  const started = new Date(session.startedAt);
+  if (Number.isNaN(started.getTime())) return false;
+
+  const now = new Date();
+  if (filter === 'today') {
+    return started >= startOfLocalDay(now);
+  }
+  if (filter === 'week') {
+    const start = startOfLocalDay(now);
+    start.setDate(start.getDate() - start.getDay());
+    return started >= start;
+  }
+  if (filter === 'month') {
+    return started.getFullYear() === now.getFullYear()
+      && started.getMonth() === now.getMonth();
+  }
+  if (filter === '30') {
+    const start = startOfLocalDay(now);
+    start.setDate(start.getDate() - 29);
+    return started >= start;
+  }
+  if (/^\d{4}-\d{2}$/.test(filter)) {
+    return monthKeyFromDate(started) === filter;
+  }
+  return true;
+}
+
 /** Format a Date for <input type="datetime-local"> in local time. */
 function toDatetimeLocalValue(date) {
   const d = date instanceof Date ? date : new Date(date);

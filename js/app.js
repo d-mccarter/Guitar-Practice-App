@@ -1782,6 +1782,7 @@ const App = {
 
   bindLog() {
     document.getElementById('log-filter-item').addEventListener('change', () => this.renderLog());
+    document.getElementById('log-filter-date').addEventListener('change', () => this.renderLog());
     document.getElementById('log-list').addEventListener('click', (e) => {
       const editBtn = e.target.closest('[data-edit-session]');
       if (editBtn) {
@@ -1999,9 +2000,46 @@ const App = {
 
   refreshAll() {
     this.refreshItemSelects();
+    this.refreshLogDateFilter();
     this.renderItems();
     this.renderCycles();
     this.renderLog();
+  },
+
+  refreshLogDateFilter() {
+    const select = document.getElementById('log-filter-date');
+    if (!select) return;
+
+    const current = select.value;
+    const months = new Map();
+    Storage.getSessions().forEach((session) => {
+      const started = new Date(session.startedAt);
+      if (Number.isNaN(started.getTime())) return;
+      const key = monthKeyFromDate(started);
+      if (!key || months.has(key)) return;
+      months.set(key, started.toLocaleDateString(undefined, {
+        month: 'long',
+        year: 'numeric'
+      }));
+    });
+
+    const monthOptions = [...months.entries()]
+      .sort((a, b) => b[0].localeCompare(a[0]))
+      .map(([key, label]) => `<option value="${key}">${escapeHtml(label)}</option>`)
+      .join('');
+
+    select.innerHTML = `
+      <option value="">All dates</option>
+      <option value="today">Today</option>
+      <option value="week">This week</option>
+      <option value="month">This month</option>
+      <option value="30">Last 30 days</option>
+      ${monthOptions ? `<optgroup label="By month">${monthOptions}</optgroup>` : ''}
+    `;
+
+    if ([...select.options].some((option) => option.value === current)) {
+      select.value = current;
+    }
   },
 
   refreshItemSelects() {
@@ -2107,11 +2145,14 @@ const App = {
   },
 
   renderLog() {
+    this.refreshLogDateFilter();
     const filterId = document.getElementById('log-filter-item').value;
+    const dateFilter = document.getElementById('log-filter-date')?.value || '';
     let sessions = Storage.getSessions()
       .slice()
       .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
     if (filterId) sessions = sessions.filter((s) => s.itemId === filterId);
+    if (dateFilter) sessions = sessions.filter((s) => sessionMatchesDateFilter(s, dateFilter));
 
     const list = document.getElementById('log-list');
     const empty = document.getElementById('log-empty');
@@ -2119,6 +2160,9 @@ const App = {
     if (!sessions.length) {
       list.innerHTML = '';
       empty.hidden = false;
+      empty.textContent = (filterId || dateFilter)
+        ? 'No sessions match these filters.'
+        : 'No sessions logged yet. Tap Log practice to add one.';
       return;
     }
 
