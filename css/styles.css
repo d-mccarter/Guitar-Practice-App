@@ -851,6 +851,23 @@ select {
   font-size: 0.95rem;
 }
 
+.log-star {
+  display: inline-block;
+  line-height: 1;
+}
+
+.log-star.is-empty {
+  color: var(--border);
+}
+
+.log-star.is-half {
+  background-image: linear-gradient(90deg, var(--accent) 50%, var(--border) 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
 .log-notes {
   margin-top: 4px;
   white-space: pre-wrap;
@@ -1113,7 +1130,8 @@ select {
   line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: color 0.1s, transform 0.1s;
+  transition: color 0.1s, transform 0.1s, background 0.1s;
+  position: relative;
 }
 
 .star-btn:active {
@@ -1122,6 +1140,21 @@ select {
 
 .star-btn.active {
   color: var(--accent);
+  background-image: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.star-btn.half {
+  background-image: linear-gradient(90deg, var(--accent) 50%, var(--border) 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.star-btn:not(.half):not(.active) {
+  background-image: none;
+  -webkit-text-fill-color: currentColor;
 }
 
 @media (min-width: 481px) {

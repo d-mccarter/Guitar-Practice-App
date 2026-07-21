@@ -1133,8 +1133,8 @@ const App = {
     const skipBtn = document.getElementById('session-feedback-skip-btn');
 
     stars.querySelectorAll('.star-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const value = parseInt(btn.dataset.rating, 10);
+      btn.addEventListener('click', (event) => {
+        const value = ratingFromStarEvent(btn, event);
         // Tap the current rating again to clear (0 = unrated).
         this.feedbackRating = this.feedbackRating === value ? 0 : value;
         this.renderFeedbackStars();
@@ -1170,11 +1170,19 @@ const App = {
   },
 
   renderFeedbackStars() {
-    const rating = normalizeSessionRating(this.feedbackRating);
-    document.querySelectorAll('#session-feedback-stars .star-btn').forEach((btn) => {
-      const value = parseInt(btn.dataset.rating, 10);
-      btn.classList.toggle('active', value <= rating && rating > 0);
-      btn.setAttribute('aria-checked', String(value === rating && rating > 0));
+    this.renderStarButtons('#session-feedback-stars', this.feedbackRating);
+  },
+
+  renderStarButtons(selector, rating) {
+    const r = normalizeSessionRating(rating);
+    document.querySelectorAll(`${selector} .star-btn`).forEach((btn) => {
+      const value = parseFloat(btn.dataset.rating);
+      const full = r >= value;
+      const half = !full && r > 0 && r >= value - 0.5;
+      btn.classList.toggle('active', full);
+      btn.classList.toggle('half', half);
+      const selected = r > 0 && (r === value || r === value - 0.5);
+      btn.setAttribute('aria-checked', String(selected));
     });
   },
 
@@ -1856,8 +1864,8 @@ const App = {
     });
 
     document.querySelectorAll('#manual-log-stars .star-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const value = parseInt(btn.dataset.rating, 10);
+      btn.addEventListener('click', (event) => {
+        const value = ratingFromStarEvent(btn, event);
         this.manualLogRating = this.manualLogRating === value ? 0 : value;
         this.renderManualLogStars();
       });
@@ -1872,12 +1880,7 @@ const App = {
   },
 
   renderManualLogStars() {
-    const rating = normalizeSessionRating(this.manualLogRating);
-    document.querySelectorAll('#manual-log-stars .star-btn').forEach((btn) => {
-      const value = parseInt(btn.dataset.rating, 10);
-      btn.classList.toggle('active', value <= rating && rating > 0);
-      btn.setAttribute('aria-checked', String(value === rating && rating > 0));
-    });
+    this.renderStarButtons('#manual-log-stars', this.manualLogRating);
   },
 
   openManualLog() {
