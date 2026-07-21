@@ -1135,13 +1135,11 @@ const App = {
     const saveBtn = document.getElementById('session-feedback-save-btn');
     const skipBtn = document.getElementById('session-feedback-skip-btn');
 
-    stars.querySelectorAll('.star-btn').forEach((btn) => {
-      btn.addEventListener('click', (event) => {
-        const value = ratingFromStarEvent(btn, event);
-        // Tap the current rating again to clear (0 = unrated).
-        this.feedbackRating = this.feedbackRating === value ? 0 : value;
-        this.renderFeedbackStars();
-      });
+    this.bindStarRatingControl({
+      container: stars,
+      getRating: () => this.feedbackRating,
+      setRating: (value) => { this.feedbackRating = value; },
+      render: () => this.renderFeedbackStars()
     });
 
     saveBtn.addEventListener('click', () => this.saveSessionFeedback());
@@ -1174,6 +1172,86 @@ const App = {
 
   renderFeedbackStars() {
     this.renderStarButtons('#session-feedback-stars', this.feedbackRating);
+  },
+
+  bindStarRatingControl({ container, getRating, setRating, render }) {
+    if (!container) return;
+
+    let dragging = false;
+    let ratingBefore = 0;
+    let startX = 0;
+    let startY = 0;
+    let moved = false;
+
+    const applyFromEvent = (event) => {
+      const point = event.changedTouches?.[0] || event;
+      if (point?.clientX == null) return;
+      const value = ratingFromStarClientX(container, point.clientX);
+      setRating(value);
+      render();
+    };
+
+    container.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      dragging = true;
+      moved = false;
+      ratingBefore = getRating();
+      startX = event.clientX;
+      startY = event.clientY;
+      container.classList.add('is-dragging');
+      try {
+        container.setPointerCapture(event.pointerId);
+      } catch {
+        /* ignore */
+      }
+      applyFromEvent(event);
+      event.preventDefault();
+    });
+
+    container.addEventListener('pointermove', (event) => {
+      if (!dragging) return;
+      if (Math.hypot(event.clientX - startX, event.clientY - startY) > 6) {
+        moved = true;
+      }
+      applyFromEvent(event);
+      event.preventDefault();
+    });
+
+    const endDrag = (event) => {
+      if (!dragging) return;
+      dragging = false;
+      container.classList.remove('is-dragging');
+      applyFromEvent(event);
+
+      // Tap the same value again (without sliding) to clear.
+      if (!moved && getRating() === ratingBefore && ratingBefore > 0) {
+        setRating(0);
+        render();
+      }
+
+      try {
+        container.releasePointerCapture(event.pointerId);
+      } catch {
+        /* ignore */
+      }
+    };
+
+    container.addEventListener('pointerup', endDrag);
+    container.addEventListener('pointercancel', endDrag);
+
+    // Keyboard: left/right adjust by half steps when a star button is focused.
+    container.querySelectorAll('.star-btn').forEach((btn) => {
+      btn.addEventListener('keydown', (event) => {
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        event.preventDefault();
+        const current = getRating() || 0;
+        const next = event.key === 'ArrowRight'
+          ? Math.min(5, current + 0.5 || 0.5)
+          : Math.max(0, current - 0.5);
+        setRating(normalizeSessionRating(next));
+        render();
+      });
+    });
   },
 
   renderStarButtons(selector, rating) {
@@ -1998,12 +2076,11 @@ const App = {
       }
     });
 
-    document.querySelectorAll('#manual-log-stars .star-btn').forEach((btn) => {
-      btn.addEventListener('click', (event) => {
-        const value = ratingFromStarEvent(btn, event);
-        this.manualLogRating = this.manualLogRating === value ? 0 : value;
-        this.renderManualLogStars();
-      });
+    this.bindStarRatingControl({
+      container: document.getElementById('manual-log-stars'),
+      getRating: () => this.manualLogRating,
+      setRating: (value) => { this.manualLogRating = value; },
+      render: () => this.renderManualLogStars()
     });
   },
 
