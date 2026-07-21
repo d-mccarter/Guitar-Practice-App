@@ -611,16 +611,6 @@ select {
   min-height: 42px;
 }
 
-.metronome-options .sync-switch:disabled {
-  opacity: 1;
-  cursor: not-allowed;
-}
-
-.metronome-accent-field.is-disabled {
-  opacity: 0.4;
-  pointer-events: none;
-}
-
 #view-metronome .card + .card {
   margin-top: 12px;
 }

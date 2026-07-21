@@ -297,6 +297,7 @@ class Metronome {
       const beatInMeasure = Math.floor(this.tick / this.subdivisionsPerBeat) % this.beatsPerMeasure;
       const isBeatStart = this.tick % this.subdivisionsPerBeat === 0;
       const accentDownbeat = this.accentDownbeat && isBeatStart && beatInMeasure === 0;
+      // Subdivision accent only applies when clicking faster than quarters.
       const accentQuarter = this.accentQuarterBeats && this.subdivisionsPerBeat > 1 && isBeatStart;
       const accent = accentDownbeat || accentQuarter;
       this._click(this.nextBeatTime, accent);
