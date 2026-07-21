@@ -1,13 +1,16 @@
 const Charts = {
   _setupCanvas(canvas) {
     const dpr = window.devicePixelRatio || 1;
+    // Read layout size from CSS box. Do not use canvas.width/height attributes —
+    // writing the bitmap size updates those attrs, and with height:auto the
+    // element grows on every redraw (especially on retina displays).
     const rect = canvas.getBoundingClientRect();
-    const w = rect.width || canvas.clientWidth || 300;
-    const h = parseInt(canvas.getAttribute('height'), 10) || 200;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
+    const w = Math.max(1, rect.width || canvas.clientWidth || 300);
+    const h = Math.max(1, rect.height || canvas.clientHeight || 200);
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
     const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return { ctx, w, h };
   },
 

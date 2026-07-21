@@ -994,7 +994,7 @@ select {
 
 .chart-card canvas {
   width: 100%;
-  height: auto;
+  height: 200px;
   display: block;
   margin-top: 8px;
 }
