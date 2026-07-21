@@ -111,31 +111,19 @@ const App = {
     const subdivisionSelect = document.getElementById('metronome-subdivision');
     const accentBtn = document.getElementById('metronome-accent-btn');
     const quarterAccentBtn = document.getElementById('metronome-quarter-accent-btn');
-    const quarterAccentRow = document.getElementById('metronome-quarter-accent-row');
     const clickSoundSelect = document.getElementById('metronome-click-sound');
     const countInSoundSelect = document.getElementById('metronome-count-in-sound');
     const bellSoundSelect = document.getElementById('metronome-bell-sound');
-    const usesSubdivision = subdivisionSelect
-      ? parseInt(subdivisionSelect.value, 10) > 1
-      : false;
 
     if (subdivisionSelect) {
       this.metronome.setSubdivision(subdivisionSelect.value);
-    }
-    if (quarterAccentRow) {
-      quarterAccentRow.classList.toggle('is-disabled', !usesSubdivision);
-      quarterAccentRow.setAttribute('aria-disabled', String(!usesSubdivision));
-    }
-    if (quarterAccentBtn) {
-      quarterAccentBtn.disabled = !usesSubdivision;
     }
     if (accentBtn) {
       this.metronome.setAccentDownbeat(accentBtn.classList.contains('on'));
     }
     if (quarterAccentBtn) {
-      this.metronome.setAccentQuarterBeats(
-        usesSubdivision && quarterAccentBtn.classList.contains('on')
-      );
+      // Applied by the metronome only when a subdivision (> quarter) is active.
+      this.metronome.setAccentQuarterBeats(quarterAccentBtn.classList.contains('on'));
     }
     if (clickSoundSelect) {
       this.metronome.setClickSound(clickSoundSelect.value);
