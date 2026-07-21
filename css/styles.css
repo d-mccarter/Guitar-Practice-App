@@ -1223,7 +1223,6 @@ select {
   width: auto;
   min-height: 56px;
   height: 56px;
-  font-size: 1.85rem;
 }
 
 .star-rating {
@@ -1244,11 +1243,9 @@ select {
   border-radius: 12px;
   background: transparent;
   color: var(--border);
-  font-size: 1.85rem;
-  line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: color 0.1s, transform 0.1s, background 0.1s;
+  transition: transform 0.1s;
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -1277,32 +1274,32 @@ select {
   z-index: 0;
   pointer-events: none;
   line-height: 1;
-  color: inherit;
+  font-size: 2.6rem;
+  color: var(--border);
+  -webkit-text-fill-color: var(--border);
+  background-image: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
 }
 
 .star-btn:active {
   transform: scale(0.96);
 }
 
-.star-btn.active {
+.star-btn.active .star-glyph {
   color: var(--accent);
-}
-
-.star-btn.half {
-  color: var(--border);
+  -webkit-text-fill-color: var(--accent);
+  background-image: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
 }
 
 .star-btn.half .star-glyph {
+  color: transparent;
   background-image: linear-gradient(90deg, var(--accent) 50%, var(--border) 50%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-.star-btn:not(.half) .star-glyph {
-  background-image: none;
-  -webkit-text-fill-color: currentColor;
 }
 
 @media (min-width: 481px) {

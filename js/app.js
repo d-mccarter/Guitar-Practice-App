@@ -1184,6 +1184,7 @@ const App = {
       const half = !full && r > 0 && r >= value - 0.5;
       btn.classList.toggle('active', full);
       btn.classList.toggle('half', half);
+      if (full) btn.classList.remove('half');
       const selected = r > 0 && (r === value || r === value - 0.5);
       btn.setAttribute('aria-checked', String(selected));
     });
