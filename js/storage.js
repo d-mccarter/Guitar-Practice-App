@@ -407,7 +407,31 @@ function monthKeyFromDate(date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
-/** Match a session against log date filter values (preset or YYYY-MM). */
+function dayKeyFromDate(date) {
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function parseDayKey(key) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(key || '').trim());
+  if (!m) return null;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatDayFilterLabel(dayKey) {
+  const d = parseDayKey(dayKey);
+  if (!d) return dayKey;
+  return d.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+}
+
+/** Match a session against log date filter values (preset, YYYY-MM, or day:YYYY-MM-DD). */
 function sessionMatchesDateFilter(session, filter) {
   if (!filter) return true;
   const started = new Date(session.startedAt);
@@ -430,6 +454,12 @@ function sessionMatchesDateFilter(session, filter) {
     const start = startOfLocalDay(now);
     start.setDate(start.getDate() - 29);
     return started >= start;
+  }
+  if (filter.startsWith('day:')) {
+    return dayKeyFromDate(started) === filter.slice(4);
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(filter)) {
+    return dayKeyFromDate(started) === filter;
   }
   if (/^\d{4}-\d{2}$/.test(filter)) {
     return monthKeyFromDate(started) === filter;

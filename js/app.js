@@ -12,6 +12,9 @@ const App = {
   feedbackRating: 0,
   feedbackEditing: false,
   manualLogRating: 0,
+  logCalendarMonth: null,
+  logDateFilterBeforeCalendar: '',
+  pendingLogDayFilter: null,
 
   init() {
     this.loadBuildLabel();
@@ -1781,8 +1784,53 @@ const App = {
   },
 
   bindLog() {
+    const dateSelect = document.getElementById('log-filter-date');
     document.getElementById('log-filter-item').addEventListener('change', () => this.renderLog());
-    document.getElementById('log-filter-date').addEventListener('change', () => this.renderLog());
+    dateSelect.addEventListener('change', () => {
+      if (dateSelect.value === 'calendar') {
+        dateSelect.value = this.logDateFilterBeforeCalendar || '';
+        this.openLogCalendar();
+        return;
+      }
+      this.logDateFilterBeforeCalendar = dateSelect.value;
+      this.renderLog();
+    });
+
+    const calendarModal = document.getElementById('log-calendar-modal');
+    document.getElementById('log-calendar-prev').addEventListener('click', () => {
+      if (!this.logCalendarMonth) return;
+      this.logCalendarMonth.setMonth(this.logCalendarMonth.getMonth() - 1);
+      this.renderLogCalendar();
+    });
+    document.getElementById('log-calendar-next').addEventListener('click', () => {
+      if (!this.logCalendarMonth) return;
+      this.logCalendarMonth.setMonth(this.logCalendarMonth.getMonth() + 1);
+      this.renderLogCalendar();
+    });
+    document.getElementById('log-calendar-cancel-btn').addEventListener('click', () => this.closeLogCalendar());
+    document.getElementById('log-calendar-clear-btn').addEventListener('click', () => {
+      this.pendingLogDayFilter = '';
+      this.logDateFilterBeforeCalendar = '';
+      this.closeLogCalendar();
+      this.renderLog();
+    });
+    calendarModal.addEventListener('click', (e) => {
+      if (e.target === calendarModal) this.closeLogCalendar();
+    });
+    document.getElementById('log-calendar-grid').addEventListener('click', (e) => {
+      const dayBtn = e.target.closest('[data-day-key]');
+      if (!dayBtn) return;
+      this.pendingLogDayFilter = `day:${dayBtn.dataset.dayKey}`;
+      this.logDateFilterBeforeCalendar = this.pendingLogDayFilter;
+      this.closeLogCalendar();
+      this.renderLog();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !calendarModal.hidden) {
+        this.closeLogCalendar();
+      }
+    });
+
     document.getElementById('log-list').addEventListener('click', (e) => {
       const editBtn = e.target.closest('[data-edit-session]');
       if (editBtn) {
@@ -1797,6 +1845,91 @@ const App = {
       Storage.deleteSession(deleteBtn.dataset.deleteSession);
       this.refreshAll();
     });
+  },
+
+  getSessionDayKeys() {
+    const keys = new Set();
+    Storage.getSessions().forEach((session) => {
+      const started = new Date(session.startedAt);
+      if (Number.isNaN(started.getTime())) return;
+      const key = dayKeyFromDate(started);
+      if (key) keys.add(key);
+    });
+    return keys;
+  },
+
+  openLogCalendar() {
+    const select = document.getElementById('log-filter-date');
+    const current = select?.value || '';
+    this.logDateFilterBeforeCalendar = current === 'calendar' ? '' : current;
+
+    let cursor = startOfLocalDay(new Date());
+    cursor.setDate(1);
+    if (current.startsWith('day:')) {
+      const selected = parseDayKey(current.slice(4));
+      if (selected) {
+        cursor = new Date(selected.getFullYear(), selected.getMonth(), 1);
+      }
+    } else if (/^\d{4}-\d{2}$/.test(current)) {
+      const [y, m] = current.split('-').map(Number);
+      cursor = new Date(y, m - 1, 1);
+    } else {
+      const days = [...this.getSessionDayKeys()].sort();
+      if (days.length) {
+        const latest = parseDayKey(days[days.length - 1]);
+        if (latest) cursor = new Date(latest.getFullYear(), latest.getMonth(), 1);
+      }
+    }
+
+    this.logCalendarMonth = cursor;
+    this.renderLogCalendar();
+    const modal = document.getElementById('log-calendar-modal');
+    modal.hidden = false;
+  },
+
+  closeLogCalendar() {
+    const modal = document.getElementById('log-calendar-modal');
+    if (modal) modal.hidden = true;
+  },
+
+  renderLogCalendar() {
+    const label = document.getElementById('log-calendar-month-label');
+    const grid = document.getElementById('log-calendar-grid');
+    if (!label || !grid || !this.logCalendarMonth) return;
+
+    const year = this.logCalendarMonth.getFullYear();
+    const month = this.logCalendarMonth.getMonth();
+    label.textContent = this.logCalendarMonth.toLocaleDateString(undefined, {
+      month: 'long',
+      year: 'numeric'
+    });
+
+    const dayKeys = this.getSessionDayKeys();
+    const selectedKey = (document.getElementById('log-filter-date')?.value || '').startsWith('day:')
+      ? document.getElementById('log-filter-date').value.slice(4)
+      : (this.pendingLogDayFilter?.startsWith('day:') ? this.pendingLogDayFilter.slice(4) : '');
+    const todayKey = dayKeyFromDate(new Date());
+
+    const firstDow = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const cells = [];
+
+    for (let i = 0; i < firstDow; i++) {
+      cells.push('<span class="log-calendar-day is-empty"></span>');
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const key = dayKeyFromDate(new Date(year, month, day));
+      const classes = ['log-calendar-day'];
+      if (dayKeys.has(key)) classes.push('has-logs');
+      if (key === todayKey) classes.push('is-today');
+      if (key === selectedKey) classes.push('is-selected');
+      cells.push(
+        `<button type="button" class="${classes.join(' ')}" data-day-key="${key}" aria-label="${escapeHtml(formatDayFilterLabel(key))}${dayKeys.has(key) ? ', has sessions' : ''}">${day}</button>`
+      );
+    }
+
+    grid.innerHTML = cells.join('');
   },
 
   bindManualLog() {
@@ -2010,7 +2143,13 @@ const App = {
     const select = document.getElementById('log-filter-date');
     if (!select) return;
 
-    const current = select.value;
+    if (this.pendingLogDayFilter != null) {
+      select.value = this.pendingLogDayFilter;
+      this.logDateFilterBeforeCalendar = this.pendingLogDayFilter;
+      this.pendingLogDayFilter = null;
+    }
+
+    const current = select.value === 'calendar' ? (this.logDateFilterBeforeCalendar || '') : select.value;
     const months = new Map();
     Storage.getSessions().forEach((session) => {
       const started = new Date(session.startedAt);
@@ -2028,18 +2167,29 @@ const App = {
       .map(([key, label]) => `<option value="${key}">${escapeHtml(label)}</option>`)
       .join('');
 
+    let selectedDayOption = '';
+    if (current.startsWith('day:')) {
+      const dayKey = current.slice(4);
+      selectedDayOption = `<option value="${escapeHtml(current)}">${escapeHtml(formatDayFilterLabel(dayKey))}</option>`;
+    }
+
     select.innerHTML = `
       <option value="">All dates</option>
       <option value="today">Today</option>
       <option value="week">This week</option>
       <option value="month">This month</option>
       <option value="30">Last 30 days</option>
+      <option value="calendar">Pick a date…</option>
+      ${selectedDayOption ? `<optgroup label="Selected day">${selectedDayOption}</optgroup>` : ''}
       ${monthOptions ? `<optgroup label="By month">${monthOptions}</optgroup>` : ''}
     `;
 
     if ([...select.options].some((option) => option.value === current)) {
       select.value = current;
+    } else {
+      select.value = '';
     }
+    this.logDateFilterBeforeCalendar = select.value;
   },
 
   refreshItemSelects() {
