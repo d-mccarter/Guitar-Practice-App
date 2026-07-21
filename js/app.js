@@ -2145,6 +2145,7 @@ const App = {
   },
 
   renderLog() {
+    this.refreshLogDateFilter();
     const filterId = document.getElementById('log-filter-item').value;
     const dateFilter = document.getElementById('log-filter-date')?.value || '';
     let sessions = Storage.getSessions()
