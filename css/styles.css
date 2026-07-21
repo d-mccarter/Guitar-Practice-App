@@ -1083,6 +1083,99 @@ select {
   display: none !important;
 }
 
+.log-calendar-card {
+  max-width: min(360px, 100%);
+}
+
+.log-calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0 10px;
+}
+
+.log-calendar-month {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.log-calendar-nav .btn-icon {
+  width: 40px;
+  min-height: 40px;
+  font-size: 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.log-calendar-weekdays,
+.log-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.log-calendar-weekdays {
+  margin-bottom: 4px;
+}
+
+.log-calendar-weekdays span {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 0;
+}
+
+.log-calendar-day {
+  aspect-ratio: 1;
+  min-height: 36px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.log-calendar-day.is-empty {
+  background: transparent;
+  pointer-events: none;
+}
+
+.log-calendar-day.has-logs {
+  border-color: var(--accent-dim);
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+.log-calendar-day.is-today {
+  border-color: var(--text-muted);
+}
+
+.log-calendar-day.is-selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1a1200;
+  box-shadow: none;
+}
+
+.log-calendar-day:active:not(.is-empty) {
+  transform: scale(0.96);
+}
+
+.log-calendar-card .form-actions {
+  margin-top: 14px;
+}
+
 .modal-card {
   width: 100%;
   max-width: min(420px, 100%);
