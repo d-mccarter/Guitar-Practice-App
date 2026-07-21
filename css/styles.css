@@ -1122,48 +1122,84 @@ select {
 }
 
 .modal-card .star-rating {
-  flex-wrap: wrap;
-  gap: 2px;
+  width: 100%;
+  gap: 6px;
 }
 
 .modal-card .star-btn {
-  width: 40px;
-  height: 40px;
-  font-size: 1.6rem;
+  width: auto;
+  min-height: 56px;
+  height: 56px;
+  font-size: 1.85rem;
 }
 
 .star-rating {
   display: flex;
-  gap: 4px;
-  justify-content: flex-start;
+  width: 100%;
+  gap: 6px;
+  justify-content: stretch;
+  align-items: stretch;
 }
 
 .star-btn {
-  width: 44px;
-  height: 44px;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  min-height: 56px;
+  height: 56px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   background: transparent;
   color: var(--border);
-  font-size: 1.75rem;
+  font-size: 1.85rem;
   line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: color 0.1s, transform 0.1s, background 0.1s;
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.star-hit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  z-index: 1;
+}
+
+.star-hit-half {
+  left: 0;
+}
+
+.star-hit-full {
+  right: 0;
+}
+
+.star-glyph {
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
+  line-height: 1;
+  color: inherit;
 }
 
 .star-btn:active {
-  transform: scale(0.94);
+  transform: scale(0.96);
 }
 
 .star-btn.active {
   color: var(--accent);
-  background-image: none;
-  -webkit-text-fill-color: currentColor;
 }
 
 .star-btn.half {
+  color: var(--border);
+}
+
+.star-btn.half .star-glyph {
   background-image: linear-gradient(90deg, var(--accent) 50%, var(--border) 50%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -1171,7 +1207,7 @@ select {
   color: transparent;
 }
 
-.star-btn:not(.half):not(.active) {
+.star-btn:not(.half) .star-glyph {
   background-image: none;
   -webkit-text-fill-color: currentColor;
 }

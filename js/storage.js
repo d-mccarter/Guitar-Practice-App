@@ -525,9 +525,19 @@ function formatStarRating(rating) {
 function ratingFromStarEvent(btn, event) {
   const full = parseFloat(btn.dataset.rating);
   if (Number.isNaN(full)) return 0;
+
+  const hit = event.target?.closest?.('[data-star-step]');
+  if (hit?.dataset.starStep === 'half') {
+    return normalizeSessionRating(full - 0.5);
+  }
+  if (hit?.dataset.starStep === 'full') {
+    return normalizeSessionRating(full);
+  }
+
+  // Fallback for taps that miss the hit overlays (e.g. keyboard activation).
   const point = event.changedTouches?.[0] || event;
   const rect = btn.getBoundingClientRect();
-  const x = (point.clientX ?? rect.left) - rect.left;
+  const x = (point.clientX ?? (rect.left + rect.width)) - rect.left;
   const useHalf = x < rect.width / 2;
   return normalizeSessionRating(useHalf ? full - 0.5 : full);
 }
