@@ -1184,8 +1184,15 @@ const App = {
       const half = !full && r > 0 && r >= value - 0.5;
       btn.classList.toggle('active', full);
       btn.classList.toggle('half', half);
+      // Ensure mutually exclusive fill states for CSS.
+      if (full) btn.classList.remove('half');
       const selected = r > 0 && (r === value || r === value - 0.5);
       btn.setAttribute('aria-checked', String(selected));
+      btn.setAttribute('aria-label', half
+        ? `${value - 0.5} stars`
+        : full && r === value
+          ? `${value} star${value === 1 ? '' : 's'}`
+          : `${value} star${value === 1 ? '' : 's'}`);
     });
   },
 
