@@ -258,15 +258,11 @@ const App = {
     if (!this.isCountInEnabled()) return null;
 
     const statusEl = document.getElementById('session-status');
-    const beatIndicator = document.getElementById('beat-indicator');
     statusEl.textContent = 'Count in…';
     statusEl.classList.remove('running', 'paused');
 
-    return this.metronome.playCountIn(4, (_beat, accent) => {
-      beatIndicator.classList.add('active');
-      if (accent) beatIndicator.classList.add('accent');
-      else beatIndicator.classList.remove('accent');
-      setTimeout(() => beatIndicator.classList.remove('active'), 80);
+    return this.metronome.playCountIn(4, (beat, accent) => {
+      this.updateBeatPie(beat, { accent, pulse: true });
     });
   },
 
@@ -281,7 +277,6 @@ const App = {
     const timerInput = document.getElementById('timer-minutes');
     const timerDisplay = document.getElementById('session-timer');
     const startBtn = document.getElementById('start-stop-btn');
-    const beatIndicator = document.getElementById('beat-indicator');
     const statusEl = document.getElementById('session-status');
 
     const updateTempoDisplay = (bpm) => {
@@ -401,13 +396,12 @@ const App = {
     this.applyMetronomeOptions();
 
     this.metronome.onBeat = (_beat, accent, info) => {
-      beatIndicator.classList.add('active');
-      if (accent) beatIndicator.classList.add('accent');
-      else beatIndicator.classList.remove('accent');
-      setTimeout(() => beatIndicator.classList.remove('active'), 80);
-      // Advance measure/beat on quarter onsets only (ignore subdivision ticks).
+      // Advance measure/beat pie on quarter onsets only (ignore subdivision ticks).
       if (info?.isBeatStart) {
         this.updateMeasureBeatDisplay(info.measure, info.beat);
+        this.updateBeatPie(info.beat, { accent, pulse: true });
+      } else {
+        this.pulseBeatPie(accent);
       }
     };
 
@@ -906,8 +900,38 @@ const App = {
     if (beatEl) beatEl.textContent = `Beat ${b}`;
   },
 
+  updateBeatPie(beat, { accent = false, pulse = false } = {}) {
+    const pie = document.getElementById('beat-pie');
+    if (!pie) return;
+    const beats = Math.max(0, Math.min(4, Number(beat) || 0));
+    pie.style.setProperty('--beat-progress', String(beats * 25));
+    if (pulse) this.pulseBeatPie(accent);
+    else this.setBeatPieAccent(accent);
+  },
+
+  setBeatPieAccent(accent) {
+    const beatIndicator = document.getElementById('beat-indicator');
+    if (!beatIndicator) return;
+    beatIndicator.classList.toggle('accent', !!accent);
+  },
+
+  pulseBeatPie(accent) {
+    const beatIndicator = document.getElementById('beat-indicator');
+    if (!beatIndicator) return;
+    this.setBeatPieAccent(accent);
+    beatIndicator.classList.add('active');
+    setTimeout(() => beatIndicator.classList.remove('active'), 80);
+  },
+
+  resetBeatPie() {
+    this.updateBeatPie(0, { accent: false, pulse: false });
+    const beatIndicator = document.getElementById('beat-indicator');
+    beatIndicator?.classList.remove('active', 'accent');
+  },
+
   resetMeasureBeatDisplay() {
     this.updateMeasureBeatDisplay(1, 1);
+    this.resetBeatPie();
   },
 
   stopSession(completed) {

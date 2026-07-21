@@ -633,25 +633,43 @@ select {
 }
 
 .beat-dot {
+  --beat-progress: 0;
+  --pie-fill: var(--accent);
+  --pie-empty: var(--surface-2);
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: var(--surface-2);
+  background:
+    conic-gradient(
+      from -90deg,
+      var(--border) 0 1deg,
+      transparent 1deg 89deg,
+      var(--border) 89deg 91deg,
+      transparent 91deg 179deg,
+      var(--border) 179deg 181deg,
+      transparent 181deg 269deg,
+      var(--border) 269deg 271deg,
+      transparent 271deg 359deg,
+      var(--border) 359deg 360deg
+    ),
+    conic-gradient(
+      from -90deg,
+      var(--pie-fill) 0 calc(var(--beat-progress) * 1%),
+      var(--pie-empty) 0
+    );
   border: 2px solid var(--border);
-  transition: background 0.05s, transform 0.05s, box-shadow 0.05s;
+  transition: transform 0.05s, box-shadow 0.05s, background 0.08s;
   justify-self: center;
+  position: relative;
 }
 
 .beat-indicator.active .beat-dot {
-  background: var(--accent);
-  border-color: var(--accent);
   box-shadow: 0 0 24px var(--accent-glow);
   transform: scale(1.08);
 }
 
-.beat-indicator.accent .beat-dot {
-  background: #fff;
-  border-color: #fff;
+.beat-indicator.accent.active .beat-dot {
+  --pie-fill: #fff;
   box-shadow: 0 0 32px rgba(255, 255, 255, 0.3);
 }
 
