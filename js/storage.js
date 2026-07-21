@@ -552,24 +552,28 @@ function formatStarRating(rating) {
   return html;
 }
 
+function ratingFromStarClientX(container, clientX) {
+  const rect = container.getBoundingClientRect();
+  if (rect.width <= 0) return 0;
+  const x = Math.min(Math.max(clientX - rect.left, 0), rect.width - 0.001);
+  // 10 equal bands: 0.5, 1, 1.5, …, 5 (half and full targets are the same width).
+  const band = Math.min(10, Math.floor((x / rect.width) * 10) + 1);
+  return normalizeSessionRating(band / 2);
+}
+
 function ratingFromStarEvent(btn, event) {
+  const container = btn?.closest?.('.star-rating');
+  if (container) {
+    const point = event.changedTouches?.[0] || event;
+    if (point?.clientX != null) return ratingFromStarClientX(container, point.clientX);
+  }
+
   const full = parseFloat(btn.dataset.rating);
   if (Number.isNaN(full)) return 0;
-
   const hit = event.target?.closest?.('[data-star-step]');
-  if (hit?.dataset.starStep === 'half') {
-    return normalizeSessionRating(full - 0.5);
-  }
-  if (hit?.dataset.starStep === 'full') {
-    return normalizeSessionRating(full);
-  }
-
-  // Fallback for taps that miss the hit overlays (e.g. keyboard activation).
-  const point = event.changedTouches?.[0] || event;
-  const rect = btn.getBoundingClientRect();
-  const x = (point.clientX ?? (rect.left + rect.width)) - rect.left;
-  const useHalf = x < rect.width / 2;
-  return normalizeSessionRating(useHalf ? full - 0.5 : full);
+  if (hit?.dataset.starStep === 'half') return normalizeSessionRating(full - 0.5);
+  if (hit?.dataset.starStep === 'full') return normalizeSessionRating(full);
+  return normalizeSessionRating(full);
 }
 
 function escapeHtml(value) {
