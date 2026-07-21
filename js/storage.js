@@ -456,17 +456,38 @@ function sessionDisplayName(session) {
   return session.itemName || session.itemCode || 'Untitled';
 }
 
-/** Normalize rating: 0 (or missing) means unrated. */
+/** Normalize rating: 0 (or missing) means unrated. Supports half-star steps. */
 function normalizeSessionRating(rating) {
-  const n = parseInt(rating, 10);
+  const n = parseFloat(rating);
   if (Number.isNaN(n) || n <= 0) return 0;
-  return Math.min(5, n);
+  const stepped = Math.round(n * 2) / 2;
+  return Math.min(5, Math.max(0, stepped));
 }
 
 function formatStarRating(rating) {
   const r = normalizeSessionRating(rating);
   if (r === 0) return '';
-  return '★'.repeat(r) + '☆'.repeat(5 - r);
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    if (r >= i) {
+      html += '<span class="log-star is-full" aria-hidden="true">★</span>';
+    } else if (r >= i - 0.5) {
+      html += '<span class="log-star is-half" aria-hidden="true">★</span>';
+    } else {
+      html += '<span class="log-star is-empty" aria-hidden="true">☆</span>';
+    }
+  }
+  return html;
+}
+
+function ratingFromStarEvent(btn, event) {
+  const full = parseFloat(btn.dataset.rating);
+  if (Number.isNaN(full)) return 0;
+  const point = event.changedTouches?.[0] || event;
+  const rect = btn.getBoundingClientRect();
+  const x = (point.clientX ?? rect.left) - rect.left;
+  const useHalf = x < rect.width / 2;
+  return normalizeSessionRating(useHalf ? full - 0.5 : full);
 }
 
 function escapeHtml(value) {
