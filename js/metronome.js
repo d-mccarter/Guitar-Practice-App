@@ -120,14 +120,18 @@ class Metronome {
   }
 
   setRamp(startBpm, endBpm, durationSec) {
+    const start = Math.max(40, Math.min(300, Math.round(startBpm)));
+    const end = Math.max(40, Math.min(300, Math.round(endBpm)));
     this.ramp = {
-      startBpm: Math.max(40, Math.min(300, startBpm)),
-      endBpm: Math.max(40, Math.min(300, endBpm)),
+      startBpm: start,
+      endBpm: end,
       durationSec: Math.max(1, durationSec),
       startAudioTime: null,
-      elapsedBeforePause: 0
+      elapsedBeforePause: 0,
+      // Hold one BPM for the whole measure; updated only on measure starts.
+      measureBpm: start
     };
-    this.bpm = this.ramp.startBpm;
+    this.bpm = start;
     this._lastReportedBpm = null;
   }
 
@@ -136,22 +140,37 @@ class Metronome {
     this._lastReportedBpm = null;
   }
 
-  _rampElapsed() {
+  _rampElapsedAt(audioTime) {
     if (!this.ramp) return 0;
-    const live = this.ramp.startAudioTime != null && this.audioCtx
-      ? this.audioCtx.currentTime - this.ramp.startAudioTime
+    const live = this.ramp.startAudioTime != null
+      ? audioTime - this.ramp.startAudioTime
       : 0;
     return Math.max(0, (this.ramp.elapsedBeforePause || 0) + live);
   }
 
-  _currentBpm() {
-    if (!this.ramp || (this.ramp.startAudioTime == null && !this.ramp.elapsedBeforePause)) {
-      return this.bpm;
+  _rampElapsed() {
+    if (!this.ramp) return 0;
+    if (this.ramp.startAudioTime != null && this.audioCtx) {
+      return this._rampElapsedAt(this.audioCtx.currentTime);
     }
-    const elapsed = this._rampElapsed();
+    return Math.max(0, this.ramp.elapsedBeforePause || 0);
+  }
+
+  /** Snapshot the ramp BPM for the measure that begins at audioTime. */
+  _setRampMeasureBpmAt(audioTime) {
+    if (!this.ramp) return;
+    const elapsed = this._rampElapsedAt(audioTime);
     const t = Math.min(1, Math.max(0, elapsed / this.ramp.durationSec));
     const bpm = this.ramp.startBpm + (this.ramp.endBpm - this.ramp.startBpm) * t;
-    return Math.max(40, Math.min(300, bpm));
+    this.ramp.measureBpm = Math.max(40, Math.min(300, Math.round(bpm)));
+    this.bpm = this.ramp.measureBpm;
+  }
+
+  _currentBpm() {
+    if (this.ramp && this.ramp.measureBpm != null) {
+      return this.ramp.measureBpm;
+    }
+    return this.bpm;
   }
 
   _reportBpm(bpm) {
@@ -288,12 +307,19 @@ class Metronome {
   }
 
   _schedule() {
-    const bpm = this._currentBpm();
-    this._reportBpm(bpm);
-    const beatInterval = 60 / bpm;
-    const interval = beatInterval / this.subdivisionsPerBeat;
-
     while (this.nextBeatTime < this.audioCtx.currentTime + 0.1) {
+      const ticksPerMeasure = this.subdivisionsPerBeat * this.beatsPerMeasure;
+      const isMeasureStart = this.tick % ticksPerMeasure === 0;
+
+      // Ramp tempo only changes on measure boundaries so each bar stays steady.
+      if (this.ramp && isMeasureStart) {
+        this._setRampMeasureBpmAt(this.nextBeatTime);
+      }
+
+      const bpm = this._currentBpm();
+      this._reportBpm(bpm);
+      const interval = (60 / bpm) / this.subdivisionsPerBeat;
+
       const beatInMeasure = Math.floor(this.tick / this.subdivisionsPerBeat) % this.beatsPerMeasure;
       const isBeatStart = this.tick % this.subdivisionsPerBeat === 0;
       const accentDownbeat = this.accentDownbeat && isBeatStart && beatInMeasure === 0;
@@ -341,6 +367,8 @@ class Metronome {
     if (this.ramp) {
       this.ramp.elapsedBeforePause = 0;
       this.ramp.startAudioTime = this.audioCtx.currentTime;
+      this.ramp.measureBpm = this.ramp.startBpm;
+      this.bpm = this.ramp.startBpm;
       this._reportBpm(this.ramp.startBpm);
     }
     this._tick();

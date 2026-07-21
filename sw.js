@@ -1,4 +1,4 @@
-const CACHE = 'practice-tracker-v38';
+const CACHE = 'practice-tracker-v39';
 const ASSETS = [
   './',
   './index.html',

@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=43">
+  <link rel="stylesheet" href="css/styles.css?v=44">
 </head>
 <body>
   <header class="app-header">
@@ -103,7 +103,7 @@
             <span>Ramp duration (min)</span>
             <input type="number" id="ramp-minutes" min="1" max="120" value="5">
           </label>
-          <p class="field-hint">Tempo increases smoothly from start to end over the duration.</p>
+          <p class="field-hint">Tempo steps up each measure from start to end over the duration. BPM stays constant within a measure.</p>
         </div>
 
         <div class="metronome-options">
@@ -471,11 +471,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=43"></script>
-  <script src="js/storage.js?v=43"></script>
-  <script src="js/metronome.js?v=43"></script>
-  <script src="js/charts.js?v=43"></script>
-  <script src="js/app.js?v=43"></script>
+  <script src="js/github-sync.js?v=44"></script>
+  <script src="js/storage.js?v=44"></script>
+  <script src="js/metronome.js?v=44"></script>
+  <script src="js/charts.js?v=44"></script>
+  <script src="js/app.js?v=44"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
