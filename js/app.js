@@ -326,8 +326,8 @@ const App = {
         return;
       }
       if (this.practiceMode === 'ramp') {
-        const minutes = parseInt(document.getElementById('ramp-minutes').value, 10) || 5;
-        timerDisplay.textContent = formatDuration(minutes * 60);
+        const minutes = parseTimerMinutes(document.getElementById('ramp-minutes').value, 5);
+        timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
         return;
       }
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(timerInput.value));
@@ -374,14 +374,65 @@ const App = {
       commitTimerMinutes();
     });
 
-    document.getElementById('ramp-minutes').addEventListener('input', () => {
+    const rampStartInput = document.getElementById('ramp-start-bpm');
+    const rampEndInput = document.getElementById('ramp-end-bpm');
+    const rampMinutesInput = document.getElementById('ramp-minutes');
+
+    const commitRampBpm = (input, fallback) => {
+      const bpm = clampBpm(input.value, fallback);
+      input.value = bpm;
+      if (!this.session && this.practiceMode === 'ramp') this.updatePracticeModeUI();
+    };
+
+    const commitRampMinutes = () => {
+      const minutes = parseTimerMinutes(rampMinutesInput.value, 5);
+      rampMinutesInput.value = formatTimerMinutes(minutes);
       if (!this.session && this.practiceMode === 'ramp') resetTimerDisplay();
+    };
+
+    rampStartInput.addEventListener('blur', () => commitRampBpm(rampStartInput, 60));
+    rampEndInput.addEventListener('blur', () => commitRampBpm(rampEndInput, 120));
+    rampStartInput.addEventListener('input', () => {
+      if (!this.session && this.practiceMode === 'ramp') this.updatePracticeModeUI();
+    });
+    rampEndInput.addEventListener('input', () => {
+      if (!this.session && this.practiceMode === 'ramp') this.updatePracticeModeUI();
     });
 
-    ['ramp-start-bpm', 'ramp-end-bpm'].forEach((id) => {
-      document.getElementById(id).addEventListener('input', () => {
-        if (!this.session && this.practiceMode === 'ramp') this.updatePracticeModeUI();
-      });
+    document.getElementById('ramp-start-up').addEventListener('click', () => {
+      rampStartInput.value = Math.min(300, clampBpm(rampStartInput.value, 60) + 1);
+      commitRampBpm(rampStartInput, 60);
+    });
+    document.getElementById('ramp-start-down').addEventListener('click', () => {
+      rampStartInput.value = Math.max(40, clampBpm(rampStartInput.value, 60) - 1);
+      commitRampBpm(rampStartInput, 60);
+    });
+    document.getElementById('ramp-end-up').addEventListener('click', () => {
+      rampEndInput.value = Math.min(300, clampBpm(rampEndInput.value, 120) + 1);
+      commitRampBpm(rampEndInput, 120);
+    });
+    document.getElementById('ramp-end-down').addEventListener('click', () => {
+      rampEndInput.value = Math.max(40, clampBpm(rampEndInput.value, 120) - 1);
+      commitRampBpm(rampEndInput, 120);
+    });
+
+    rampMinutesInput.addEventListener('input', () => {
+      if (!this.session && this.practiceMode === 'ramp') {
+        const raw = rampMinutesInput.value.trim();
+        if (raw === '') return;
+        const n = parseFloat(raw);
+        if (Number.isNaN(n)) return;
+        timerDisplay.textContent = formatDuration(timerMinutesToSeconds(n));
+      }
+    });
+    rampMinutesInput.addEventListener('blur', commitRampMinutes);
+    document.getElementById('ramp-minutes-up').addEventListener('click', () => {
+      rampMinutesInput.value = formatTimerMinutes(parseTimerMinutes(rampMinutesInput.value, 5) + 0.25);
+      commitRampMinutes();
+    });
+    document.getElementById('ramp-minutes-down').addEventListener('click', () => {
+      rampMinutesInput.value = formatTimerMinutes(parseTimerMinutes(rampMinutesInput.value, 5) - 0.25);
+      commitRampMinutes();
     });
 
     const subdivisionSelect = document.getElementById('metronome-subdivision');
@@ -555,8 +606,8 @@ const App = {
       fixedPanel.hidden = true;
       rampPanel.hidden = false;
       if (hint) hint.hidden = true;
-      const start = parseInt(document.getElementById('ramp-start-bpm').value, 10) || 60;
-      const end = parseInt(document.getElementById('ramp-end-bpm').value, 10) || 120;
+      const start = Math.max(40, Math.min(300, parseInt(document.getElementById('ramp-start-bpm').value, 10) || 60));
+      const end = Math.max(40, Math.min(300, parseInt(document.getElementById('ramp-end-bpm').value, 10) || 120));
       tempoDisplay.textContent = `${start} → ${end} BPM`;
     } else {
       itemLabel.textContent = 'Practice item or cycle';
@@ -580,6 +631,12 @@ const App = {
     document.getElementById('ramp-start-bpm').disabled = disabled;
     document.getElementById('ramp-end-bpm').disabled = disabled;
     document.getElementById('ramp-minutes').disabled = disabled;
+    document.getElementById('ramp-start-up').disabled = disabled;
+    document.getElementById('ramp-start-down').disabled = disabled;
+    document.getElementById('ramp-end-up').disabled = disabled;
+    document.getElementById('ramp-end-down').disabled = disabled;
+    document.getElementById('ramp-minutes-up').disabled = disabled;
+    document.getElementById('ramp-minutes-down').disabled = disabled;
   },
 
   setSessionControlsVisible(active) {
@@ -654,10 +711,18 @@ const App = {
     }
 
     if (this.practiceMode === 'ramp') {
-      startTempo = parseInt(document.getElementById('ramp-start-bpm').value, 10) || 60;
-      endTempo = parseInt(document.getElementById('ramp-end-bpm').value, 10) || 120;
-      const minutes = parseInt(document.getElementById('ramp-minutes').value, 10) || 5;
-      totalSeconds = minutes * 60;
+      const clampRampBpm = (raw, fallback) => {
+        const n = parseInt(String(raw).trim(), 10);
+        if (Number.isNaN(n)) return fallback;
+        return Math.max(40, Math.min(300, n));
+      };
+      startTempo = clampRampBpm(document.getElementById('ramp-start-bpm').value, 60);
+      endTempo = clampRampBpm(document.getElementById('ramp-end-bpm').value, 120);
+      document.getElementById('ramp-start-bpm').value = startTempo;
+      document.getElementById('ramp-end-bpm').value = endTempo;
+      const minutes = parseTimerMinutes(document.getElementById('ramp-minutes').value, 5);
+      document.getElementById('ramp-minutes').value = formatTimerMinutes(minutes);
+      totalSeconds = timerMinutesToSeconds(minutes);
       tempo = endTempo;
       this.metronome.setRamp(startTempo, endTempo, totalSeconds);
       document.getElementById('tempo-display').textContent = `${startTempo} BPM`;
@@ -1030,8 +1095,9 @@ const App = {
     if (this.practiceMode === 'free') {
       timerDisplay.textContent = '0:00';
     } else if (this.practiceMode === 'ramp') {
-      const minutes = parseInt(document.getElementById('ramp-minutes').value, 10) || 5;
-      timerDisplay.textContent = formatDuration(minutes * 60);
+      const minutes = parseTimerMinutes(document.getElementById('ramp-minutes').value, 5);
+      document.getElementById('ramp-minutes').value = formatTimerMinutes(minutes);
+      timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
       this.updatePracticeModeUI();
     } else {
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
