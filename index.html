@@ -9,7 +9,11 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
+<<<<<<< HEAD
   <link rel="stylesheet" href="css/styles.css?v=50">
+=======
+  <link rel="stylesheet" href="css/styles.css?v=49">
+>>>>>>> 6bfaea5 (Style log calendar dialog and bump asset cache versions)
 </head>
 <body>
   <header class="app-header">
@@ -350,6 +354,7 @@
                   <option value="week">This week</option>
                   <option value="month">This month</option>
                   <option value="30">Last 30 days</option>
+                  <option value="calendar">Pick a date…</option>
                 </select>
               </label>
             </div>
@@ -406,6 +411,26 @@
       </div>
     </section>
   </main>
+
+  <div class="modal-backdrop" id="log-calendar-modal" hidden>
+    <div class="modal-card log-calendar-card" role="dialog" aria-modal="true" aria-labelledby="log-calendar-title">
+      <h3 id="log-calendar-title">Pick a date</h3>
+      <p class="field-hint">Highlighted days have logged practice.</p>
+      <div class="log-calendar-nav">
+        <button type="button" class="btn-icon" id="log-calendar-prev" aria-label="Previous month">‹</button>
+        <div class="log-calendar-month" id="log-calendar-month-label">July 2026</div>
+        <button type="button" class="btn-icon" id="log-calendar-next" aria-label="Next month">›</button>
+      </div>
+      <div class="log-calendar-weekdays" aria-hidden="true">
+        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+      </div>
+      <div class="log-calendar-grid" id="log-calendar-grid"></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" id="log-calendar-clear-btn">Clear date</button>
+        <button type="button" class="btn btn-secondary" id="log-calendar-cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <div class="modal-backdrop" id="session-feedback-modal" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="session-feedback-title">
@@ -535,11 +560,19 @@
     </div>
   </div>
 
+<<<<<<< HEAD
   <script src="js/github-sync.js?v=50"></script>
   <script src="js/storage.js?v=50"></script>
   <script src="js/metronome.js?v=50"></script>
   <script src="js/charts.js?v=50"></script>
   <script src="js/app.js?v=50"></script>
+=======
+  <script src="js/github-sync.js?v=49"></script>
+  <script src="js/storage.js?v=49"></script>
+  <script src="js/metronome.js?v=49"></script>
+  <script src="js/charts.js?v=49"></script>
+  <script src="js/app.js?v=49"></script>
+>>>>>>> 6bfaea5 (Style log calendar dialog and bump asset cache versions)
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
