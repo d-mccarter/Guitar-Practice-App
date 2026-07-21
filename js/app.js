@@ -39,6 +39,44 @@ const App = {
       progress: 'Progress'
     };
 
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.getElementById('nav-menu');
+
+    const closeMenu = () => {
+      navMenu.hidden = true;
+      menuToggle.setAttribute('aria-expanded', 'false');
+      menuToggle.setAttribute('aria-label', 'Open menu');
+    };
+
+    const openMenu = () => {
+      navMenu.hidden = false;
+      menuToggle.setAttribute('aria-expanded', 'true');
+      menuToggle.setAttribute('aria-label', 'Close menu');
+    };
+
+    const toggleMenu = () => {
+      if (navMenu.hidden) openMenu();
+      else closeMenu();
+    };
+
+    menuToggle.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleMenu();
+    });
+
+    document.addEventListener('click', (event) => {
+      if (navMenu.hidden) return;
+      if (navMenu.contains(event.target) || menuToggle.contains(event.target)) return;
+      closeMenu();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !navMenu.hidden) {
+        closeMenu();
+        menuToggle.focus();
+      }
+    });
+
     document.querySelectorAll('.nav-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         const view = btn.dataset.view;
@@ -47,6 +85,7 @@ const App = {
         btn.classList.add('active');
         document.getElementById(`view-${view}`).classList.add('active');
         document.getElementById('page-title').textContent = titles[view];
+        closeMenu();
 
         if (view === 'progress') this.renderProgress();
         if (view === 'log') this.renderLog();

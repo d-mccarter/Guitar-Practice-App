@@ -9,13 +9,42 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=40">
+  <link rel="stylesheet" href="css/styles.css?v=41">
 </head>
 <body>
   <header class="app-header">
+    <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-menu">
+      <span class="menu-toggle-bars" aria-hidden="true"></span>
+    </button>
     <h1 id="page-title">Practice</h1>
     <span class="profile-badge" id="profile-badge" hidden>Test data</span>
     <span class="build-label" id="build-label">Build …</span>
+    <nav class="nav-menu" id="nav-menu" hidden>
+      <button type="button" class="nav-btn active" data-view="practice">
+        <span class="nav-icon">♪</span>
+        <span>Practice</span>
+      </button>
+      <button type="button" class="nav-btn" data-view="metronome">
+        <span class="nav-icon">⚙</span>
+        <span>Metronome</span>
+      </button>
+      <button type="button" class="nav-btn" data-view="items">
+        <span class="nav-icon">☰</span>
+        <span>Items</span>
+      </button>
+      <button type="button" class="nav-btn" data-view="cycles">
+        <span class="nav-icon">⟳</span>
+        <span>Cycles</span>
+      </button>
+      <button type="button" class="nav-btn" data-view="log">
+        <span class="nav-icon">📋</span>
+        <span>Log</span>
+      </button>
+      <button type="button" class="nav-btn" data-view="progress">
+        <span class="nav-icon">📈</span>
+        <span>Progress</span>
+      </button>
+    </nav>
   </header>
 
   <main id="app">
@@ -354,33 +383,6 @@
     </section>
   </main>
 
-  <nav class="bottom-nav">
-    <button type="button" class="nav-btn active" data-view="practice">
-      <span class="nav-icon">♪</span>
-      <span>Practice</span>
-    </button>
-    <button type="button" class="nav-btn" data-view="metronome">
-      <span class="nav-icon">⚙</span>
-      <span>Metronome</span>
-    </button>
-    <button type="button" class="nav-btn" data-view="items">
-      <span class="nav-icon">☰</span>
-      <span>Items</span>
-    </button>
-    <button type="button" class="nav-btn" data-view="cycles">
-      <span class="nav-icon">⟳</span>
-      <span>Cycles</span>
-    </button>
-    <button type="button" class="nav-btn" data-view="log">
-      <span class="nav-icon">📋</span>
-      <span>Log</span>
-    </button>
-    <button type="button" class="nav-btn" data-view="progress">
-      <span class="nav-icon">📈</span>
-      <span>Progress</span>
-    </button>
-  </nav>
-
   <div class="modal-backdrop" id="session-feedback-modal" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="session-feedback-title">
       <h3 id="session-feedback-title">Session notes</h3>
@@ -469,11 +471,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=40"></script>
-  <script src="js/storage.js?v=40"></script>
-  <script src="js/metronome.js?v=40"></script>
-  <script src="js/charts.js?v=40"></script>
-  <script src="js/app.js?v=40"></script>
+  <script src="js/github-sync.js?v=41"></script>
+  <script src="js/storage.js?v=41"></script>
+  <script src="js/metronome.js?v=41"></script>
+  <script src="js/charts.js?v=41"></script>
+  <script src="js/app.js?v=41"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
