@@ -74,6 +74,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "3058a0ee-209a-4bcc-94d9-0a97fac02e68",
+      "itemId": "49d86dfb-d482-4923-959f-60ee424408ce",
+      "itemName": "C-Shape Warmup",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 180,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-07-21T16:54:44.553Z",
+      "completedAt": "2026-07-21T16:57:47.300Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "f6f5b150-c32d-4c85-92f2-a07dc21b67dd",
       "itemId": "5b062e04-590e-4c6a-86d3-08eac2f699da",
       "itemName": "E-shape triplets",
