@@ -1140,6 +1140,8 @@ select {
 
 .star-btn.active {
   color: var(--accent);
+  background-image: none;
+  -webkit-text-fill-color: currentColor;
 }
 
 .star-btn.half {
@@ -1148,6 +1150,11 @@ select {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+}
+
+.star-btn:not(.half):not(.active) {
+  background-image: none;
+  -webkit-text-fill-color: currentColor;
 }
 
 @media (min-width: 481px) {
