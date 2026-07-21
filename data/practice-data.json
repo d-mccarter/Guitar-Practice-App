@@ -74,6 +74,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "95729d6c-3f31-415a-9880-69237dbc114c",
+      "itemId": "44f9749e-9700-41e4-ac15-8d38d7942e1f",
+      "itemName": "8g",
+      "workedOn": "",
+      "tempo": 140,
+      "startTempo": 120,
+      "endTempo": 140,
+      "mode": "ramp",
+      "durationSeconds": 120,
+      "plannedDurationSeconds": 120,
+      "startedAt": "2026-07-21T17:04:43.885Z",
+      "completedAt": "2026-07-21T17:06:46.387Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "6e7d3aa3-afe5-4768-8bd0-1ccd374500a8",
       "itemId": "1cac5d46-2e52-4fdd-a98e-08f7501a42de",
       "itemName": "8f",
