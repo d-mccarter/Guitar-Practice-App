@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=56">
+  <link rel="stylesheet" href="css/styles.css?v=57">
 </head>
 <body>
   <header class="app-header">
@@ -58,12 +58,19 @@
         </div>
 
         <div id="practice-item-field">
-          <label class="field">
+          <div class="field" id="practice-item-field-label">
             <span id="practice-item-label">Practice item or cycle</span>
-            <select id="practice-item-select">
-              <option value="">Select an item or cycle…</option>
-            </select>
-          </label>
+            <div class="rich-select" id="practice-item-rich">
+              <button type="button" class="rich-select-trigger" id="practice-item-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="practice-item-menu" aria-labelledby="practice-item-label practice-item-trigger-title">
+                <span class="rich-select-title" id="practice-item-trigger-title">Select an item or cycle…</span>
+                <span class="rich-select-meta" id="practice-item-trigger-meta" hidden></span>
+              </button>
+              <div class="rich-select-menu" id="practice-item-menu" role="listbox" hidden></div>
+              <select id="practice-item-select" class="rich-select-native" tabindex="-1" aria-hidden="true">
+                <option value="">Select an item or cycle…</option>
+              </select>
+            </div>
+          </div>
           <p class="field-hint" id="cycle-preview-hint" hidden></p>
         </div>
 
@@ -556,11 +563,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=56"></script>
-  <script src="js/storage.js?v=56"></script>
-  <script src="js/metronome.js?v=56"></script>
-  <script src="js/charts.js?v=56"></script>
-  <script src="js/app.js?v=56"></script>
+  <script src="js/github-sync.js?v=57"></script>
+  <script src="js/storage.js?v=57"></script>
+  <script src="js/metronome.js?v=57"></script>
+  <script src="js/charts.js?v=57"></script>
+  <script src="js/app.js?v=57"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});

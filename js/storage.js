@@ -507,6 +507,63 @@ function cycleSelectLabel(cycle) {
   return `${cycle.name || 'Untitled cycle'} (${steps}×${rounds})`;
 }
 
+function getLatestSessionForItem(itemId) {
+  const sessions = Storage.getSessionsForItem(itemId);
+  if (!sessions.length) return null;
+  return sessions.slice().sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))[0];
+}
+
+function getLatestSessionForCycle(cycleId) {
+  const sessions = Storage.getSessions().filter((s) => s.cycleId === cycleId);
+  if (!sessions.length) return null;
+  return sessions.slice().sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))[0];
+}
+
+function formatSessionWhen(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+}
+
+/** Compact plain-text meta for last practice (trigger subtitle fallback). */
+function formatLastSessionMetaText(session) {
+  if (!session) return 'Not practiced yet';
+  const parts = [];
+  const when = formatSessionWhen(session.startedAt);
+  if (when) parts.push(when);
+  if (session.tempo != null) parts.push(`${session.tempo} BPM`);
+  const rating = normalizeSessionRating(session.rating);
+  if (rating > 0) {
+    const full = Math.floor(rating);
+    const half = rating % 1 >= 0.5;
+    parts.push(`${'★'.repeat(full)}${half ? '½' : ''}`);
+  }
+  return parts.join(' · ');
+}
+
+/** HTML meta line shown under each practice-item option. */
+function formatLastSessionMetaHtml(session) {
+  if (!session) {
+    return '<span class="rich-select-meta-muted">Not practiced yet</span>';
+  }
+  const parts = [];
+  const when = formatSessionWhen(session.startedAt);
+  if (when) parts.push(`<span>${escapeHtml(when)}</span>`);
+  if (session.tempo != null) {
+    parts.push(`<span>${escapeHtml(String(session.tempo))} BPM</span>`);
+  }
+  const stars = formatStarRating(session.rating);
+  if (stars) {
+    parts.push(`<span class="rich-select-stars" aria-label="${normalizeSessionRating(session.rating)} of 5 stars">${stars}</span>`);
+  }
+  return parts.join('<span class="rich-select-sep"> · </span>');
+}
+
 function parsePracticeSelection(value) {
   const raw = String(value || '');
   if (!raw) return { type: 'none' };
