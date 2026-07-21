@@ -335,12 +335,24 @@
       <div class="card">
         <div class="log-header">
           <div class="log-filters">
-            <label class="field">
-              <span>Filter by item</span>
-              <select id="log-filter-item">
-                <option value="">All items</option>
-              </select>
-            </label>
+            <div class="field-row log-filter-row">
+              <label class="field">
+                <span>Filter by item</span>
+                <select id="log-filter-item">
+                  <option value="">All items</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Filter by date</span>
+                <select id="log-filter-date">
+                  <option value="">All dates</option>
+                  <option value="today">Today</option>
+                  <option value="week">This week</option>
+                  <option value="month">This month</option>
+                  <option value="30">Last 30 days</option>
+                </select>
+              </label>
+            </div>
           </div>
           <button type="button" class="btn btn-primary btn-small" id="manual-log-btn">Log practice</button>
         </div>
