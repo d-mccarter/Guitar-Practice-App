@@ -677,12 +677,16 @@ const App = {
       hint.textContent = '';
     }
 
-    if (selection.type === 'item') {
+    if (selection.type === 'item' && this.practiceMode !== 'ramp') {
       const item = Storage.getItemById(selection.itemId);
-      if (item?.targetTempo && this.practiceMode !== 'ramp') {
-        tempoInput.value = item.targetTempo;
-        tempoDisplay.textContent = `${item.targetTempo} BPM`;
-        this.metronome.setBpm(item.targetTempo);
+      const lastSession = getLatestSessionForItem(selection.itemId);
+      const rawBpm = lastSession?.tempo ?? item?.targetTempo;
+      const bpm = parseInt(rawBpm, 10);
+      if (!Number.isNaN(bpm)) {
+        const clamped = Math.max(40, Math.min(300, bpm));
+        tempoInput.value = clamped;
+        tempoDisplay.textContent = `${clamped} BPM`;
+        this.metronome.setBpm(clamped);
       }
     }
 
