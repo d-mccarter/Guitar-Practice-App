@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=58">
+  <link rel="stylesheet" href="css/styles.css?v=59">
 </head>
 <body>
   <header class="app-header">
@@ -361,6 +361,10 @@
                 </select>
               </label>
             </div>
+            <label class="log-group-option">
+              <input type="checkbox" id="log-group-by-tod">
+              <span>Group by time of day</span>
+            </label>
           </div>
           <button type="button" class="btn btn-primary btn-small" id="manual-log-btn">Log practice</button>
         </div>
@@ -563,11 +567,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=58"></script>
-  <script src="js/storage.js?v=58"></script>
-  <script src="js/metronome.js?v=58"></script>
-  <script src="js/charts.js?v=58"></script>
-  <script src="js/app.js?v=58"></script>
+  <script src="js/github-sync.js?v=59"></script>
+  <script src="js/storage.js?v=59"></script>
+  <script src="js/metronome.js?v=59"></script>
+  <script src="js/charts.js?v=59"></script>
+  <script src="js/app.js?v=59"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});

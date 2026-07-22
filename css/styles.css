@@ -955,6 +955,31 @@ select {
   margin-bottom: 0;
 }
 
+.log-group-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.log-group-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.log-group-option span {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
 .log-header .btn {
   flex-shrink: 0;
   align-self: flex-end;
@@ -1042,6 +1067,53 @@ select {
 
 .log-row .btn-small {
   flex-shrink: 0;
+}
+
+.log-session-group {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.log-session-group:last-child {
+  margin-bottom: 0;
+}
+
+.log-session-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.log-session-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+
+.log-session-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.log-session-entries {
+  list-style: none;
+  margin: 0;
+  padding: 0 12px;
+}
+
+.log-session-entries .log-row:last-child {
+  border-bottom: none;
 }
 
 .empty-state {

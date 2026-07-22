@@ -2007,6 +2007,7 @@ const App = {
   bindLog() {
     const dateSelect = document.getElementById('log-filter-date');
     document.getElementById('log-filter-item').addEventListener('change', () => this.renderLog());
+    document.getElementById('log-group-by-tod').addEventListener('change', () => this.renderLog());
     dateSelect.addEventListener('change', () => {
       if (dateSelect.value === 'calendar') {
         dateSelect.value = this.logDateFilterBeforeCalendar || '';
@@ -2515,10 +2516,57 @@ const App = {
     });
   },
 
+  renderLogSessionRow(s) {
+    const tempoText = s.mode === 'ramp' && s.startTempo != null
+      ? `${s.startTempo}→${s.tempo} BPM`
+      : `${s.tempo} BPM`;
+    const rating = normalizeSessionRating(s.rating);
+    const stars = formatStarRating(rating);
+    const notes = (s.notes || '').trim();
+    const feedbackBits = [];
+    if (stars) {
+      feedbackBits.push(`<div class="log-feedback"><span class="log-stars" aria-label="${rating} of 5 stars">${stars}</span></div>`);
+    }
+    if (notes) {
+      feedbackBits.push(`<div class="log-feedback"><div class="log-notes">${escapeHtml(notes)}</div></div>`);
+    }
+    const hasFeedback = stars || notes || (s.workedOn || '').trim();
+    const editLabel = hasFeedback ? 'Edit notes' : 'Add notes';
+    const modeLabel = s.mode === 'free'
+      ? ' <span class="log-mode">Free</span>'
+      : s.mode === 'manual'
+        ? ' <span class="log-mode">Manual</span>'
+        : s.cycleName
+          ? ` <span class="log-mode">Cycle</span>`
+          : '';
+    const cycleMeta = s.cycleName
+      ? `<div class="cycle-meta-line">${escapeHtml(s.cycleName)}${s.cycleRound ? ` · round ${s.cycleRound}` : ''}</div>`
+      : '';
+    return `
+      <li class="log-row">
+        <div class="log-info">
+          <div class="log-date">${formatDate(s.startedAt)}</div>
+          <div class="log-detail">
+            <strong>${escapeHtml(sessionDisplayName(s))}</strong> — ${formatDuration(s.durationSeconds)} at
+            <span class="log-tempo">${tempoText}</span>${modeLabel}
+            ${s.completed || s.mode === 'free' || s.mode === 'manual' ? '' : ' (stopped early)'}
+          </div>
+          ${cycleMeta}
+          ${feedbackBits.join('')}
+        </div>
+        <div class="item-actions">
+          <button type="button" class="btn btn-secondary btn-small" data-edit-session="${s.id}">${editLabel}</button>
+          <button type="button" class="btn btn-danger btn-small" data-delete-session="${s.id}">Delete</button>
+        </div>
+      </li>
+    `;
+  },
+
   renderLog() {
     this.refreshLogDateFilter();
     const filterId = document.getElementById('log-filter-item').value;
     const dateFilter = document.getElementById('log-filter-date')?.value || '';
+    const groupByTod = document.getElementById('log-group-by-tod')?.checked;
     let sessions = Storage.getSessions()
       .slice()
       .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
@@ -2538,51 +2586,33 @@ const App = {
     }
 
     empty.hidden = true;
-    list.innerHTML = sessions.slice(0, 50).map((s) => {
-      const tempoText = s.mode === 'ramp' && s.startTempo != null
-        ? `${s.startTempo}→${s.tempo} BPM`
-        : `${s.tempo} BPM`;
-      const rating = normalizeSessionRating(s.rating);
-      const stars = formatStarRating(rating);
-      const notes = (s.notes || '').trim();
-      const feedbackBits = [];
-      if (stars) {
-        feedbackBits.push(`<div class="log-feedback"><span class="log-stars" aria-label="${rating} of 5 stars">${stars}</span></div>`);
+
+    if (groupByTod) {
+      const groups = groupSessionsByProximity(sessions);
+      let remaining = 50;
+      const parts = [];
+      for (const group of groups) {
+        if (remaining <= 0) break;
+        const entries = group.entries.slice(0, remaining);
+        remaining -= entries.length;
+        const countLabel = entries.length === 1 ? '1 entry' : `${entries.length} entries`;
+        parts.push(`
+          <li class="log-session-group" data-period="${escapeHtml(group.period)}">
+            <div class="log-session-heading">
+              <span class="log-session-name">${escapeHtml(group.label)}</span>
+              <span class="log-session-meta">${escapeHtml(group.dateLabel)} · ${countLabel}</span>
+            </div>
+            <ul class="log-session-entries">
+              ${entries.map((s) => this.renderLogSessionRow(s)).join('')}
+            </ul>
+          </li>
+        `);
       }
-      if (notes) {
-        feedbackBits.push(`<div class="log-feedback"><div class="log-notes">${escapeHtml(notes)}</div></div>`);
-      }
-      const hasFeedback = stars || notes || (s.workedOn || '').trim();
-      const editLabel = hasFeedback ? 'Edit notes' : 'Add notes';
-      const modeLabel = s.mode === 'free'
-        ? ' <span class="log-mode">Free</span>'
-        : s.mode === 'manual'
-          ? ' <span class="log-mode">Manual</span>'
-          : s.cycleName
-            ? ` <span class="log-mode">Cycle</span>`
-            : '';
-      const cycleMeta = s.cycleName
-        ? `<div class="cycle-meta-line">${escapeHtml(s.cycleName)}${s.cycleRound ? ` · round ${s.cycleRound}` : ''}</div>`
-        : '';
-      return `
-      <li class="log-row">
-        <div class="log-info">
-          <div class="log-date">${formatDate(s.startedAt)}</div>
-          <div class="log-detail">
-            <strong>${escapeHtml(sessionDisplayName(s))}</strong> — ${formatDuration(s.durationSeconds)} at
-            <span class="log-tempo">${tempoText}</span>${modeLabel}
-            ${s.completed || s.mode === 'free' || s.mode === 'manual' ? '' : ' (stopped early)'}
-          </div>
-          ${cycleMeta}
-          ${feedbackBits.join('')}
-        </div>
-        <div class="item-actions">
-          <button type="button" class="btn btn-secondary btn-small" data-edit-session="${s.id}">${editLabel}</button>
-          <button type="button" class="btn btn-danger btn-small" data-delete-session="${s.id}">Delete</button>
-        </div>
-      </li>
-    `;
-    }).join('');
+      list.innerHTML = parts.join('');
+      return;
+    }
+
+    list.innerHTML = sessions.slice(0, 50).map((s) => this.renderLogSessionRow(s)).join('');
   },
 
   renderProgress() {
