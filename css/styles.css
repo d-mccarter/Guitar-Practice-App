@@ -1229,6 +1229,28 @@ select {
   margin-top: 4px;
 }
 
+.chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.chart-card-header h3 {
+  margin-bottom: 0;
+}
+
+.chart-period-field {
+  flex: 0 0 auto;
+  margin-bottom: 0;
+  min-width: 140px;
+}
+
+.chart-period-field select {
+  font-size: 0.85rem;
+}
+
 .chart-card canvas {
   width: 100%;
   height: 200px;
@@ -1239,7 +1261,7 @@ select {
 .chart-subtitle {
   font-size: 0.8rem;
   color: var(--text-muted);
-  margin-top: -8px;
+  margin-top: 4px;
   margin-bottom: 4px;
 }
 

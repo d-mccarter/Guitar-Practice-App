@@ -392,8 +392,20 @@
       </div>
 
       <div class="card chart-card">
-        <h3>Practice time</h3>
-        <p class="chart-subtitle">Minutes practiced per week</p>
+        <div class="chart-card-header">
+          <div>
+            <h3>Practice time</h3>
+            <p class="chart-subtitle" id="time-chart-subtitle">Minutes practiced per week</p>
+          </div>
+          <label class="field chart-period-field">
+            <span>Show by</span>
+            <select id="time-chart-period" aria-label="Practice time period">
+              <option value="days">Days (this week)</option>
+              <option value="weeks" selected>Weeks</option>
+              <option value="months">Months</option>
+            </select>
+          </label>
+        </div>
         <canvas id="time-chart" height="200"></canvas>
         <p class="empty-state" id="time-chart-empty">Log sessions to see practice time.</p>
       </div>
