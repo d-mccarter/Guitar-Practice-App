@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#0f0f12"/>
+
+  <!-- Acoustic guitar silhouette, gold on dark, rotated for the icon safe zone -->
+  <g transform="translate(256 256) rotate(-35) translate(-256 -256)">
+    <!-- Lower bout -->
+    <path
+      fill="#e8a838"
+      d="M256 318
+         C318 318 368 360 368 412
+         C368 468 318 508 256 508
+         C194 508 144 468 144 412
+         C144 360 194 318 256 318 Z"
+    />
+
+    <!-- Upper bout -->
+    <path
+      fill="#e8a838"
+      d="M256 210
+         C302 210 340 244 340 286
+         C340 302 334 316 324 328
+         C304 320 280 316 256 316
+         C232 316 208 320 188 328
+         C178 316 172 302 172 286
+         C172 244 210 210 256 210 Z"
+    />
+
+    <!-- Bridge -->
+    <rect x="228" y="430" width="56" height="14" rx="3" fill="#0f0f12"/>
+
+    <!-- Sound hole -->
+    <circle cx="256" cy="360" r="32" fill="#0f0f12"/>
+    <circle cx="256" cy="360" r="22" fill="#e8a838"/>
+    <circle cx="256" cy="360" r="14" fill="#0f0f12"/>
+
+    <!-- Neck -->
+    <rect x="240" y="78" width="32" height="140" rx="4" fill="#e8a838"/>
+
+    <!-- Nut -->
+    <rect x="236" y="74" width="40" height="8" rx="2" fill="#0f0f12"/>
+
+    <!-- Headstock -->
+    <path
+      fill="#e8a838"
+      d="M236 78
+         L228 18
+         C226 8 232 2 242 4
+         L256 10
+         L270 4
+         C280 2 286 8 284 18
+         L276 78 Z"
+    />
+
+    <!-- Tuning pegs -->
+    <circle cx="238" cy="28" r="6" fill="#0f0f12"/>
+    <circle cx="238" cy="48" r="6" fill="#0f0f12"/>
+    <circle cx="274" cy="28" r="6" fill="#0f0f12"/>
+    <circle cx="274" cy="48" r="6" fill="#0f0f12"/>
+
+    <!-- Strings -->
+    <g stroke="#0f0f12" stroke-width="2" stroke-linecap="round" opacity="0.55">
+      <line x1="248" y1="78" x2="248" y2="430"/>
+      <line x1="256" y1="78" x2="256" y2="430"/>
+      <line x1="264" y1="78" x2="264" y2="430"/>
+    </g>
+  </g>
+</svg>

@@ -1,4 +1,4 @@
-const CACHE = 'practice-tracker-v54';
+const CACHE = 'practice-tracker-v55';
 const ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,8 @@ const ASSETS = [
   './js/charts.js',
   './js/app.js',
   './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
   './data/practice-data.json',
   './data/practice-data-test.json',
   './build.json'
