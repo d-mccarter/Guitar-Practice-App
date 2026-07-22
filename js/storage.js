@@ -408,8 +408,12 @@ function timeOfDayPeriod(date) {
 }
 
 function timeOfDayLabel(date) {
-  const period = timeOfDayPeriod(date);
-  return period.charAt(0).toUpperCase() + period.slice(1);
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return 'Session';
+  const weekday = d.toLocaleDateString(undefined, { weekday: 'long' });
+  const period = timeOfDayPeriod(d);
+  const periodLabel = period.charAt(0).toUpperCase() + period.slice(1);
+  return `${weekday} ${periodLabel}`;
 }
 
 /**
