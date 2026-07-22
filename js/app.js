@@ -2350,6 +2350,7 @@ const App = {
 
   bindProgress() {
     document.getElementById('progress-item-select').addEventListener('change', () => this.renderProgress());
+    document.getElementById('time-chart-period').addEventListener('change', () => this.renderProgress());
   },
 
   refreshAll() {
@@ -2617,11 +2618,20 @@ const App = {
 
   renderProgress() {
     const itemId = document.getElementById('progress-item-select').value;
+    const period = document.getElementById('time-chart-period')?.value || 'weeks';
     const tempoCanvas = document.getElementById('tempo-chart');
     const timeCanvas = document.getElementById('time-chart');
     const tempoEmpty = document.getElementById('tempo-chart-empty');
     const timeEmpty = document.getElementById('time-chart-empty');
+    const timeSubtitle = document.getElementById('time-chart-subtitle');
     const statsGrid = document.getElementById('stats-grid');
+
+    const periodSubtitles = {
+      days: 'Minutes practiced each day this week',
+      weeks: 'Minutes practiced per week',
+      months: 'Minutes practiced per month'
+    };
+    if (timeSubtitle) timeSubtitle.textContent = periodSubtitles[period] || periodSubtitles.weeks;
 
     let sessions = Storage.getSessions();
     if (itemId) sessions = sessions.filter((s) => s.itemId === itemId);
@@ -2636,10 +2646,11 @@ const App = {
     }
 
     tempoCanvas.hidden = false;
-    timeCanvas.hidden = false;
     statsGrid.hidden = false;
     tempoEmpty.hidden = Charts.drawTempoChart(tempoCanvas, sessions);
-    timeEmpty.hidden = Charts.drawTimeChart(timeCanvas, sessions);
+    const drewTime = Charts.drawTimeChart(timeCanvas, sessions, period);
+    timeEmpty.hidden = drewTime;
+    timeCanvas.hidden = !drewTime;
 
     const totalMin = Math.round(sessions.reduce((s, x) => s + x.durationSeconds, 0) / 60);
     const tempos = sessions.map((s) => s.tempo);

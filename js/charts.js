@@ -95,33 +95,91 @@ const Charts = {
     return true;
   },
 
-  drawTimeChart(canvas, sessions) {
+  _weekStartKey(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - d.getDay());
+    return dayKeyFromDate(d);
+  },
+
+  _buildTimeBuckets(sessions, period = 'weeks') {
+    const totals = new Map();
+    sessions.forEach((s) => {
+      const started = new Date(s.startedAt);
+      if (Number.isNaN(started.getTime())) return;
+      let key;
+      if (period === 'days') key = dayKeyFromDate(started);
+      else if (period === 'months') key = monthKeyFromDate(started);
+      else key = this._weekStartKey(started);
+      if (!key) return;
+      totals.set(key, (totals.get(key) || 0) + s.durationSeconds / 60);
+    });
+
+    if (period === 'days') {
+      const now = new Date();
+      const weekStart = startOfLocalDay(now);
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      const buckets = [];
+      for (let i = 0; i < 7; i++) {
+        const day = new Date(weekStart);
+        day.setDate(weekStart.getDate() + i);
+        const key = dayKeyFromDate(day);
+        buckets.push({
+          key,
+          minutes: totals.get(key) || 0,
+          label: day.toLocaleDateString(undefined, { weekday: 'short' })
+        });
+      }
+      return buckets;
+    }
+
+    if (period === 'months') {
+      return [...totals.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .slice(-6)
+        .map(([key, minutes]) => {
+          const [year, month] = key.split('-').map(Number);
+          const d = new Date(year, month - 1, 1);
+          return {
+            key,
+            minutes,
+            label: d.toLocaleDateString(undefined, { month: 'short', year: '2-digit' })
+          };
+        });
+    }
+
+    // weeks — last 8 weeks that have practice (Sunday starts)
+    return [...totals.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .slice(-8)
+      .map(([key, minutes]) => ({
+        key,
+        minutes,
+        label: new Date(key + 'T12:00:00').toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric'
+        })
+      }));
+  },
+
+  drawTimeChart(canvas, sessions, period = 'weeks') {
     const { ctx, w, h } = this._setupCanvas(canvas);
     const padding = { top: 16, right: 16, bottom: 32, left: 44 };
     ctx.clearRect(0, 0, w, h);
 
     if (!sessions.length) return false;
 
-    const weekMap = new Map();
-    sessions.forEach((s) => {
-      const d = new Date(s.startedAt);
-      const weekStart = new Date(d);
-      weekStart.setDate(d.getDate() - d.getDay());
-      weekStart.setHours(0, 0, 0, 0);
-      const key = weekStart.toISOString().slice(0, 10);
-      weekMap.set(key, (weekMap.get(key) || 0) + s.durationSeconds / 60);
-    });
+    const buckets = this._buildTimeBuckets(sessions, period);
+    if (!buckets.length) return false;
 
-    const weeks = [...weekMap.entries()]
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .slice(-8);
+    // Hide empty-state only when there is something to show in this period
+    const hasData = buckets.some((b) => b.minutes > 0);
+    if (!hasData) return false;
 
-    if (!weeks.length) return false;
-
-    const maxMin = Math.max(...weeks.map((w) => w[1]), 1);
+    const maxMin = Math.max(...buckets.map((b) => b.minutes), 1);
     const chartW = w - padding.left - padding.right;
     const chartH = h - padding.top - padding.bottom;
-    const barW = Math.min(40, chartW / weeks.length - 8);
+    const barW = Math.min(40, chartW / buckets.length - 8);
 
     this._drawGrid(ctx, w, h, padding);
 
@@ -134,21 +192,22 @@ const Charts = {
       ctx.fillText(val + 'm', padding.left - 4, y + 4);
     }
 
-    weeks.forEach(([key, minutes], i) => {
-      const barH = (minutes / maxMin) * chartH;
-      const x = padding.left + i * (chartW / weeks.length) + (chartW / weeks.length - barW) / 2;
+    buckets.forEach((bucket, i) => {
+      const barH = (bucket.minutes / maxMin) * chartH;
+      const x = padding.left + i * (chartW / buckets.length) + (chartW / buckets.length - barW) / 2;
       const y = padding.top + chartH - barH;
 
-      ctx.fillStyle = '#e8a838';
-      ctx.beginPath();
-      ctx.roundRect(x, y, barW, barH, 4);
-      ctx.fill();
+      if (bucket.minutes > 0) {
+        ctx.fillStyle = '#e8a838';
+        ctx.beginPath();
+        ctx.roundRect(x, y, barW, Math.max(barH, 2), 4);
+        ctx.fill();
+      }
 
       ctx.fillStyle = '#888894';
       ctx.font = '9px system-ui, sans-serif';
       ctx.textAlign = 'center';
-      const label = new Date(key + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-      ctx.fillText(label, x + barW / 2, h - 8);
+      ctx.fillText(bucket.label, x + barW / 2, h - 8);
     });
 
     return true;
