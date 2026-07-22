@@ -487,9 +487,140 @@ const App = {
       this.applyPracticeSelection();
     });
 
+    this.bindPracticeItemRichSelect();
+
     this.updatePracticeModeUI();
     commitTempo();
     resetTimerDisplay();
+  },
+
+  bindPracticeItemRichSelect() {
+    const trigger = document.getElementById('practice-item-trigger');
+    const menu = document.getElementById('practice-item-menu');
+    const select = document.getElementById('practice-item-select');
+    const rich = document.getElementById('practice-item-rich');
+    if (!trigger || !menu || !select || !rich || trigger.dataset.bound === '1') return;
+    trigger.dataset.bound = '1';
+
+    trigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      if (trigger.disabled) return;
+      if (trigger.getAttribute('aria-expanded') === 'true') {
+        this.closePracticeItemRichSelect();
+      } else {
+        this.openPracticeItemRichSelect();
+      }
+    });
+
+    menu.addEventListener('click', (event) => {
+      const option = event.target.closest('[data-value]');
+      if (!option || !menu.contains(option)) return;
+      const value = option.getAttribute('data-value') ?? '';
+      if (select.value !== value) {
+        select.value = value;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+      } else {
+        this.syncPracticeItemRichSelect();
+      }
+      this.closePracticeItemRichSelect();
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!rich.contains(event.target)) this.closePracticeItemRichSelect();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') this.closePracticeItemRichSelect();
+    });
+  },
+
+  openPracticeItemRichSelect() {
+    const trigger = document.getElementById('practice-item-trigger');
+    const menu = document.getElementById('practice-item-menu');
+    if (!trigger || !menu || trigger.disabled) return;
+    this.renderPracticeItemRichMenu();
+    menu.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+  },
+
+  closePracticeItemRichSelect() {
+    const trigger = document.getElementById('practice-item-trigger');
+    const menu = document.getElementById('practice-item-menu');
+    if (!trigger || !menu) return;
+    menu.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+  },
+
+  renderPracticeItemRichMenu() {
+    const menu = document.getElementById('practice-item-menu');
+    const select = document.getElementById('practice-item-select');
+    if (!menu || !select) return;
+
+    const current = select.value;
+    const items = Storage.getItems();
+    const cycles = Storage.getCycles();
+    const parts = [];
+
+    const optionHtml = (value, title, metaHtml, isPlaceholder = false) => {
+      const selected = current === value;
+      return `<button type="button" class="rich-select-option${selected ? ' is-selected' : ''}" role="option" data-value="${escapeHtml(value)}" aria-selected="${selected ? 'true' : 'false'}">
+        <span class="rich-select-option-title">${escapeHtml(title)}</span>
+        ${isPlaceholder ? '' : `<span class="rich-select-option-meta">${metaHtml}</span>`}
+      </button>`;
+    };
+
+    parts.push(optionHtml('', 'Select an item or cycle…', '', true));
+
+    const validCycles = cycles.filter((cycle) => this.resolveCycleSteps(cycle).length);
+    if (validCycles.length) {
+      parts.push('<div class="rich-select-group-label">Cycles</div>');
+      validCycles.forEach((cycle) => {
+        const value = `cycle:${cycle.id}`;
+        const session = getLatestSessionForCycle(cycle.id);
+        parts.push(optionHtml(value, cycleSelectLabel(cycle), formatLastSessionMetaHtml(session)));
+      });
+    }
+
+    if (items.length) {
+      parts.push('<div class="rich-select-group-label">Items</div>');
+      items.forEach((item) => {
+        const session = getLatestSessionForItem(item.id);
+        parts.push(optionHtml(item.id, itemSelectLabel(item), formatLastSessionMetaHtml(session)));
+      });
+    }
+
+    menu.innerHTML = parts.join('');
+  },
+
+  syncPracticeItemRichSelect() {
+    const select = document.getElementById('practice-item-select');
+    const titleEl = document.getElementById('practice-item-trigger-title');
+    const metaEl = document.getElementById('practice-item-trigger-meta');
+    if (!select || !titleEl || !metaEl) return;
+
+    const value = select.value;
+    if (!value) {
+      titleEl.textContent = 'Select an item or cycle…';
+      metaEl.innerHTML = '';
+      metaEl.hidden = true;
+      return;
+    }
+
+    const selection = parsePracticeSelection(value);
+    if (selection.type === 'cycle') {
+      const cycle = Storage.getCycleById(selection.cycleId);
+      titleEl.textContent = cycle ? cycleSelectLabel(cycle) : 'Cycle';
+      metaEl.innerHTML = formatLastSessionMetaHtml(getLatestSessionForCycle(selection.cycleId));
+      metaEl.hidden = false;
+      return;
+    }
+
+    if (selection.type === 'item') {
+      const item = Storage.getItemById(selection.itemId);
+      titleEl.textContent = item ? itemSelectLabel(item) : 'Item';
+      metaEl.innerHTML = formatLastSessionMetaHtml(getLatestSessionForItem(selection.itemId));
+      metaEl.hidden = false;
+    }
   },
 
   applyPracticeSelection() {
@@ -511,6 +642,7 @@ const App = {
           hint.hidden = true;
           hint.textContent = '';
         }
+        this.syncPracticeItemRichSelect();
         return;
       }
 
@@ -536,6 +668,7 @@ const App = {
       if (statusEl && !statusEl.classList.contains('running') && !statusEl.classList.contains('paused')) {
         statusEl.textContent = 'Ready';
       }
+      this.syncPracticeItemRichSelect();
       return;
     }
 
@@ -552,6 +685,8 @@ const App = {
         this.metronome.setBpm(item.targetTempo);
       }
     }
+
+    this.syncPracticeItemRichSelect();
   },
 
   resolveCycleSteps(cycle) {
@@ -628,6 +763,9 @@ const App = {
     // so tempo/subdivision/accents can change and take effect immediately.
     document.querySelectorAll('#view-practice .mode-btn').forEach((b) => { b.disabled = disabled; });
     document.getElementById('practice-item-select').disabled = disabled;
+    const practiceTrigger = document.getElementById('practice-item-trigger');
+    if (practiceTrigger) practiceTrigger.disabled = disabled;
+    if (disabled) this.closePracticeItemRichSelect();
     document.getElementById('timer-minutes').disabled = disabled;
     document.getElementById('timer-up').disabled = disabled;
     document.getElementById('timer-down').disabled = disabled;
@@ -2325,6 +2463,7 @@ const App = {
 
     this.refreshCycleStepSelect();
     if (!this.session) this.applyPracticeSelection();
+    else this.syncPracticeItemRichSelect();
   },
 
   renderItems() {
