@@ -395,6 +395,66 @@ function formatDate(iso) {
   });
 }
 
+/** Local time-of-day bucket for practice session naming. */
+function timeOfDayPeriod(date) {
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return 'session';
+  const hour = d.getHours();
+  if (hour >= 5 && hour < 11) return 'morning';
+  if (hour >= 11 && hour < 13) return 'noon';
+  if (hour >= 13 && hour < 17) return 'afternoon';
+  if (hour >= 17 && hour < 21) return 'evening';
+  return 'night';
+}
+
+function timeOfDayLabel(date) {
+  const period = timeOfDayPeriod(date);
+  return period.charAt(0).toUpperCase() + period.slice(1);
+}
+
+/**
+ * Cluster sessions into practice sessions when consecutive entries
+ * (by startedAt) are within maxGapMs of each other (default 15 min).
+ * Returns groups newest-first; entries within each group oldest-first.
+ */
+function groupSessionsByProximity(sessions, maxGapMs = 15 * 60 * 1000) {
+  const chronological = (sessions || [])
+    .slice()
+    .filter((s) => s && s.startedAt && !Number.isNaN(new Date(s.startedAt).getTime()))
+    .sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt));
+
+  if (!chronological.length) return [];
+
+  const clusters = [];
+  let current = [chronological[0]];
+
+  for (let i = 1; i < chronological.length; i++) {
+    const prev = chronological[i - 1];
+    const next = chronological[i];
+    const gap = new Date(next.startedAt) - new Date(prev.startedAt);
+    if (gap <= maxGapMs) {
+      current.push(next);
+    } else {
+      clusters.push(current);
+      current = [next];
+    }
+  }
+  clusters.push(current);
+
+  return clusters.reverse().map((entries) => {
+    const anchor = entries[0];
+    const started = new Date(anchor.startedAt);
+    return {
+      id: entries.map((s) => s.id).join('-'),
+      period: timeOfDayPeriod(started),
+      label: timeOfDayLabel(started),
+      dateLabel: formatShortDate(anchor.startedAt),
+      startedAt: anchor.startedAt,
+      entries
+    };
+  });
+}
+
 function startOfLocalDay(date = new Date()) {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
