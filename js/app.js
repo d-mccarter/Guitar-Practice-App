@@ -117,6 +117,7 @@ const App = {
     const clickSoundSelect = document.getElementById('metronome-click-sound');
     const countInSoundSelect = document.getElementById('metronome-count-in-sound');
     const bellSoundSelect = document.getElementById('metronome-bell-sound');
+    const volumeInput = document.getElementById('metronome-volume');
 
     if (subdivisionSelect) {
       this.metronome.setSubdivision(subdivisionSelect.value);
@@ -137,6 +138,18 @@ const App = {
     if (bellSoundSelect) {
       this.metronome.setBellSound(bellSoundSelect.value);
     }
+    if (volumeInput) {
+      this.metronome.setVolume(Number(volumeInput.value) / 100);
+      this.updateMetronomeVolumeLabel(volumeInput.value);
+    }
+  },
+
+  updateMetronomeVolumeLabel(value) {
+    const output = document.getElementById('metronome-volume-value');
+    const input = document.getElementById('metronome-volume');
+    const pct = Math.round(Math.max(0, Math.min(100, Number(value) || 0)));
+    if (output) output.textContent = `${pct}%`;
+    if (input) input.setAttribute('aria-valuenow', String(pct));
   },
 
   getMetronomeOptionsFromDom() {
@@ -147,7 +160,8 @@ const App = {
       timerBell: document.getElementById('metronome-timer-bell-btn')?.classList.contains('on') ?? true,
       clickSound: document.getElementById('metronome-click-sound')?.value || 'beep',
       countInSound: document.getElementById('metronome-count-in-sound')?.value || 'same',
-      bellSound: document.getElementById('metronome-bell-sound')?.value || 'bell'
+      bellSound: document.getElementById('metronome-bell-sound')?.value || 'bell',
+      volume: Math.round(Math.max(0, Math.min(100, Number(document.getElementById('metronome-volume')?.value) || 100)))
     };
   },
 
@@ -177,9 +191,14 @@ const App = {
       const clickSelect = document.getElementById('metronome-click-sound');
       const countInSelect = document.getElementById('metronome-count-in-sound');
       const bellSelect = document.getElementById('metronome-bell-sound');
+      const volumeInput = document.getElementById('metronome-volume');
       if (clickSelect && options.clickSound) clickSelect.value = options.clickSound;
       if (countInSelect && options.countInSound) countInSelect.value = options.countInSound;
       if (bellSelect && options.bellSound) bellSelect.value = options.bellSound;
+      if (volumeInput && options.volume != null) {
+        const pct = Math.round(Math.max(0, Math.min(100, Number(options.volume))));
+        if (Number.isFinite(pct)) volumeInput.value = String(pct);
+      }
     }
 
     this.applyMetronomeOptions();
@@ -211,6 +230,7 @@ const App = {
     const clickSoundSelect = document.getElementById('metronome-click-sound');
     const countInSoundSelect = document.getElementById('metronome-count-in-sound');
     const bellSoundSelect = document.getElementById('metronome-bell-sound');
+    const volumeInput = document.getElementById('metronome-volume');
     const previewBellBtn = document.getElementById('metronome-preview-bell-btn');
 
     const onChange = () => {
@@ -241,6 +261,12 @@ const App = {
     clickSoundSelect?.addEventListener('change', onChange);
     countInSoundSelect?.addEventListener('change', onChange);
     bellSoundSelect?.addEventListener('change', onChange);
+
+    volumeInput?.addEventListener('input', () => {
+      this.metronome.setVolume(Number(volumeInput.value) / 100);
+      this.updateMetronomeVolumeLabel(volumeInput.value);
+      this.saveMetronomeOptions();
+    });
 
     previewBellBtn?.addEventListener('click', async () => {
       this.applyMetronomeOptions();

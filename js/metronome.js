@@ -32,6 +32,8 @@ class Metronome {
     this.onBpmChange = null;
     this.ramp = null;
     this._lastReportedBpm = null;
+    this.volume = 1;
+    this.masterGain = null;
   }
 
   static getClickSoundPresets() {
@@ -47,9 +49,29 @@ class Metronome {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       this.audioCtx = new AudioContext();
     }
+    this._ensureMasterGain();
     if (this.audioCtx.state === 'suspended') {
       await this.audioCtx.resume();
     }
+  }
+
+  /** 0–1 linear gain applied after each click/bell envelope. */
+  setVolume(volume) {
+    const n = Number(volume);
+    this.volume = Number.isFinite(n) ? Math.max(0, Math.min(1, n)) : 1;
+    if (this.masterGain && this.audioCtx) {
+      this.masterGain.gain.setValueAtTime(this.volume, this.audioCtx.currentTime);
+    }
+  }
+
+  _ensureMasterGain() {
+    if (!this.audioCtx) return null;
+    if (!this.masterGain) {
+      this.masterGain = this.audioCtx.createGain();
+      this.masterGain.gain.value = this.volume;
+      this.masterGain.connect(this.audioCtx.destination);
+    }
+    return this.masterGain;
   }
 
   setBpm(bpm) {
@@ -183,7 +205,7 @@ class Metronome {
 
   _connectGain(time, peak, decay) {
     const gain = this.audioCtx.createGain();
-    gain.connect(this.audioCtx.destination);
+    gain.connect(this._ensureMasterGain());
     gain.gain.setValueAtTime(peak, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
     return gain;
