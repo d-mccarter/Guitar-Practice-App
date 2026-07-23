@@ -7,6 +7,7 @@ Works on iPhone: open in Safari, tap **Share → Add to Home Screen** for a full
 ## Features
 
 - **Metronome** — Web Audio metronome with visual beat indicator
+- **Keep screen awake** — Phone stays on during an active practice session (releases on pause/end)
 - **Practice items** — Configure routines by name (e.g. `5k`, `scales`, `warm-up`) with optional target tempo
 - **Timed sessions** — Set duration and tempo; timer starts when the metronome starts
 - **Session log** — Tracks time and tempo for every practice session
