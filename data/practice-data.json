@@ -98,23 +98,6 @@
       "notes": "Focus on fretting each finger just in time. Challenge with pinky and ring."
     },
     {
-      "id": "bf841e8e-589a-4e25-b9c8-1a1433ed4328",
-      "itemId": "8d886925-762f-40d7-9bae-6b70fcc41263",
-      "itemName": "8l",
-      "workedOn": "",
-      "tempo": 80,
-      "startTempo": null,
-      "endTempo": null,
-      "mode": "practice",
-      "durationSeconds": 15,
-      "plannedDurationSeconds": 180,
-      "startedAt": "2026-07-23T11:01:48.224Z",
-      "completedAt": "2026-07-23T11:02:06.376Z",
-      "completed": false,
-      "rating": 0,
-      "notes": ""
-    },
-    {
       "id": "99620d04-de35-4e4e-9908-80bda370e0fb",
       "itemId": "ada966a3-b7cb-45f6-ac14-0aded6b95f08",
       "itemName": "Spider 1",
