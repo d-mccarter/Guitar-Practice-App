@@ -878,6 +878,10 @@ select {
   margin-bottom: 8px;
 }
 
+.timer-display.overtime {
+  color: var(--accent);
+}
+
 .session-status {
   color: var(--text-muted);
   font-size: 0.9rem;
