@@ -2,6 +2,7 @@ const App = {
   metronome: new Metronome(),
   session: null,
   timerInterval: null,
+  wakeLock: null,
   editingItemId: null,
   editingCycleId: null,
   cycleDraftSteps: [],
@@ -22,6 +23,7 @@ const App = {
     this.bindNavigation();
     this.bindPractice();
     this.bindMetronomeOptions();
+    this.bindWakeLock();
     this.bindItems();
     this.bindCycles();
     this.bindSync();
@@ -30,6 +32,40 @@ const App = {
     this.bindSessionFeedback();
     this.bindProgress();
     this.refreshAll();
+  },
+
+  // Keep the phone screen on while a practice session is actively running.
+  // Browsers release the lock when the tab is hidden; we re-request on return.
+  bindWakeLock() {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && this.session && !this.session.paused) {
+        this.requestWakeLock();
+      }
+    });
+  },
+
+  async requestWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      if (this.wakeLock && !this.wakeLock.released) return;
+      const lock = await navigator.wakeLock.request('screen');
+      this.wakeLock = lock;
+      lock.addEventListener('release', () => {
+        if (this.wakeLock === lock) this.wakeLock = null;
+      });
+    } catch {
+      // Denied when the page is hidden, battery saver is on, or unsupported.
+    }
+  },
+
+  async releaseWakeLock() {
+    if (!this.wakeLock) return;
+    try {
+      await this.wakeLock.release();
+    } catch {
+      // Already released by the browser (e.g. tab hidden).
+    }
+    this.wakeLock = null;
   },
 
   bindNavigation() {
@@ -957,6 +993,7 @@ const App = {
       startedAt: new Date().toISOString()
     };
 
+    await this.requestWakeLock();
     this.resetMeasureBeatDisplay();
     const nextBeatTime = await this.runCountInIfEnabled();
     await this.metronome.start(nextBeatTime != null ? { nextBeatTime } : undefined);
@@ -1042,6 +1079,7 @@ const App = {
       cycleStepIndex: this.cycleRun.stepIndex
     };
 
+    await this.requestWakeLock();
     this.resetMeasureBeatDisplay();
     const nextBeatTime = await this.runCountInIfEnabled();
     await this.metronome.start(nextBeatTime != null ? { nextBeatTime } : undefined);
@@ -1076,6 +1114,7 @@ const App = {
   finishCycleRun(completed) {
     const feedbackSession = this.cycleRun?.lastLoggedSession || null;
     this.cycleRun = null;
+    this.releaseWakeLock();
     this.setSessionControlsVisible(false);
     this.setPracticeFormDisabled(false);
 
@@ -1135,6 +1174,7 @@ const App = {
     this.metronome.pause();
     clearInterval(this.timerInterval);
     this.timerInterval = null;
+    this.releaseWakeLock();
 
     const statusEl = document.getElementById('session-status');
     const pauseBtn = document.getElementById('pause-resume-btn');
@@ -1148,6 +1188,7 @@ const App = {
     if (!this.session || !this.session.paused) return;
 
     this.session.paused = false;
+    await this.requestWakeLock();
     await this.metronome.resume();
 
     const statusEl = document.getElementById('session-status');
@@ -1215,6 +1256,7 @@ const App = {
     this.metronome.clearRamp();
     clearInterval(this.timerInterval);
     this.timerInterval = null;
+    this.releaseWakeLock();
     this.resetMeasureBeatDisplay();
 
     const statusEl = document.getElementById('session-status');
