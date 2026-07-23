@@ -2702,11 +2702,13 @@ const App = {
         const entries = group.entries.slice(0, remaining);
         remaining -= entries.length;
         const countLabel = entries.length === 1 ? '1 entry' : `${entries.length} entries`;
+        const totalSeconds = entries.reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
+        const totalLabel = formatDuration(totalSeconds);
         parts.push(`
           <li class="log-session-group" data-period="${escapeHtml(group.period)}">
             <div class="log-session-heading">
               <span class="log-session-name">${escapeHtml(group.label)}</span>
-              <span class="log-session-meta">${escapeHtml(group.dateLabel)} · ${countLabel}</span>
+              <span class="log-session-meta">${escapeHtml(group.dateLabel)} · ${countLabel} · ${totalLabel}</span>
             </div>
             <ul class="log-session-entries">
               ${entries.map((s) => this.renderLogSessionRow(s)).join('')}
