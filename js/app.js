@@ -722,6 +722,31 @@ const App = {
     return `${cycleName}: R${roundIndex + 1}/${rounds} · ${stepIndex + 1}/${steps.length} · ${name}`;
   },
 
+  /** Status line while a session is actively running (not paused). */
+  activeSessionStatusText() {
+    if (!this.session) return 'Ready';
+    if (this.cycleRun) {
+      const base = this.cycleStatusText();
+      return this.session.timerExpired ? `${base} · Overtime` : base;
+    }
+    if (this.session.mode === 'free') return 'Playing…';
+    if (this.session.timerExpired) return 'Overtime — end when ready';
+    return 'Practicing…';
+  },
+
+  /** Live timer label: countdown, then +m:ss once the planned time expires. */
+  formatSessionTimerDisplay(session) {
+    if (!session) return '0:00';
+    if (session.mode === 'free' || session.remainingSeconds == null) {
+      return formatDuration(session.elapsedSeconds);
+    }
+    if (session.remainingSeconds > 0) {
+      return formatDuration(session.remainingSeconds);
+    }
+    const overtime = Math.max(0, -session.remainingSeconds);
+    return overtime === 0 ? '0:00' : `+${formatDuration(overtime)}`;
+  },
+
   updatePracticeModeUI() {
     const itemField = document.getElementById('practice-item-field');
     const itemLabel = document.getElementById('practice-item-label');
@@ -810,11 +835,17 @@ const App = {
       }
 
       this.session.remainingSeconds--;
-      timerDisplay.textContent = formatDuration(Math.max(0, this.session.remainingSeconds));
 
-      if (this.session.remainingSeconds <= 0) {
-        this.stopSession(true);
+      // Planned time expired: ring once, keep practicing, count overtime forward.
+      if (this.session.remainingSeconds <= 0 && !this.session.timerExpired) {
+        this.session.timerExpired = true;
+        this.playTimerBellIfEnabled();
+        const statusEl = document.getElementById('session-status');
+        if (statusEl) statusEl.textContent = this.activeSessionStatusText();
       }
+
+      timerDisplay.textContent = this.formatSessionTimerDisplay(this.session);
+      timerDisplay.classList.toggle('overtime', !!this.session.timerExpired);
     }, 1000);
   },
 
@@ -895,6 +926,7 @@ const App = {
       plannedDurationSeconds: totalSeconds,
       remainingSeconds: totalSeconds,
       elapsedSeconds: 0,
+      timerExpired: false,
       paused: false,
       startedAt: new Date().toISOString()
     };
@@ -903,13 +935,14 @@ const App = {
     const nextBeatTime = await this.runCountInIfEnabled();
     await this.metronome.start(nextBeatTime != null ? { nextBeatTime } : undefined);
     this.setSessionControlsVisible(true);
-    statusEl.textContent = this.practiceMode === 'free' ? 'Playing…' : 'Practicing…';
+    statusEl.textContent = this.activeSessionStatusText();
     statusEl.classList.remove('paused');
     statusEl.classList.add('running');
     this.setPracticeFormDisabled(true);
 
     if (this.practiceMode === 'free') {
       timerDisplay.textContent = '0:00';
+      timerDisplay.classList.remove('overtime');
     }
 
     this.startSessionTimer();
@@ -962,6 +995,7 @@ const App = {
     this.metronome.setBpm(step.tempo);
     document.getElementById('timer-minutes').value = formatTimerMinutes(step.durationMinutes);
     timerDisplay.textContent = formatDuration(totalSeconds);
+    timerDisplay.classList.remove('overtime');
 
     this.session = {
       mode: 'practice',
@@ -973,6 +1007,7 @@ const App = {
       plannedDurationSeconds: totalSeconds,
       remainingSeconds: totalSeconds,
       elapsedSeconds: 0,
+      timerExpired: false,
       paused: false,
       startedAt: new Date().toISOString(),
       cycleId: this.cycleRun.cycleId,
@@ -1091,9 +1126,7 @@ const App = {
 
     const statusEl = document.getElementById('session-status');
     const pauseBtn = document.getElementById('pause-resume-btn');
-    statusEl.textContent = this.cycleRun
-      ? this.cycleStatusText()
-      : (this.session.mode === 'free' ? 'Playing…' : 'Practicing…');
+    statusEl.textContent = this.activeSessionStatusText();
     statusEl.classList.remove('paused');
     statusEl.classList.add('running');
     pauseBtn.textContent = 'Pause';
@@ -1145,7 +1178,10 @@ const App = {
   },
 
   stopSession(completed) {
-    if (completed) {
+    const session = this.session;
+    // Bell already played when the countdown hit 0; only ring here if ending
+    // as complete without that path (should be rare).
+    if (completed && !session?.timerExpired) {
       this.playTimerBellIfEnabled();
     }
 
@@ -1158,10 +1194,11 @@ const App = {
     const statusEl = document.getElementById('session-status');
     const timerDisplay = document.getElementById('session-timer');
     const tempoInput = document.getElementById('tempo-bpm');
-    const session = this.session;
     const inCycle = !!this.cycleRun;
 
     this.session = null;
+
+    if (timerDisplay) timerDisplay.classList.remove('overtime');
 
     if (inCycle) {
       this.logCycleStepSession(session, completed);
