@@ -1412,7 +1412,6 @@ const App = {
 
     this.bindRatingSelect({
       selectId: 'session-feedback-rating',
-      getRating: () => this.feedbackRating,
       setRating: (value) => { this.feedbackRating = value; },
       render: () => this.renderFeedbackRating()
     });
@@ -1449,7 +1448,7 @@ const App = {
     this.renderRatingSelect('session-feedback-rating', this.feedbackRating);
   },
 
-  bindRatingSelect({ selectId, getRating, setRating, render }) {
+  bindRatingSelect({ selectId, setRating, render }) {
     const select = document.getElementById(selectId);
     if (!select) return;
 
@@ -2287,7 +2286,6 @@ const App = {
 
     this.bindRatingSelect({
       selectId: 'manual-log-rating',
-      getRating: () => this.manualLogRating,
       setRating: (value) => { this.manualLogRating = value; },
       render: () => this.renderManualLogRating()
     });
