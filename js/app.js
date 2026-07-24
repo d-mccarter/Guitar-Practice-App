@@ -705,6 +705,7 @@ const App = {
           hint.textContent = '';
         }
         this.syncPracticeItemRichSelect();
+        this.refreshLastSessionCard();
         return;
       }
 
@@ -731,6 +732,7 @@ const App = {
         statusEl.textContent = 'Ready';
       }
       this.syncPracticeItemRichSelect();
+      this.refreshLastSessionCard();
       return;
     }
 
@@ -753,6 +755,7 @@ const App = {
     }
 
     this.syncPracticeItemRichSelect();
+    this.refreshLastSessionCard();
   },
 
   resolveCycleSteps(cycle) {
@@ -826,6 +829,7 @@ const App = {
       if (hint) hint.hidden = true;
       const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 120;
       tempoDisplay.textContent = `${bpm} BPM`;
+      this.refreshLastSessionCard();
       return;
     }
 
@@ -838,6 +842,7 @@ const App = {
       const start = Math.max(40, Math.min(300, parseInt(document.getElementById('ramp-start-bpm').value, 10) || 60));
       const end = Math.max(40, Math.min(300, parseInt(document.getElementById('ramp-end-bpm').value, 10) || 120));
       tempoDisplay.textContent = `${start} → ${end} BPM`;
+      this.applyPracticeSelection();
     } else {
       itemLabel.textContent = 'Practice item or cycle';
       fixedPanel.hidden = false;
@@ -1163,7 +1168,7 @@ const App = {
     if (this.cycleRun) {
       this.cycleRun.lastLoggedSession = recorded;
     }
-    this.showLastSession(recorded);
+    this.refreshLastSessionCard();
     return recorded;
   },
 
@@ -1313,7 +1318,7 @@ const App = {
         notes: ''
       });
 
-      this.showLastSession(recorded);
+      this.refreshLastSessionCard();
       statusEl.textContent = completed ? 'Session complete!' : 'Session saved';
       this.openSessionFeedback(recorded, { editing: false });
       this.refreshItemSelects();
@@ -1373,6 +1378,30 @@ const App = {
       feedbackHtml += `<div class="log-feedback"><div class="log-notes">${escapeHtml(notes)}</div></div>`;
     }
     summary.innerHTML = `<strong>${escapeHtml(sessionDisplayName(session))}</strong> — ${formatDuration(session.durationSeconds)} at ${tempoLabel}${feedbackHtml}`;
+  },
+
+  /** Show last log for the current practice/ramp selection (item or cycle). */
+  refreshLastSessionCard() {
+    const card = document.getElementById('last-session-card');
+    if (!card) return;
+
+    if (this.practiceMode === 'free') {
+      const newest = Storage.getSessions()[0];
+      if (newest) this.showLastSession(newest);
+      else card.hidden = true;
+      return;
+    }
+
+    const selection = parsePracticeSelection(document.getElementById('practice-item-select')?.value);
+    let session = null;
+    if (selection.type === 'item') {
+      session = getLatestSessionForItem(selection.itemId);
+    } else if (selection.type === 'cycle') {
+      session = getLatestSessionForCycle(selection.cycleId);
+    }
+
+    if (session) this.showLastSession(session);
+    else card.hidden = true;
   },
 
   bindSessionFeedback() {
@@ -1610,7 +1639,7 @@ const App = {
       });
 
       this.closeSessionFeedback();
-      this.showLastSession(recorded);
+      this.refreshLastSessionCard();
       document.getElementById('session-status').textContent = 'Session saved';
       this.renderLog();
       return;
@@ -1634,10 +1663,7 @@ const App = {
     this.closeSessionFeedback();
 
     if (updated) {
-      const newest = Storage.getSessions()[0];
-      if (newest?.id === updated.id) {
-        this.showLastSession(updated);
-      }
+      this.refreshLastSessionCard();
       this.renderLog();
     }
   },
@@ -2448,7 +2474,7 @@ const App = {
     Storage.save(data);
 
     this.closeManualLog();
-    this.showLastSession(recorded);
+    this.refreshLastSessionCard();
     this.refreshItemSelects();
     this.renderLog();
   },
@@ -2464,6 +2490,7 @@ const App = {
     this.renderItems();
     this.renderCycles();
     this.renderLog();
+    if (!this.session) this.refreshLastSessionCard();
   },
 
   refreshLogDateFilter() {
