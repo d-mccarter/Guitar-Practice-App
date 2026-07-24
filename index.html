@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png?v=electric">
-  <link rel="stylesheet" href="css/styles.css?v=64">
+  <link rel="stylesheet" href="css/styles.css?v=65">
 </head>
 <body>
   <header class="app-header">
@@ -471,15 +471,21 @@
         <span>What did you work on?</span>
         <input type="text" id="session-feedback-worked-on" maxlength="120" placeholder="Song passage, lick, section…" autocomplete="off">
       </label>
-      <div class="field">
+      <label class="field">
         <span>Rating</span>
-        <div class="number-stepper rating-stepper">
-          <button type="button" class="btn-icon" id="session-feedback-rating-down" aria-label="Decrease rating">−</button>
-          <input type="number" id="session-feedback-rating" min="1" max="5" step="0.5" inputmode="decimal" placeholder="—" aria-label="Session rating from 1 to 5">
-          <button type="button" class="btn-icon" id="session-feedback-rating-up" aria-label="Increase rating">+</button>
-        </div>
-        <p class="field-hint" id="session-feedback-rating-hint">1–5 in half-point steps · clear field for no rating</p>
-      </div>
+        <select id="session-feedback-rating" aria-label="Session rating from 1 to 5">
+          <option value="">No rating</option>
+          <option value="1">1</option>
+          <option value="1.5">1.5</option>
+          <option value="2">2</option>
+          <option value="2.5">2.5</option>
+          <option value="3">3</option>
+          <option value="3.5">3.5</option>
+          <option value="4">4</option>
+          <option value="4.5">4.5</option>
+          <option value="5">5</option>
+        </select>
+      </label>
       <label class="field">
         <span>Notes</span>
         <textarea id="session-feedback-notes" rows="4" maxlength="1000" placeholder="How did it feel? Spots to tweak…"></textarea>
@@ -527,15 +533,21 @@
         <span>When</span>
         <input type="datetime-local" id="manual-log-when">
       </label>
-      <div class="field">
+      <label class="field">
         <span>Rating</span>
-        <div class="number-stepper rating-stepper">
-          <button type="button" class="btn-icon" id="manual-log-rating-down" aria-label="Decrease rating">−</button>
-          <input type="number" id="manual-log-rating" min="1" max="5" step="0.5" inputmode="decimal" placeholder="—" aria-label="Session rating from 1 to 5">
-          <button type="button" class="btn-icon" id="manual-log-rating-up" aria-label="Increase rating">+</button>
-        </div>
-        <p class="field-hint">1–5 in half-point steps · clear field for no rating</p>
-      </div>
+        <select id="manual-log-rating" aria-label="Session rating from 1 to 5">
+          <option value="">No rating</option>
+          <option value="1">1</option>
+          <option value="1.5">1.5</option>
+          <option value="2">2</option>
+          <option value="2.5">2.5</option>
+          <option value="3">3</option>
+          <option value="3.5">3.5</option>
+          <option value="4">4</option>
+          <option value="4.5">4.5</option>
+          <option value="5">5</option>
+        </select>
+      </label>
       <label class="field">
         <span>Notes</span>
         <textarea id="manual-log-notes" rows="3" maxlength="1000" placeholder="How did it feel? Spots to tweak…"></textarea>
@@ -547,11 +559,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=64"></script>
-  <script src="js/storage.js?v=64"></script>
-  <script src="js/metronome.js?v=64"></script>
-  <script src="js/charts.js?v=64"></script>
-  <script src="js/app.js?v=64"></script>
+  <script src="js/github-sync.js?v=65"></script>
+  <script src="js/storage.js?v=65"></script>
+  <script src="js/metronome.js?v=65"></script>
+  <script src="js/charts.js?v=65"></script>
+  <script src="js/app.js?v=65"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
