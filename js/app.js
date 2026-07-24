@@ -1410,10 +1410,8 @@ const App = {
     const saveBtn = document.getElementById('session-feedback-save-btn');
     const skipBtn = document.getElementById('session-feedback-skip-btn');
 
-    this.bindNumericRatingControl({
-      inputId: 'session-feedback-rating',
-      downId: 'session-feedback-rating-down',
-      upId: 'session-feedback-rating-up',
+    this.bindRatingSelect({
+      selectId: 'session-feedback-rating',
       getRating: () => this.feedbackRating,
       setRating: (value) => { this.feedbackRating = value; },
       render: () => this.renderFeedbackRating()
@@ -1448,52 +1446,30 @@ const App = {
   },
 
   renderFeedbackRating() {
-    this.renderNumericRatingInput('session-feedback-rating', this.feedbackRating);
+    this.renderRatingSelect('session-feedback-rating', this.feedbackRating);
   },
 
-  bindNumericRatingControl({ inputId, downId, upId, getRating, setRating, render }) {
-    const input = document.getElementById(inputId);
-    const downBtn = document.getElementById(downId);
-    const upBtn = document.getElementById(upId);
-    if (!input || !downBtn || !upBtn) return;
+  bindRatingSelect({ selectId, getRating, setRating, render }) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
 
-    const commitFromInput = () => {
-      const raw = input.value.trim();
-      if (raw === '') {
-        setRating(0);
-        render();
-        return;
-      }
-      setRating(normalizeSessionRating(raw));
-      render();
-    };
-
-    upBtn.addEventListener('click', () => {
-      const current = getRating();
-      const next = current <= 0 ? 1 : Math.min(5, current + 0.5);
-      setRating(normalizeSessionRating(next));
+    select.addEventListener('change', () => {
+      const raw = select.value.trim();
+      setRating(raw === '' ? 0 : normalizeSessionRating(raw));
       render();
     });
-
-    downBtn.addEventListener('click', () => {
-      const current = getRating();
-      if (current <= 1) {
-        setRating(0);
-      } else {
-        setRating(normalizeSessionRating(current - 0.5));
-      }
-      render();
-    });
-
-    input.addEventListener('change', commitFromInput);
-    input.addEventListener('blur', commitFromInput);
   },
 
-  renderNumericRatingInput(inputId, rating) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
+  renderRatingSelect(selectId, rating) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
     const r = normalizeSessionRating(rating);
-    input.value = r > 0 ? String(r) : '';
+    const value = r > 0 ? String(r) : '';
+    if ([...select.options].some((option) => option.value === value)) {
+      select.value = value;
+    } else {
+      select.value = '';
+    }
   },
 
   openSessionFeedback(session, { editing = false, pending = false, cycleComplete = false } = {}) {
@@ -2309,10 +2285,8 @@ const App = {
       }
     });
 
-    this.bindNumericRatingControl({
-      inputId: 'manual-log-rating',
-      downId: 'manual-log-rating-down',
-      upId: 'manual-log-rating-up',
+    this.bindRatingSelect({
+      selectId: 'manual-log-rating',
       getRating: () => this.manualLogRating,
       setRating: (value) => { this.manualLogRating = value; },
       render: () => this.renderManualLogRating()
@@ -2327,7 +2301,7 @@ const App = {
   },
 
   renderManualLogRating() {
-    this.renderNumericRatingInput('manual-log-rating', this.manualLogRating);
+    this.renderRatingSelect('manual-log-rating', this.manualLogRating);
   },
 
   openManualLog() {
