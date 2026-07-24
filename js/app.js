@@ -1368,11 +1368,11 @@ const App = {
       ? `<strong>${session.startTempo}→${session.tempo} BPM</strong>`
       : `<strong>${session.tempo} BPM</strong>`;
     const rating = normalizeSessionRating(session.rating);
-    const stars = formatStarRating(rating);
+    const ratingHtml = formatNumericRating(rating);
     const notes = (session.notes || '').trim();
     let feedbackHtml = '';
-    if (stars) {
-      feedbackHtml += `<div class="log-feedback"><span class="log-stars">${stars}</span></div>`;
+    if (ratingHtml) {
+      feedbackHtml += `<div class="log-feedback"><span class="log-rating" aria-label="Rating ${rating} of 5">${ratingHtml}</span></div>`;
     }
     if (notes) {
       feedbackHtml += `<div class="log-feedback"><div class="log-notes">${escapeHtml(notes)}</div></div>`;
@@ -1406,16 +1406,17 @@ const App = {
 
   bindSessionFeedback() {
     const modal = document.getElementById('session-feedback-modal');
-    const stars = document.getElementById('session-feedback-stars');
     const notes = document.getElementById('session-feedback-notes');
     const saveBtn = document.getElementById('session-feedback-save-btn');
     const skipBtn = document.getElementById('session-feedback-skip-btn');
 
-    this.bindStarRatingControl({
-      container: stars,
+    this.bindNumericRatingControl({
+      inputId: 'session-feedback-rating',
+      downId: 'session-feedback-rating-down',
+      upId: 'session-feedback-rating-up',
       getRating: () => this.feedbackRating,
       setRating: (value) => { this.feedbackRating = value; },
-      render: () => this.renderFeedbackStars()
+      render: () => this.renderFeedbackRating()
     });
 
     saveBtn.addEventListener('click', () => this.saveSessionFeedback());
@@ -1446,102 +1447,53 @@ const App = {
     });
   },
 
-  renderFeedbackStars() {
-    this.renderStarButtons('#session-feedback-stars', this.feedbackRating);
+  renderFeedbackRating() {
+    this.renderNumericRatingInput('session-feedback-rating', this.feedbackRating);
   },
 
-  bindStarRatingControl({ container, getRating, setRating, render }) {
-    if (!container) return;
+  bindNumericRatingControl({ inputId, downId, upId, getRating, setRating, render }) {
+    const input = document.getElementById(inputId);
+    const downBtn = document.getElementById(downId);
+    const upBtn = document.getElementById(upId);
+    if (!input || !downBtn || !upBtn) return;
 
-    let dragging = false;
-    let ratingBefore = 0;
-    let startX = 0;
-    let startY = 0;
-    let moved = false;
-
-    const applyFromEvent = (event) => {
-      const point = event.changedTouches?.[0] || event;
-      if (point?.clientX == null) return;
-      const value = ratingFromStarClientX(container, point.clientX);
-      setRating(value);
+    const commitFromInput = () => {
+      const raw = input.value.trim();
+      if (raw === '') {
+        setRating(0);
+        render();
+        return;
+      }
+      setRating(normalizeSessionRating(raw));
       render();
     };
 
-    container.addEventListener('pointerdown', (event) => {
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      dragging = true;
-      moved = false;
-      ratingBefore = getRating();
-      startX = event.clientX;
-      startY = event.clientY;
-      container.classList.add('is-dragging');
-      try {
-        container.setPointerCapture(event.pointerId);
-      } catch {
-        /* ignore */
-      }
-      applyFromEvent(event);
-      event.preventDefault();
+    upBtn.addEventListener('click', () => {
+      const current = getRating();
+      const next = current <= 0 ? 1 : Math.min(5, current + 0.5);
+      setRating(normalizeSessionRating(next));
+      render();
     });
 
-    container.addEventListener('pointermove', (event) => {
-      if (!dragging) return;
-      if (Math.hypot(event.clientX - startX, event.clientY - startY) > 6) {
-        moved = true;
-      }
-      applyFromEvent(event);
-      event.preventDefault();
-    });
-
-    const endDrag = (event) => {
-      if (!dragging) return;
-      dragging = false;
-      container.classList.remove('is-dragging');
-      applyFromEvent(event);
-
-      // Tap the same value again (without sliding) to clear.
-      if (!moved && getRating() === ratingBefore && ratingBefore > 0) {
+    downBtn.addEventListener('click', () => {
+      const current = getRating();
+      if (current <= 1) {
         setRating(0);
-        render();
+      } else {
+        setRating(normalizeSessionRating(current - 0.5));
       }
-
-      try {
-        container.releasePointerCapture(event.pointerId);
-      } catch {
-        /* ignore */
-      }
-    };
-
-    container.addEventListener('pointerup', endDrag);
-    container.addEventListener('pointercancel', endDrag);
-
-    // Keyboard: left/right adjust by half steps when a star button is focused.
-    container.querySelectorAll('.star-btn').forEach((btn) => {
-      btn.addEventListener('keydown', (event) => {
-        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-        event.preventDefault();
-        const current = getRating() || 0;
-        const next = event.key === 'ArrowRight'
-          ? Math.min(5, current + 0.5 || 0.5)
-          : Math.max(0, current - 0.5);
-        setRating(normalizeSessionRating(next));
-        render();
-      });
+      render();
     });
+
+    input.addEventListener('change', commitFromInput);
+    input.addEventListener('blur', commitFromInput);
   },
 
-  renderStarButtons(selector, rating) {
+  renderNumericRatingInput(inputId, rating) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
     const r = normalizeSessionRating(rating);
-    document.querySelectorAll(`${selector} .star-btn`).forEach((btn) => {
-      const value = parseFloat(btn.dataset.rating);
-      const full = r >= value;
-      const half = !full && r > 0 && r >= value - 0.5;
-      btn.classList.toggle('active', full);
-      btn.classList.toggle('half', half);
-      if (full) btn.classList.remove('half');
-      const selected = r > 0 && (r === value || r === value - 0.5);
-      btn.setAttribute('aria-checked', String(selected));
-    });
+    input.value = r > 0 ? String(r) : '';
   },
 
   openSessionFeedback(session, { editing = false, pending = false, cycleComplete = false } = {}) {
@@ -1599,7 +1551,7 @@ const App = {
     workedOnField.hidden = !isFree;
     workedOnInput.value = session.workedOn || '';
     notes.value = session.notes || '';
-    this.renderFeedbackStars();
+    this.renderFeedbackRating();
     modal.hidden = false;
     if (isFree) workedOnInput.focus();
     else notes.focus();
@@ -1614,9 +1566,16 @@ const App = {
     this.feedbackEditing = false;
     document.getElementById('session-feedback-worked-on').value = '';
     document.getElementById('session-feedback-notes').value = '';
+    this.renderFeedbackRating();
   },
 
   saveSessionFeedback() {
+    this.renderFeedbackRating();
+    const input = document.getElementById('session-feedback-rating');
+    if (input) {
+      const raw = input.value.trim();
+      this.feedbackRating = raw === '' ? 0 : normalizeSessionRating(raw);
+    }
     const notes = document.getElementById('session-feedback-notes').value.trim();
     const rating = normalizeSessionRating(this.feedbackRating);
     const workedOn = document.getElementById('session-feedback-worked-on').value.trim();
@@ -2350,11 +2309,13 @@ const App = {
       }
     });
 
-    this.bindStarRatingControl({
-      container: document.getElementById('manual-log-stars'),
+    this.bindNumericRatingControl({
+      inputId: 'manual-log-rating',
+      downId: 'manual-log-rating-down',
+      upId: 'manual-log-rating-up',
       getRating: () => this.manualLogRating,
       setRating: (value) => { this.manualLogRating = value; },
-      render: () => this.renderManualLogStars()
+      render: () => this.renderManualLogRating()
     });
   },
 
@@ -2365,14 +2326,14 @@ const App = {
     workedOnField.hidden = !isOther;
   },
 
-  renderManualLogStars() {
-    this.renderStarButtons('#manual-log-stars', this.manualLogRating);
+  renderManualLogRating() {
+    this.renderNumericRatingInput('manual-log-rating', this.manualLogRating);
   },
 
   openManualLog() {
     this.refreshItemSelects();
     this.manualLogRating = 0;
-    this.renderManualLogStars();
+    this.renderManualLogRating();
 
     const itemSelect = document.getElementById('manual-log-item');
     const durationInput = document.getElementById('manual-log-duration');
@@ -2401,6 +2362,7 @@ const App = {
     this.manualLogRating = 0;
     document.getElementById('manual-log-worked-on').value = '';
     document.getElementById('manual-log-notes').value = '';
+    this.renderManualLogRating();
   },
 
   saveManualLog() {
@@ -2414,6 +2376,11 @@ const App = {
     const tempo = Number.isNaN(tempoRaw) ? 120 : Math.max(40, Math.min(300, tempoRaw));
     const whenValue = document.getElementById('manual-log-when').value;
     const notes = document.getElementById('manual-log-notes').value.trim();
+    const ratingInput = document.getElementById('manual-log-rating');
+    if (ratingInput) {
+      const raw = ratingInput.value.trim();
+      this.manualLogRating = raw === '' ? 0 : normalizeSessionRating(raw);
+    }
     const rating = normalizeSessionRating(this.manualLogRating);
 
     if (!itemId) {
@@ -2654,16 +2621,16 @@ const App = {
       ? `${s.startTempo}→${s.tempo} BPM`
       : `${s.tempo} BPM`;
     const rating = normalizeSessionRating(s.rating);
-    const stars = formatStarRating(rating);
+    const ratingHtml = formatNumericRating(rating);
     const notes = (s.notes || '').trim();
     const feedbackBits = [];
-    if (stars) {
-      feedbackBits.push(`<div class="log-feedback"><span class="log-stars" aria-label="${rating} of 5 stars">${stars}</span></div>`);
+    if (ratingHtml) {
+      feedbackBits.push(`<div class="log-feedback"><span class="log-rating" aria-label="Rating ${rating} of 5">${ratingHtml}</span></div>`);
     }
     if (notes) {
       feedbackBits.push(`<div class="log-feedback"><div class="log-notes">${escapeHtml(notes)}</div></div>`);
     }
-    const hasFeedback = stars || notes || (s.workedOn || '').trim();
+    const hasFeedback = ratingHtml || notes || (s.workedOn || '').trim();
     const editLabel = hasFeedback ? 'Edit notes' : 'Add notes';
     const modeLabel = s.mode === 'free'
       ? ' <span class="log-mode">Free</span>'

@@ -603,9 +603,7 @@ function formatLastSessionMetaText(session) {
   if (session.tempo != null) parts.push(`${session.tempo} BPM`);
   const rating = normalizeSessionRating(session.rating);
   if (rating > 0) {
-    const full = Math.floor(rating);
-    const half = rating % 1 >= 0.5;
-    parts.push(`${'★'.repeat(full)}${half ? '½' : ''}`);
+    parts.push(formatNumericRatingText(rating));
   }
   return parts.join(' · ');
 }
@@ -621,9 +619,10 @@ function formatLastSessionMetaHtml(session) {
   if (session.tempo != null) {
     parts.push(`<span>${escapeHtml(String(session.tempo))} BPM</span>`);
   }
-  const stars = formatStarRating(session.rating);
-  if (stars) {
-    parts.push(`<span class="rich-select-stars" aria-label="${normalizeSessionRating(session.rating)} of 5 stars">${stars}</span>`);
+  const ratingHtml = formatNumericRating(session.rating);
+  if (ratingHtml) {
+    const rating = normalizeSessionRating(session.rating);
+    parts.push(`<span class="rich-select-rating" aria-label="Rating ${rating} of 5">${ratingHtml}</span>`);
   }
   return parts.join('<span class="rich-select-sep"> · </span>');
 }
@@ -649,52 +648,24 @@ function sessionDisplayName(session) {
   return session.itemName || session.itemCode || 'Untitled';
 }
 
-/** Normalize rating: 0 (or missing) means unrated. Supports half-star steps. */
+/** Normalize rating: 0 (or missing) means unrated. Rated values are 1–5 in 0.5 steps. */
 function normalizeSessionRating(rating) {
   const n = parseFloat(rating);
   if (Number.isNaN(n) || n <= 0) return 0;
   const stepped = Math.round(n * 2) / 2;
-  return Math.min(5, Math.max(0, stepped));
+  return Math.min(5, Math.max(1, stepped));
 }
 
-function formatStarRating(rating) {
+function formatNumericRatingText(rating) {
   const r = normalizeSessionRating(rating);
   if (r === 0) return '';
-  let html = '';
-  for (let i = 1; i <= 5; i++) {
-    if (r >= i) {
-      html += '<span class="log-star is-full" aria-hidden="true">★</span>';
-    } else if (r >= i - 0.5) {
-      html += '<span class="log-star is-half" aria-hidden="true">★</span>';
-    } else {
-      html += '<span class="log-star is-empty" aria-hidden="true">☆</span>';
-    }
-  }
-  return html;
+  return String(r);
 }
 
-function ratingFromStarClientX(container, clientX) {
-  const rect = container.getBoundingClientRect();
-  if (rect.width <= 0) return 0;
-  const x = Math.min(Math.max(clientX - rect.left, 0), rect.width - 0.001);
-  // 10 equal bands: 0.5, 1, 1.5, …, 5 (half and full targets are the same width).
-  const band = Math.min(10, Math.floor((x / rect.width) * 10) + 1);
-  return normalizeSessionRating(band / 2);
-}
-
-function ratingFromStarEvent(btn, event) {
-  const container = btn?.closest?.('.star-rating');
-  if (container) {
-    const point = event.changedTouches?.[0] || event;
-    if (point?.clientX != null) return ratingFromStarClientX(container, point.clientX);
-  }
-
-  const full = parseFloat(btn.dataset.rating);
-  if (Number.isNaN(full)) return 0;
-  const hit = event.target?.closest?.('[data-star-step]');
-  if (hit?.dataset.starStep === 'half') return normalizeSessionRating(full - 0.5);
-  if (hit?.dataset.starStep === 'full') return normalizeSessionRating(full);
-  return normalizeSessionRating(full);
+function formatNumericRating(rating) {
+  const text = formatNumericRatingText(rating);
+  if (!text) return '';
+  return `<span class="log-rating-value">${escapeHtml(text)}</span>`;
 }
 
 function escapeHtml(value) {
