@@ -1,6 +1,7 @@
 const App = {
   metronome: new Metronome(),
   session: null,
+  countingIn: false,
   timerInterval: null,
   wakeLock: null,
   editingItemId: null,
@@ -319,16 +320,28 @@ const App = {
     return document.getElementById('metronome-timer-bell-btn')?.classList.contains('on') ?? true;
   },
 
+  /**
+   * @returns {{ nextBeatTime: number|null, cancelled?: boolean }}
+   */
   async runCountInIfEnabled() {
-    if (!this.isCountInEnabled()) return null;
+    if (!this.isCountInEnabled()) return { nextBeatTime: null };
+
+    this.countingIn = true;
+    this.setSessionControlsVisible(true, { countingIn: true });
+    this.setPracticeFormDisabled(true);
 
     const statusEl = document.getElementById('session-status');
     statusEl.textContent = 'Count in…';
     statusEl.classList.remove('running', 'paused');
 
-    return this.metronome.playCountIn(4, (beat, accent) => {
+    const nextBeatTime = await this.metronome.playCountIn(4, (beat, accent) => {
+      if (!this.countingIn) return;
       this.updateBeatPie(beat, { accent, pulse: true });
     });
+
+    this.countingIn = false;
+    if (nextBeatTime == null) return { cancelled: true, nextBeatTime: null };
+    return { nextBeatTime };
   },
 
   playTimerBellIfEnabled() {
@@ -541,6 +554,10 @@ const App = {
     });
 
     document.getElementById('end-session-btn').addEventListener('click', () => {
+      if (this.countingIn) {
+        this.metronome.cancelCountIn();
+        return;
+      }
       if (!this.session) return;
       this.stopSession(this.session.remainingSeconds != null && this.session.remainingSeconds <= 0);
     });
@@ -876,14 +893,57 @@ const App = {
     document.getElementById('ramp-minutes-down').disabled = disabled;
   },
 
-  setSessionControlsVisible(active) {
+  setSessionControlsVisible(active, { countingIn = false } = {}) {
     const startBtn = document.getElementById('start-stop-btn');
     const controls = document.getElementById('session-controls');
     const pauseBtn = document.getElementById('pause-resume-btn');
+    const endBtn = document.getElementById('end-session-btn');
     startBtn.hidden = active;
     controls.hidden = !active;
     if (active) {
+      pauseBtn.hidden = countingIn;
       pauseBtn.textContent = 'Pause';
+      if (endBtn) endBtn.textContent = countingIn ? 'Cancel' : 'End Session';
+    } else {
+      pauseBtn.hidden = false;
+      if (endBtn) endBtn.textContent = 'End Session';
+    }
+  },
+
+  /** Reset UI after abandoning a session before the metronome actually starts. */
+  abortSessionStart() {
+    const inCycle = !!this.cycleRun;
+    this.countingIn = false;
+    this.session = null;
+    this.metronome.clearRamp();
+    this.releaseWakeLock();
+    this.resetMeasureBeatDisplay();
+    this.setSessionControlsVisible(false);
+    this.setPracticeFormDisabled(false);
+
+    const statusEl = document.getElementById('session-status');
+    const timerDisplay = document.getElementById('session-timer');
+    const tempoInput = document.getElementById('tempo-bpm');
+    statusEl.classList.remove('running', 'paused');
+
+    if (inCycle) {
+      this.cycleRun = null;
+      statusEl.textContent = 'Cycle stopped';
+    } else {
+      statusEl.textContent = 'Ready';
+    }
+
+    if (timerDisplay) timerDisplay.classList.remove('overtime');
+    if (this.practiceMode === 'free') {
+      timerDisplay.textContent = '0:00';
+    } else if (this.practiceMode === 'ramp') {
+      const minutes = parseTimerMinutes(document.getElementById('ramp-minutes').value, 5);
+      document.getElementById('ramp-minutes').value = formatTimerMinutes(minutes);
+      timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
+      this.updatePracticeModeUI();
+    } else {
+      timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
+      document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
     }
   },
 
@@ -1000,7 +1060,13 @@ const App = {
 
     await this.requestWakeLock();
     this.resetMeasureBeatDisplay();
-    const nextBeatTime = await this.runCountInIfEnabled();
+    this.setPracticeFormDisabled(true);
+    const countIn = await this.runCountInIfEnabled();
+    if (countIn.cancelled) {
+      this.abortSessionStart();
+      return;
+    }
+    const nextBeatTime = countIn.nextBeatTime;
     await this.metronome.start(nextBeatTime != null ? { nextBeatTime } : undefined);
     this.setSessionControlsVisible(true);
     statusEl.textContent = this.activeSessionStatusText();
@@ -1086,7 +1152,13 @@ const App = {
 
     await this.requestWakeLock();
     this.resetMeasureBeatDisplay();
-    const nextBeatTime = await this.runCountInIfEnabled();
+    this.setPracticeFormDisabled(true);
+    const countIn = await this.runCountInIfEnabled();
+    if (countIn.cancelled) {
+      this.abortSessionStart();
+      return;
+    }
+    const nextBeatTime = countIn.nextBeatTime;
     await this.metronome.start(nextBeatTime != null ? { nextBeatTime } : undefined);
     this.setSessionControlsVisible(true);
     statusEl.textContent = this.cycleStatusText();
