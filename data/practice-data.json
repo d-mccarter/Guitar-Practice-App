@@ -76,13 +76,6 @@
       "description": "Frets 9-2, string 6-4, quarter notes",
       "targetTempo": null,
       "createdAt": "2026-07-23T10:54:53.961Z"
-    },
-    {
-      "id": "9cdc9c12-f21c-4aa2-995b-2e964922a509",
-      "name": "8l - E legato descending",
-      "description": "Focus on sequencing pinky and rind",
-      "targetTempo": 80,
-      "createdAt": "2026-07-24T11:06:14.919Z"
     }
   ],
   "cycles": [],
