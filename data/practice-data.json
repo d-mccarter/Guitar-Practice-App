@@ -88,6 +88,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "531c30ab-0297-4e84-978a-08a59a17b782",
+      "itemId": "49d86dfb-d482-4923-959f-60ee424408ce",
+      "itemName": "C-Shape Warmup",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 249,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-07-25T11:51:14.111Z",
+      "completedAt": "2026-07-25T11:55:27.126Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "751443e4-71e4-4de5-804e-330fb8fb3360",
       "itemId": "97ea8c84-a953-4874-aeb8-db80d08bc3b1",
       "itemName": "8h",
