@@ -38,6 +38,8 @@ class Metronome {
     this._countInTimeouts = [];
     this._countInResolve = null;
     this._countInGain = null;
+    /** Scheduler paused because the tab/app was backgrounded (not a user pause). */
+    this._suspendedByBackground = false;
   }
 
   static getClickSoundPresets() {
@@ -52,11 +54,66 @@ class Metronome {
     if (!this.audioCtx) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       this.audioCtx = new AudioContext();
+      this.audioCtx.addEventListener('statechange', () => {
+        // iOS often moves the context to suspended/interrupted when switching apps.
+        if (
+          this.running
+          && !this._suspendedByBackground
+          && (this.audioCtx.state === 'suspended' || this.audioCtx.state === 'interrupted')
+        ) {
+          this.handleBackground();
+        }
+      });
     }
     this._ensureMasterGain();
-    if (this.audioCtx.state === 'suspended') {
-      await this.audioCtx.resume();
+    await this._resumeAudioCtx();
+  }
+
+  async _resumeAudioCtx() {
+    if (!this.audioCtx) return;
+    if (this.audioCtx.state === 'suspended' || this.audioCtx.state === 'interrupted') {
+      try {
+        await this.audioCtx.resume();
+      } catch {
+        // May require a user gesture; visibility/pointer handlers will retry.
+      }
     }
+  }
+
+  /**
+   * Stop the setTimeout scheduler while backgrounded. AudioContext.currentTime freezes
+   * when suspended, but timers keep firing — that advances nextBeatTime into the future
+   * and leaves a long silence after returning to the app.
+   */
+  handleBackground() {
+    if (!this.running || this._suspendedByBackground) return;
+    this._suspendedByBackground = true;
+    if (this.ramp && this.ramp.startAudioTime != null && this.audioCtx) {
+      this.ramp.elapsedBeforePause = this._rampElapsed();
+      this.ramp.startAudioTime = null;
+      this.bpm = this._currentBpm();
+    }
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+  }
+
+  /** Resume AudioContext and resync the beat grid after returning from background. */
+  async handleForeground() {
+    await this._resumeAudioCtx();
+    if (!this.running || !this._suspendedByBackground) {
+      // Even if we weren't mid-session, unstick a suspended context (e.g. count-in).
+      return;
+    }
+    this._suspendedByBackground = false;
+    if (!this.audioCtx) return;
+    this.nextBeatTime = this.audioCtx.currentTime + 0.05;
+    if (this.ramp) {
+      this.ramp.startAudioTime = this.audioCtx.currentTime;
+      this._reportBpm(this._currentBpm());
+    }
+    if (!this.timerId) this._tick();
   }
 
   /** 0–1 linear gain applied after each click/bell envelope. */
@@ -441,6 +498,7 @@ class Metronome {
     await this.init();
     if (this.running) return;
     this.running = true;
+    this._suspendedByBackground = false;
     this.tick = 0;
     const now = this.audioCtx.currentTime;
     const handoff = options.nextBeatTime;
@@ -460,6 +518,7 @@ class Metronome {
   /** Pause clicks without resetting beat position or ramp progress. */
   pause() {
     if (!this.running) return;
+    this._suspendedByBackground = false;
     if (this.ramp && this.ramp.startAudioTime != null && this.audioCtx) {
       this.ramp.elapsedBeforePause = this._rampElapsed();
       this.ramp.startAudioTime = null;
@@ -477,6 +536,7 @@ class Metronome {
     await this.init();
     if (this.running) return;
     this.running = true;
+    this._suspendedByBackground = false;
     this.nextBeatTime = this.audioCtx.currentTime + 0.05;
     if (this.ramp) {
       this.ramp.startAudioTime = this.audioCtx.currentTime;
@@ -493,6 +553,7 @@ class Metronome {
       this.bpm = this._currentBpm();
     }
     this.running = false;
+    this._suspendedByBackground = false;
     if (this.timerId) {
       clearTimeout(this.timerId);
       this.timerId = null;
