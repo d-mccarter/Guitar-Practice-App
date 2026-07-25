@@ -34,6 +34,12 @@ class Metronome {
     this._lastReportedBpm = null;
     this.volume = 1;
     this.masterGain = null;
+    this._countInGeneration = 0;
+    this._countInTimeouts = [];
+    this._countInResolve = null;
+    this._countInGain = null;
+    /** Scheduler paused because the tab/app was backgrounded (not a user pause). */
+    this._suspendedByBackground = false;
   }
 
   static getClickSoundPresets() {
@@ -48,11 +54,66 @@ class Metronome {
     if (!this.audioCtx) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       this.audioCtx = new AudioContext();
+      this.audioCtx.addEventListener('statechange', () => {
+        // iOS often moves the context to suspended/interrupted when switching apps.
+        if (
+          this.running
+          && !this._suspendedByBackground
+          && (this.audioCtx.state === 'suspended' || this.audioCtx.state === 'interrupted')
+        ) {
+          this.handleBackground();
+        }
+      });
     }
     this._ensureMasterGain();
-    if (this.audioCtx.state === 'suspended') {
-      await this.audioCtx.resume();
+    await this._resumeAudioCtx();
+  }
+
+  async _resumeAudioCtx() {
+    if (!this.audioCtx) return;
+    if (this.audioCtx.state === 'suspended' || this.audioCtx.state === 'interrupted') {
+      try {
+        await this.audioCtx.resume();
+      } catch {
+        // May require a user gesture; visibility/pointer handlers will retry.
+      }
     }
+  }
+
+  /**
+   * Stop the setTimeout scheduler while backgrounded. AudioContext.currentTime freezes
+   * when suspended, but timers keep firing — that advances nextBeatTime into the future
+   * and leaves a long silence after returning to the app.
+   */
+  handleBackground() {
+    if (!this.running || this._suspendedByBackground) return;
+    this._suspendedByBackground = true;
+    if (this.ramp && this.ramp.startAudioTime != null && this.audioCtx) {
+      this.ramp.elapsedBeforePause = this._rampElapsed();
+      this.ramp.startAudioTime = null;
+      this.bpm = this._currentBpm();
+    }
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+  }
+
+  /** Resume AudioContext and resync the beat grid after returning from background. */
+  async handleForeground() {
+    await this._resumeAudioCtx();
+    if (!this.running || !this._suspendedByBackground) {
+      // Even if we weren't mid-session, unstick a suspended context (e.g. count-in).
+      return;
+    }
+    this._suspendedByBackground = false;
+    if (!this.audioCtx) return;
+    this.nextBeatTime = this.audioCtx.currentTime + 0.05;
+    if (this.ramp) {
+      this.ramp.startAudioTime = this.audioCtx.currentTime;
+      this._reportBpm(this._currentBpm());
+    }
+    if (!this.timerId) this._tick();
   }
 
   /** 0–1 linear gain applied after each click/bell envelope. */
@@ -203,17 +264,17 @@ class Metronome {
     }
   }
 
-  _connectGain(time, peak, decay) {
+  _connectGain(time, peak, decay, destination = null) {
     const gain = this.audioCtx.createGain();
-    gain.connect(this._ensureMasterGain());
+    gain.connect(destination || this._ensureMasterGain());
     gain.gain.setValueAtTime(peak, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
     return gain;
   }
 
-  _playOsc(time, frequency, peak, decay, type = 'sine') {
+  _playOsc(time, frequency, peak, decay, type = 'sine', destination = null) {
     const osc = this.audioCtx.createOscillator();
-    const gain = this._connectGain(time, peak, decay);
+    const gain = this._connectGain(time, peak, decay, destination);
     osc.type = type;
     osc.frequency.setValueAtTime(frequency, time);
     osc.connect(gain);
@@ -221,7 +282,7 @@ class Metronome {
     osc.stop(time + decay + 0.02);
   }
 
-  _playNoiseBurst(time, peak, decay, filterFreq) {
+  _playNoiseBurst(time, peak, decay, filterFreq, destination = null) {
     const duration = Math.max(decay, 0.04);
     const bufferSize = Math.ceil(this.audioCtx.sampleRate * duration);
     const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
@@ -238,38 +299,63 @@ class Metronome {
     filter.frequency.value = filterFreq;
     filter.Q.value = 0.8;
 
-    const gain = this._connectGain(time, peak, decay);
+    const gain = this._connectGain(time, peak, decay, destination);
     source.connect(filter);
     filter.connect(gain);
     source.start(time);
     source.stop(time + duration + 0.02);
   }
 
-  _click(time, accent, soundKey = this.clickSound) {
+  _click(time, accent, soundKey = this.clickSound, destination = null) {
     switch (soundKey) {
       case 'wood':
-        this._playOsc(time, accent ? 280 : 220, accent ? 0.45 : 0.3, 0.06, 'triangle');
+        this._playOsc(time, accent ? 280 : 220, accent ? 0.45 : 0.3, 0.06, 'triangle', destination);
         break;
       case 'hihat':
-        this._playNoiseBurst(time, accent ? 0.28 : 0.16, accent ? 0.04 : 0.03, accent ? 7800 : 6200);
+        this._playNoiseBurst(time, accent ? 0.28 : 0.16, accent ? 0.04 : 0.03, accent ? 7800 : 6200, destination);
         break;
       case 'clave':
-        this._playOsc(time, accent ? 2200 : 1800, accent ? 0.32 : 0.22, 0.035, 'sine');
+        this._playOsc(time, accent ? 2200 : 1800, accent ? 0.32 : 0.22, 0.035, 'sine', destination);
         break;
       case 'rim':
-        this._playOsc(time, accent ? 560 : 430, accent ? 0.34 : 0.22, 0.04, 'triangle');
-        this._playNoiseBurst(time, accent ? 0.08 : 0.05, 0.025, 2400);
+        this._playOsc(time, accent ? 560 : 430, accent ? 0.34 : 0.22, 0.04, 'triangle', destination);
+        this._playNoiseBurst(time, accent ? 0.08 : 0.05, 0.025, 2400, destination);
         break;
       case 'beep':
       default:
-        this._playOsc(time, accent ? 1000 : 800, accent ? 0.35 : 0.2, 0.05, 'sine');
+        this._playOsc(time, accent ? 1000 : 800, accent ? 0.35 : 0.2, 0.05, 'sine', destination);
         break;
     }
   }
 
   _countInClick(time, accent) {
     const sound = this.countInSound === 'same' ? this.clickSound : this.countInSound;
-    this._click(time, accent, sound);
+    this._click(time, accent, sound, this._countInGain);
+  }
+
+  /** Stop an in-progress count-in; pending playCountIn() resolves to null. */
+  cancelCountIn() {
+    this._countInGeneration += 1;
+    if (this._countInTimeouts.length) {
+      this._countInTimeouts.forEach((id) => clearTimeout(id));
+      this._countInTimeouts = [];
+    }
+    if (this._countInGain && this.audioCtx) {
+      try {
+        const now = this.audioCtx.currentTime;
+        this._countInGain.gain.cancelScheduledValues(now);
+        this._countInGain.gain.setValueAtTime(0, now);
+        this._countInGain.disconnect();
+      } catch (_) {
+        // Audio node may already be disconnected.
+      }
+      this._countInGain = null;
+    }
+    if (this._countInResolve) {
+      const resolve = this._countInResolve;
+      this._countInResolve = null;
+      resolve(null);
+    }
   }
 
   playBell() {
@@ -303,9 +389,18 @@ class Metronome {
   /**
    * Play quarter-note count-in clicks, then return the audio time of the first session beat
    * so the running metronome can continue on the same grid without a gap.
+   * Returns null if cancelCountIn() is called before the handoff.
    */
   async playCountIn(beats, onBeat) {
     await this.init();
+    this.cancelCountIn();
+
+    const generation = this._countInGeneration;
+    const countInGain = this.audioCtx.createGain();
+    countInGain.gain.value = 1;
+    countInGain.connect(this._ensureMasterGain());
+    this._countInGain = countInGain;
+
     const bpm = this._currentBpm();
     const interval = 60 / bpm;
     const startTime = this.audioCtx.currentTime + 0.05;
@@ -318,14 +413,37 @@ class Metronome {
 
       if (onBeat) {
         const delay = Math.max(0, (time - this.audioCtx.currentTime) * 1000);
-        setTimeout(() => onBeat(i + 1, accent), delay);
+        const timeoutId = setTimeout(() => {
+          if (this._countInGeneration !== generation) return;
+          onBeat(i + 1, accent);
+        }, delay);
+        this._countInTimeouts.push(timeoutId);
       }
     }
 
     const handoffLeadSec = 0.01;
     const handoffMs = Math.max(0, (nextBeatTime - this.audioCtx.currentTime - handoffLeadSec) * 1000);
-    await new Promise((resolve) => setTimeout(resolve, handoffMs));
-    return nextBeatTime;
+    const result = await new Promise((resolve) => {
+      this._countInResolve = resolve;
+      const timeoutId = setTimeout(() => {
+        if (this._countInGeneration !== generation) return;
+        this._countInResolve = null;
+        resolve(nextBeatTime);
+      }, handoffMs);
+      this._countInTimeouts.push(timeoutId);
+    });
+
+    if (this._countInGeneration === generation) {
+      this._countInTimeouts = [];
+      this._countInGain = null;
+      try {
+        countInGain.disconnect();
+      } catch (_) {
+        // Already disconnected by cancelCountIn.
+      }
+    }
+
+    return result;
   }
 
   _schedule() {
@@ -380,6 +498,7 @@ class Metronome {
     await this.init();
     if (this.running) return;
     this.running = true;
+    this._suspendedByBackground = false;
     this.tick = 0;
     const now = this.audioCtx.currentTime;
     const handoff = options.nextBeatTime;
@@ -399,6 +518,7 @@ class Metronome {
   /** Pause clicks without resetting beat position or ramp progress. */
   pause() {
     if (!this.running) return;
+    this._suspendedByBackground = false;
     if (this.ramp && this.ramp.startAudioTime != null && this.audioCtx) {
       this.ramp.elapsedBeforePause = this._rampElapsed();
       this.ramp.startAudioTime = null;
@@ -416,6 +536,7 @@ class Metronome {
     await this.init();
     if (this.running) return;
     this.running = true;
+    this._suspendedByBackground = false;
     this.nextBeatTime = this.audioCtx.currentTime + 0.05;
     if (this.ramp) {
       this.ramp.startAudioTime = this.audioCtx.currentTime;
@@ -432,6 +553,7 @@ class Metronome {
       this.bpm = this._currentBpm();
     }
     this.running = false;
+    this._suspendedByBackground = false;
     if (this.timerId) {
       clearTimeout(this.timerId);
       this.timerId = null;

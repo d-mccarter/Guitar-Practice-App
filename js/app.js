@@ -1,6 +1,10 @@
+/** Sessions shorter than this are treated as cancelled and are not logged. */
+const MIN_LOG_SECONDS = 5;
+
 const App = {
   metronome: new Metronome(),
   session: null,
+  countingIn: false,
   timerInterval: null,
   wakeLock: null,
   editingItemId: null,
@@ -36,12 +40,32 @@ const App = {
 
   // Keep the phone screen on while a practice session is actively running.
   // Browsers release the lock when the tab is hidden; we re-request on return.
+  // Also pause/resume the metronome scheduler around backgrounding so iOS
+  // AudioContext suspension does not leave the click grid stranded in the future.
   bindWakeLock() {
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && this.session && !this.session.paused) {
-        this.requestWakeLock();
+      if (document.visibilityState === 'hidden') {
+        this.metronome.handleBackground();
+        return;
       }
+      this.onAppForeground();
     });
+
+    // iOS sometimes needs a fresh user gesture to unstick a suspended AudioContext.
+    const tryResumeAudio = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!this.session && !this.countingIn) return;
+      this.metronome.handleForeground();
+    };
+    document.addEventListener('pointerdown', tryResumeAudio, { passive: true });
+    document.addEventListener('pageshow', () => this.onAppForeground());
+  },
+
+  async onAppForeground() {
+    await this.metronome.handleForeground();
+    if (this.session && !this.session.paused) {
+      this.requestWakeLock();
+    }
   },
 
   async requestWakeLock() {
@@ -319,16 +343,28 @@ const App = {
     return document.getElementById('metronome-timer-bell-btn')?.classList.contains('on') ?? true;
   },
 
+  /**
+   * @returns {{ nextBeatTime: number|null, cancelled?: boolean }}
+   */
   async runCountInIfEnabled() {
-    if (!this.isCountInEnabled()) return null;
+    if (!this.isCountInEnabled()) return { nextBeatTime: null };
+
+    this.countingIn = true;
+    this.setSessionControlsVisible(true, { countingIn: true });
+    this.setPracticeFormDisabled(true);
 
     const statusEl = document.getElementById('session-status');
     statusEl.textContent = 'Count in…';
     statusEl.classList.remove('running', 'paused');
 
-    return this.metronome.playCountIn(4, (beat, accent) => {
+    const nextBeatTime = await this.metronome.playCountIn(4, (beat, accent) => {
+      if (!this.countingIn) return;
       this.updateBeatPie(beat, { accent, pulse: true });
     });
+
+    this.countingIn = false;
+    if (nextBeatTime == null) return { cancelled: true, nextBeatTime: null };
+    return { nextBeatTime };
   },
 
   playTimerBellIfEnabled() {
@@ -541,6 +577,10 @@ const App = {
     });
 
     document.getElementById('end-session-btn').addEventListener('click', () => {
+      if (this.countingIn) {
+        this.metronome.cancelCountIn();
+        return;
+      }
       if (!this.session) return;
       this.stopSession(this.session.remainingSeconds != null && this.session.remainingSeconds <= 0);
     });
@@ -876,25 +916,85 @@ const App = {
     document.getElementById('ramp-minutes-down').disabled = disabled;
   },
 
-  setSessionControlsVisible(active) {
+  setSessionControlsVisible(active, { countingIn = false } = {}) {
     const startBtn = document.getElementById('start-stop-btn');
     const controls = document.getElementById('session-controls');
     const pauseBtn = document.getElementById('pause-resume-btn');
     startBtn.hidden = active;
     controls.hidden = !active;
     if (active) {
+      pauseBtn.hidden = countingIn;
       pauseBtn.textContent = 'Pause';
+      this.updateEndSessionButtonLabel({ countingIn });
+    } else {
+      pauseBtn.hidden = false;
+      this.updateEndSessionButtonLabel({ countingIn: false, forceEnd: true });
+    }
+  },
+
+  /**
+   * End Session reads as Cancel while ending would not log (count-in or
+   * the first MIN_LOG_SECONDS of practice).
+   */
+  updateEndSessionButtonLabel({ countingIn = this.countingIn, forceEnd = false } = {}) {
+    const endBtn = document.getElementById('end-session-btn');
+    if (!endBtn) return;
+    if (forceEnd) {
+      endBtn.textContent = 'End Session';
+      return;
+    }
+    const inCancelBuffer = countingIn
+      || (this.session && (this.session.elapsedSeconds || 0) < MIN_LOG_SECONDS);
+    endBtn.textContent = inCancelBuffer ? 'Cancel' : 'End Session';
+  },
+
+  /** Reset UI after abandoning a session before the metronome actually starts. */
+  abortSessionStart() {
+    const inCycle = !!this.cycleRun;
+    this.countingIn = false;
+    this.session = null;
+    this.metronome.clearRamp();
+    this.releaseWakeLock();
+    this.resetMeasureBeatDisplay();
+    this.setSessionControlsVisible(false);
+    this.setPracticeFormDisabled(false);
+
+    const statusEl = document.getElementById('session-status');
+    const timerDisplay = document.getElementById('session-timer');
+    const tempoInput = document.getElementById('tempo-bpm');
+    statusEl.classList.remove('running', 'paused');
+
+    if (inCycle) {
+      this.cycleRun = null;
+      statusEl.textContent = 'Cycle stopped';
+    } else {
+      statusEl.textContent = 'Ready';
+    }
+
+    if (timerDisplay) timerDisplay.classList.remove('overtime');
+    if (this.practiceMode === 'free') {
+      timerDisplay.textContent = '0:00';
+    } else if (this.practiceMode === 'ramp') {
+      const minutes = parseTimerMinutes(document.getElementById('ramp-minutes').value, 5);
+      document.getElementById('ramp-minutes').value = formatTimerMinutes(minutes);
+      timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
+      this.updatePracticeModeUI();
+    } else {
+      timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
+      document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
     }
   },
 
   startSessionTimer() {
     const timerDisplay = document.getElementById('session-timer');
     clearInterval(this.timerInterval);
+    this.updateEndSessionButtonLabel();
     this.timerInterval = setInterval(() => {
       if (!this.session || this.session.paused) return;
 
       // Only active (unpaused) metronome time counts toward elapsed/logging.
       this.session.elapsedSeconds++;
+      this.updateEndSessionButtonLabel();
 
       if (this.session.mode === 'free') {
         timerDisplay.textContent = formatDuration(this.session.elapsedSeconds);
@@ -1000,7 +1100,13 @@ const App = {
 
     await this.requestWakeLock();
     this.resetMeasureBeatDisplay();
-    const nextBeatTime = await this.runCountInIfEnabled();
+    this.setPracticeFormDisabled(true);
+    const countIn = await this.runCountInIfEnabled();
+    if (countIn.cancelled) {
+      this.abortSessionStart();
+      return;
+    }
+    const nextBeatTime = countIn.nextBeatTime;
     await this.metronome.start(nextBeatTime != null ? { nextBeatTime } : undefined);
     this.setSessionControlsVisible(true);
     statusEl.textContent = this.activeSessionStatusText();
@@ -1086,7 +1192,13 @@ const App = {
 
     await this.requestWakeLock();
     this.resetMeasureBeatDisplay();
-    const nextBeatTime = await this.runCountInIfEnabled();
+    this.setPracticeFormDisabled(true);
+    const countIn = await this.runCountInIfEnabled();
+    if (countIn.cancelled) {
+      this.abortSessionStart();
+      return;
+    }
+    const nextBeatTime = countIn.nextBeatTime;
     await this.metronome.start(nextBeatTime != null ? { nextBeatTime } : undefined);
     this.setSessionControlsVisible(true);
     statusEl.textContent = this.cycleStatusText();
@@ -1141,7 +1253,7 @@ const App = {
   },
 
   logCycleStepSession(session, completed) {
-    if (!session?.itemId || session.elapsedSeconds < 5) return null;
+    if (!session?.itemId || session.elapsedSeconds < MIN_LOG_SECONDS) return null;
 
     const recorded = Storage.addSession({
       id: generateId(),
@@ -1292,8 +1404,8 @@ const App = {
     this.setPracticeFormDisabled(false);
 
     // durationSeconds is active practice time only (paused gaps never incremented elapsedSeconds).
-    const shouldLogItem = session?.itemId && session.elapsedSeconds >= 5 && session.mode !== 'free';
-    const canLogFree = session?.mode === 'free' && session.elapsedSeconds >= 5;
+    const shouldLogItem = session?.itemId && session.elapsedSeconds >= MIN_LOG_SECONDS && session.mode !== 'free';
+    const canLogFree = session?.mode === 'free' && session.elapsedSeconds >= MIN_LOG_SECONDS;
 
     if (shouldLogItem) {
       const loggedTempo = session.mode === 'ramp'
