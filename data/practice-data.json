@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "233968a7-e7e8-46d6-a029-d65295e63c18",
+      "itemId": null,
+      "itemName": "8g, 8h, 8j",
+      "workedOn": "8g, 8h, 8j",
+      "tempo": 135,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-07-26T15:02:00.000Z",
+      "completedAt": "2026-07-26T15:12:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "8a6404b3-f5bb-4314-9d6e-a7d91632f804",
       "itemId": "6ed60f89-c6b6-4f07-a6fa-577673edff1a",
       "itemName": "Arkansas Traveller Part 2",
