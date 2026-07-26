@@ -250,7 +250,7 @@ body {
 
 .mode-toggle {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
   margin-bottom: 16px;
   padding: 4px;
@@ -260,7 +260,6 @@ body {
 }
 
 .mode-toggle.data-profile-toggle {
-  grid-template-columns: 1fr 1fr;
   margin-bottom: 8px;
 }
 
