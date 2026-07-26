@@ -11,7 +11,7 @@ const App = {
   editingCycleId: null,
   cycleDraftSteps: [],
   cycleRun: null,
-  practiceMode: 'practice',
+  practiceMode: 'normal',
   feedbackSessionId: null,
   feedbackPendingSession: null,
   feedbackRating: 0,
@@ -417,7 +417,7 @@ const App = {
     const commitTimerMinutes = () => {
       const minutes = parseTimerMinutes(timerInput.value, 3);
       timerInput.value = formatTimerMinutes(minutes);
-      if (!this.session && this.practiceMode === 'practice' && !this.isFreePracticeSelected()) {
+      if (!this.session && this.practiceMode === 'normal' && !this.isFreePracticeSelected()) {
         timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
       }
     };
@@ -458,7 +458,7 @@ const App = {
     });
 
     timerInput.addEventListener('input', () => {
-      if (!this.session && this.practiceMode === 'practice' && !this.isFreePracticeSelected()) {
+      if (!this.session && this.practiceMode === 'normal' && !this.isFreePracticeSelected()) {
         const raw = timerInput.value.trim();
         if (raw === '') return;
         const n = parseFloat(raw);
@@ -672,9 +672,8 @@ const App = {
       </button>`;
     };
 
-    parts.push(optionHtml('', 'Select an item or cycle…', '', true));
     parts.push(optionHtml(
-      'free',
+      '',
       'Free practice',
       formatLastSessionMetaHtml(getLatestFreeSession())
     ));
@@ -701,7 +700,7 @@ const App = {
   },
 
   isFreePracticeSelected() {
-    return parsePracticeSelection(document.getElementById('practice-item-select')?.value).type === 'free';
+    return parsePracticeSelection(document.getElementById('practice-item-select')?.value).type === 'none';
   },
 
   syncPracticeItemRichSelect() {
@@ -710,16 +709,8 @@ const App = {
     const metaEl = document.getElementById('practice-item-trigger-meta');
     if (!select || !titleEl || !metaEl) return;
 
-    const value = select.value;
-    if (!value) {
-      titleEl.textContent = 'Select an item or cycle…';
-      metaEl.innerHTML = '';
-      metaEl.hidden = true;
-      return;
-    }
-
-    const selection = parsePracticeSelection(value);
-    if (selection.type === 'free') {
+    const selection = parsePracticeSelection(select.value);
+    if (selection.type === 'none') {
       titleEl.textContent = 'Free practice';
       metaEl.innerHTML = formatLastSessionMetaHtml(getLatestFreeSession());
       metaEl.hidden = false;
@@ -754,16 +745,16 @@ const App = {
     const statusEl = document.getElementById('session-status');
     const selection = parsePracticeSelection(document.getElementById('practice-item-select').value);
 
-    if (this.practiceMode === 'practice' && timerField) {
-      timerField.hidden = selection.type === 'free';
+    if (this.practiceMode === 'normal' && timerField) {
+      timerField.hidden = selection.type === 'none';
     }
 
-    if (selection.type === 'free') {
+    if (selection.type === 'none') {
       if (hint) {
         hint.hidden = true;
         hint.textContent = '';
       }
-      if (this.practiceMode === 'practice' && timerDisplay) {
+      if (this.practiceMode === 'normal' && timerDisplay) {
         timerDisplay.textContent = '0:00';
         timerDisplay.classList.remove('overtime');
       }
@@ -791,7 +782,7 @@ const App = {
         tempoDisplay.textContent = `${first.tempo} BPM`;
         this.metronome.setBpm(first.tempo);
       }
-      if (this.practiceMode === 'practice') {
+      if (this.practiceMode === 'normal') {
         timerInput.value = formatTimerMinutes(first.durationMinutes);
         timerDisplay.textContent = formatDuration(timerMinutesToSeconds(first.durationMinutes));
       }
@@ -897,12 +888,14 @@ const App = {
     const tempoDisplay = document.getElementById('tempo-display');
     const hint = document.getElementById('cycle-preview-hint');
 
-    // Guard against stale in-memory mode if Free was removed from the toggle.
-    if (this.practiceMode === 'free') this.practiceMode = 'practice';
+    // Guard against stale in-memory mode values from older builds.
+    if (this.practiceMode === 'free' || this.practiceMode === 'practice') {
+      this.practiceMode = 'normal';
+    }
 
     itemField.hidden = false;
+    itemLabel.textContent = 'Exercise (optional)';
     if (this.practiceMode === 'ramp') {
-      itemLabel.textContent = 'Practice item (optional)';
       fixedPanel.hidden = true;
       rampPanel.hidden = false;
       if (timerField) timerField.hidden = false;
@@ -912,7 +905,6 @@ const App = {
       tempoDisplay.textContent = `${start} → ${end} BPM`;
       this.applyPracticeSelection();
     } else {
-      itemLabel.textContent = 'Practice item or cycle';
       fixedPanel.hidden = false;
       rampPanel.hidden = true;
       if (timerField) timerField.hidden = this.isFreePracticeSelected();
@@ -1049,20 +1041,15 @@ const App = {
     if (this.session) return;
 
     const selection = parsePracticeSelection(document.getElementById('practice-item-select').value);
-    const freePractice = selection.type === 'free';
+    const freePractice = selection.type === 'none';
 
-    if (this.practiceMode === 'practice' && selection.type === 'cycle') {
+    if (this.practiceMode === 'normal' && selection.type === 'cycle') {
       await this.startCycle(selection.cycleId);
       return;
     }
 
-    if (this.practiceMode === 'practice' && selection.type === 'none') {
-      alert('Please select a practice item, cycle, or free practice first.');
-      return;
-    }
-
-    if (selection.type === 'cycle' && this.practiceMode !== 'practice') {
-      alert('Cycles only run in Practice mode. Switch to Practice, or pick a single item.');
+    if (selection.type === 'cycle' && this.practiceMode !== 'normal') {
+      alert('Cycles only run in Normal mode. Switch to Normal, or pick a single item.');
       return;
     }
 
@@ -1112,9 +1099,11 @@ const App = {
     }
 
     const item = itemId ? Storage.getItemById(itemId) : null;
+    // Persist Normal-mode item sessions as "practice" for compatibility with existing logs.
+    const sessionMode = this.practiceMode === 'normal' ? 'practice' : this.practiceMode;
 
     this.session = {
-      mode: this.practiceMode,
+      mode: sessionMode,
       freePractice,
       itemId,
       itemName: item ? itemDisplayName(item) : null,
@@ -1527,14 +1516,14 @@ const App = {
     summary.innerHTML = `<strong>${escapeHtml(sessionDisplayName(session))}</strong> — ${formatDuration(session.durationSeconds)} at ${tempoLabel}${feedbackHtml}`;
   },
 
-  /** Show last log for the current practice/ramp selection (item, cycle, or free). */
+  /** Show last log for the current selection (free practice, item, or cycle). */
   refreshLastSessionCard() {
     const card = document.getElementById('last-session-card');
     if (!card) return;
 
     const selection = parsePracticeSelection(document.getElementById('practice-item-select')?.value);
     let session = null;
-    if (selection.type === 'free') {
+    if (selection.type === 'none') {
       session = getLatestFreeSession();
     } else if (selection.type === 'item') {
       session = getLatestSessionForItem(selection.itemId);
@@ -2645,9 +2634,8 @@ const App = {
     const configs = [
       {
         el: document.getElementById('practice-item-select'),
-        placeholder: '<option value="">Select an item or cycle…</option>',
-        includeCycles: true,
-        includeFree: true
+        placeholder: '<option value="">Free practice</option>',
+        includeCycles: true
       },
       {
         el: document.getElementById('log-filter-item'),
@@ -2664,13 +2652,10 @@ const App = {
       }
     ];
 
-    configs.forEach(({ el, placeholder, extra = '', includeCycles = false, includeFree = false }) => {
+    configs.forEach(({ el, placeholder, extra = '', includeCycles = false }) => {
       if (!el) return;
       const current = el.value;
       let html = placeholder + extra;
-      if (includeFree) {
-        html += '<option value="free">Free practice</option>';
-      }
 
       if (includeCycles && cycles.length) {
         html += '<optgroup label="Cycles">' +

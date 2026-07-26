@@ -52,22 +52,21 @@
     <section id="view-practice" class="view active">
       <div class="card session-setup">
         <div class="mode-toggle" role="tablist" aria-label="Metronome mode">
-          <button type="button" class="mode-btn active" data-mode="practice">Practice</button>
+          <button type="button" class="mode-btn active" data-mode="normal">Normal</button>
           <button type="button" class="mode-btn" data-mode="ramp">Ramp</button>
         </div>
 
         <div id="practice-item-field">
           <div class="field" id="practice-item-field-label">
-            <span id="practice-item-label">Practice item or cycle</span>
+            <span id="practice-item-label">Exercise (optional)</span>
             <div class="rich-select" id="practice-item-rich">
               <button type="button" class="rich-select-trigger" id="practice-item-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="practice-item-menu" aria-labelledby="practice-item-label practice-item-trigger-title">
-                <span class="rich-select-title" id="practice-item-trigger-title">Select an item or cycle…</span>
+                <span class="rich-select-title" id="practice-item-trigger-title">Free practice</span>
                 <span class="rich-select-meta" id="practice-item-trigger-meta" hidden></span>
               </button>
               <div class="rich-select-menu" id="practice-item-menu" role="listbox" hidden></div>
               <select id="practice-item-select" class="rich-select-native" tabindex="-1" aria-hidden="true">
-                <option value="">Select an item or cycle…</option>
-                <option value="free">Free practice</option>
+                <option value="">Free practice</option>
               </select>
             </div>
           </div>
