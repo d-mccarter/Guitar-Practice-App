@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "8a6404b3-f5bb-4314-9d6e-a7d91632f804",
+      "itemId": "6ed60f89-c6b6-4f07-a6fa-577673edff1a",
+      "itemName": "Arkansas Traveller Part 2",
+      "workedOn": "",
+      "tempo": 180,
+      "startTempo": 120,
+      "endTempo": 180,
+      "mode": "ramp",
+      "durationSeconds": 338,
+      "plannedDurationSeconds": 300,
+      "startedAt": "2026-07-26T14:27:40.629Z",
+      "completedAt": "2026-07-26T14:33:22.641Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "9e2fe3df-bb68-4e77-b5a7-9637c2ce6b3e",
       "itemId": "89970727-7224-4dd3-ad8d-dfb4170b8be6",
       "itemName": "C-shape triplets",
