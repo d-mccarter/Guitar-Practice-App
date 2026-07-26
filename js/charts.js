@@ -95,86 +95,137 @@ const Charts = {
     return true;
   },
 
-  _weekStartKey(date) {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() - d.getDay());
-    return dayKeyFromDate(d);
+  _formatDayRange(start, end) {
+    const sameYear = start.getFullYear() === end.getFullYear();
+    const startLabel = start.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      ...(sameYear ? {} : { year: 'numeric' })
+    });
+    const endLabel = end.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    return `${startLabel} – ${endLabel}`;
   },
 
-  _buildTimeBuckets(sessions, period = 'weeks') {
-    const totals = new Map();
+  /**
+   * Resolve the calendar window for a period + offset.
+   * offset 0 = current week/month/year; negative = previous periods.
+   */
+  getTimeChartWindow(period = 'week', offset = 0) {
+    const now = startOfLocalDay(new Date());
+    const safeOffset = Number.isFinite(offset) ? Math.trunc(offset) : 0;
+
+    if (period === 'month') {
+      const start = new Date(now.getFullYear(), now.getMonth() + safeOffset, 1);
+      const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+      return {
+        period: 'month',
+        offset: safeOffset,
+        start,
+        end,
+        label: start.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }),
+        canGoNext: safeOffset < 0
+      };
+    }
+
+    if (period === 'year') {
+      const year = now.getFullYear() + safeOffset;
+      const start = new Date(year, 0, 1);
+      const end = new Date(year, 11, 31);
+      return {
+        period: 'year',
+        offset: safeOffset,
+        start,
+        end,
+        label: String(year),
+        canGoNext: safeOffset < 0
+      };
+    }
+
+    // week — past 7 days ending today when offset is 0; earlier windows when navigating back
+    const end = new Date(now);
+    end.setDate(now.getDate() + safeOffset * 7);
+    const start = new Date(end);
+    start.setDate(end.getDate() - 6);
+    return {
+      period: 'week',
+      offset: safeOffset,
+      start,
+      end,
+      label: this._formatDayRange(start, end),
+      canGoNext: safeOffset < 0
+    };
+  },
+
+  _buildTimeBuckets(sessions, period = 'week', offset = 0) {
+    const window = this.getTimeChartWindow(period, offset);
+    const dayTotals = new Map();
+    const monthTotals = new Map();
+
     sessions.forEach((s) => {
       const started = new Date(s.startedAt);
       if (Number.isNaN(started.getTime())) return;
-      let key;
-      if (period === 'days') key = dayKeyFromDate(started);
-      else if (period === 'months') key = monthKeyFromDate(started);
-      else key = this._weekStartKey(started);
-      if (!key) return;
-      totals.set(key, (totals.get(key) || 0) + s.durationSeconds / 60);
+      const dayKey = dayKeyFromDate(started);
+      const monthKey = monthKeyFromDate(started);
+      if (!dayKey) return;
+      const minutes = s.durationSeconds / 60;
+      dayTotals.set(dayKey, (dayTotals.get(dayKey) || 0) + minutes);
+      if (monthKey) monthTotals.set(monthKey, (monthTotals.get(monthKey) || 0) + minutes);
     });
 
-    if (period === 'days') {
-      const now = new Date();
-      const weekStart = startOfLocalDay(now);
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-      const buckets = [];
-      for (let i = 0; i < 7; i++) {
-        const day = new Date(weekStart);
-        day.setDate(weekStart.getDate() + i);
-        const key = dayKeyFromDate(day);
+    const buckets = [];
+
+    if (period === 'year') {
+      for (let month = 0; month < 12; month++) {
+        const day = new Date(window.start.getFullYear(), month, 1);
+        const key = monthKeyFromDate(day);
         buckets.push({
           key,
-          minutes: totals.get(key) || 0,
-          label: day.toLocaleDateString(undefined, { weekday: 'short' })
+          minutes: monthTotals.get(key) || 0,
+          label: day.toLocaleDateString(undefined, { month: 'short' })
         });
       }
-      return buckets;
+      return { buckets, window };
     }
 
-    if (period === 'months') {
-      return [...totals.entries()]
-        .sort((a, b) => a[0].localeCompare(b[0]))
-        .slice(-6)
-        .map(([key, minutes]) => {
-          const [year, month] = key.split('-').map(Number);
-          const d = new Date(year, month - 1, 1);
-          return {
-            key,
-            minutes,
-            label: d.toLocaleDateString(undefined, { month: 'short', year: '2-digit' })
-          };
-        });
-    }
-
-    // weeks — last 8 weeks that have practice (Sunday starts)
-    return [...totals.entries()]
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .slice(-8)
-      .map(([key, minutes]) => ({
+    // week / month — one bar per day in the window
+    const cursor = new Date(window.start);
+    while (cursor <= window.end) {
+      const key = dayKeyFromDate(cursor);
+      let label;
+      if (period === 'month') {
+        label = String(cursor.getDate());
+      } else {
+        label = cursor.toLocaleDateString(undefined, { weekday: 'short' });
+      }
+      buckets.push({
         key,
-        minutes,
-        label: new Date(key + 'T12:00:00').toLocaleDateString(undefined, {
-          month: 'short',
-          day: 'numeric'
-        })
-      }));
+        minutes: dayTotals.get(key) || 0,
+        label
+      });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return { buckets, window };
   },
 
-  drawTimeChart(canvas, sessions, period = 'weeks') {
+  drawTimeChart(canvas, sessions, period = 'week', offset = 0) {
     const { ctx, w, h } = this._setupCanvas(canvas);
     const padding = { top: 16, right: 16, bottom: 32, left: 44 };
     ctx.clearRect(0, 0, w, h);
 
-    if (!sessions.length) return false;
+    const { buckets, window } = this._buildTimeBuckets(sessions, period, offset);
+    if (!buckets.length) {
+      return { drew: false, window, hasData: false };
+    }
 
-    const buckets = this._buildTimeBuckets(sessions, period);
-    if (!buckets.length) return false;
-
-    // Hide empty-state only when there is something to show in this period
     const hasData = buckets.some((b) => b.minutes > 0);
-    if (!hasData) return false;
+    if (!hasData) {
+      return { drew: false, window, hasData: false };
+    }
 
     const maxMin = Math.max(...buckets.map((b) => b.minutes), 1);
     const chartW = w - padding.left - padding.right;
@@ -192,6 +243,9 @@ const Charts = {
       ctx.fillText(val + 'm', padding.left - 4, y + 4);
     }
 
+    // Sparse x labels when many bars (month view)
+    const labelEvery = buckets.length > 16 ? 2 : 1;
+
     buckets.forEach((bucket, i) => {
       const barH = (bucket.minutes / maxMin) * chartH;
       const x = padding.left + i * (chartW / buckets.length) + (chartW / buckets.length - barW) / 2;
@@ -204,12 +258,14 @@ const Charts = {
         ctx.fill();
       }
 
-      ctx.fillStyle = '#888894';
-      ctx.font = '9px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(bucket.label, x + barW / 2, h - 8);
+      if (i % labelEvery === 0 || i === buckets.length - 1) {
+        ctx.fillStyle = '#888894';
+        ctx.font = buckets.length > 20 ? '8px system-ui, sans-serif' : '9px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(bucket.label, x + barW / 2, h - 8);
+      }
     });
 
-    return true;
+    return { drew: true, window, hasData: true };
   }
 };

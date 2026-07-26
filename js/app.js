@@ -20,6 +20,7 @@ const App = {
   logCalendarMonth: null,
   logDateFilterBeforeCalendar: '',
   pendingLogDayFilter: null,
+  timeChartOffset: 0,
 
   init() {
     this.loadBuildLabel();
@@ -2532,7 +2533,19 @@ const App = {
 
   bindProgress() {
     document.getElementById('progress-item-select').addEventListener('change', () => this.renderProgress());
-    document.getElementById('time-chart-period').addEventListener('change', () => this.renderProgress());
+    document.getElementById('time-chart-period').addEventListener('change', () => {
+      this.timeChartOffset = 0;
+      this.renderProgress();
+    });
+    document.getElementById('time-chart-prev').addEventListener('click', () => {
+      this.timeChartOffset -= 1;
+      this.renderProgress();
+    });
+    document.getElementById('time-chart-next').addEventListener('click', () => {
+      if (this.timeChartOffset >= 0) return;
+      this.timeChartOffset += 1;
+      this.renderProgress();
+    });
   },
 
   refreshAll() {
@@ -2803,20 +2816,28 @@ const App = {
 
   renderProgress() {
     const itemId = document.getElementById('progress-item-select').value;
-    const period = document.getElementById('time-chart-period')?.value || 'weeks';
+    const period = document.getElementById('time-chart-period')?.value || 'week';
     const tempoCanvas = document.getElementById('tempo-chart');
     const timeCanvas = document.getElementById('time-chart');
     const tempoEmpty = document.getElementById('tempo-chart-empty');
     const timeEmpty = document.getElementById('time-chart-empty');
     const timeSubtitle = document.getElementById('time-chart-subtitle');
+    const timeRange = document.getElementById('time-chart-range');
+    const timeNext = document.getElementById('time-chart-next');
     const statsGrid = document.getElementById('stats-grid');
 
     const periodSubtitles = {
-      days: 'Minutes practiced each day this week',
-      weeks: 'Minutes practiced per week',
-      months: 'Minutes practiced per month'
+      week: 'Minutes practiced each day',
+      month: 'Minutes practiced each day',
+      year: 'Minutes practiced each month'
     };
-    if (timeSubtitle) timeSubtitle.textContent = periodSubtitles[period] || periodSubtitles.weeks;
+    if (timeSubtitle) {
+      timeSubtitle.textContent = periodSubtitles[period] || periodSubtitles.week;
+    }
+
+    const window = Charts.getTimeChartWindow(period, this.timeChartOffset);
+    if (timeRange) timeRange.textContent = window.label;
+    if (timeNext) timeNext.disabled = !window.canGoNext;
 
     let sessions = Storage.getSessions();
     if (itemId) sessions = sessions.filter((s) => s.itemId === itemId);
@@ -2824,6 +2845,7 @@ const App = {
     if (!sessions.length) {
       tempoEmpty.hidden = false;
       timeEmpty.hidden = false;
+      timeEmpty.textContent = 'Log sessions to see practice time.';
       tempoCanvas.hidden = true;
       timeCanvas.hidden = true;
       statsGrid.hidden = true;
@@ -2833,9 +2855,13 @@ const App = {
     tempoCanvas.hidden = false;
     statsGrid.hidden = false;
     tempoEmpty.hidden = Charts.drawTempoChart(tempoCanvas, sessions);
-    const drewTime = Charts.drawTimeChart(timeCanvas, sessions, period);
+    const timeResult = Charts.drawTimeChart(timeCanvas, sessions, period, this.timeChartOffset);
+    const drewTime = Boolean(timeResult?.drew);
     timeEmpty.hidden = drewTime;
     timeCanvas.hidden = !drewTime;
+    if (!drewTime) {
+      timeEmpty.textContent = 'No practice in this period.';
+    }
 
     const totalMin = Math.round(sessions.reduce((s, x) => s + x.durationSeconds, 0) / 60);
     const tempos = sessions.map((s) => s.tempo);
