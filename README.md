@@ -12,7 +12,7 @@ Works on iPhone: open in Safari, tap **Share → Add to Home Screen** for a full
 - **Timed sessions** — Set duration and tempo; timer starts when the metronome starts
 - **Session log** — Tracks time and tempo for every practice session
 - **Manual logging** — Add past sessions from the Log tab without running the metronome
-- **Progress charts** — Tempo over time and practice minutes by day, week, or month
+- **Progress charts** — Tempo over time and practice minutes by week, month, or year (with period navigation)
 - **Local storage** — All data saved in your browser (persists on iPhone when installed to home screen)
 
 ## Quick start (on your computer)
