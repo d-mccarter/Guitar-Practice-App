@@ -88,6 +88,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "be09217a-963c-4752-b68d-22df58c6042d",
+      "itemId": "9b0e8cd2-05af-495f-80a4-12be5f7db5c1",
+      "itemName": "Cross Picking Warmup",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 178,
+      "plannedDurationSeconds": 120,
+      "startedAt": "2026-07-26T12:00:31.460Z",
+      "completedAt": "2026-07-26T12:03:32.456Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "652d3ed9-c6e2-4f10-82cc-e3e896e9d052",
       "itemId": "97ea8c84-a953-4874-aeb8-db80d08bc3b1",
       "itemName": "8h",
