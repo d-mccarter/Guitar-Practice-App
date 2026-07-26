@@ -629,8 +629,8 @@ function formatLastSessionMetaHtml(session) {
 
 function parsePracticeSelection(value) {
   const raw = String(value || '');
-  if (!raw) return { type: 'none' };
-  if (raw === 'free') return { type: 'free' };
+  // Empty (or legacy "free") means free practice — no specific exercise selected.
+  if (!raw || raw === 'free') return { type: 'none' };
   if (raw.startsWith('cycle:')) {
     return { type: 'cycle', cycleId: raw.slice('cycle:'.length) };
   }
@@ -638,8 +638,7 @@ function parsePracticeSelection(value) {
 }
 
 function practiceSelectionValue(selection) {
-  if (!selection || selection.type === 'none') return '';
-  if (selection.type === 'free') return 'free';
+  if (!selection || selection.type === 'none' || selection.type === 'free') return '';
   if (selection.type === 'cycle') return `cycle:${selection.cycleId}`;
   return selection.itemId || '';
 }
