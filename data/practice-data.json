@@ -90,6 +90,13 @@
       "description": "",
       "targetTempo": 200,
       "createdAt": "2026-07-26T14:25:58.957Z"
+    },
+    {
+      "id": "6c16ce96-6fee-4bfc-9db5-65780a34bc4b",
+      "name": "Arkansas Traveller Part 1",
+      "description": "",
+      "targetTempo": 200,
+      "createdAt": "2026-07-26T14:26:46.146Z"
     }
   ],
   "cycles": [],
