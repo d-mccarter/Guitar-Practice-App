@@ -88,6 +88,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "43ab995c-c30c-40ec-ab36-c16d79daad19",
+      "itemId": "447c7bd8-5e58-40bf-9ca3-4b262da5b2e8",
+      "itemName": "8m",
+      "workedOn": "",
+      "tempo": 130,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 184,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-07-26T14:19:02.737Z",
+      "completedAt": "2026-07-26T14:22:10.315Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "bb72f40e-6d35-444c-91a9-1fa035a96b4b",
       "itemId": "8d886925-762f-40d7-9bae-6b70fcc41263",
       "itemName": "8l",
