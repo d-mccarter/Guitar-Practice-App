@@ -417,19 +417,19 @@ const App = {
     const commitTimerMinutes = () => {
       const minutes = parseTimerMinutes(timerInput.value, 3);
       timerInput.value = formatTimerMinutes(minutes);
-      if (!this.session && this.practiceMode === 'practice') {
+      if (!this.session && this.practiceMode === 'practice' && !this.isFreePracticeSelected()) {
         timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
       }
     };
 
     const resetTimerDisplay = () => {
-      if (this.practiceMode === 'free') {
-        timerDisplay.textContent = '0:00';
-        return;
-      }
       if (this.practiceMode === 'ramp') {
         const minutes = parseTimerMinutes(document.getElementById('ramp-minutes').value, 5);
         timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
+        return;
+      }
+      if (this.isFreePracticeSelected()) {
+        timerDisplay.textContent = '0:00';
         return;
       }
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(timerInput.value));
@@ -458,7 +458,7 @@ const App = {
     });
 
     timerInput.addEventListener('input', () => {
-      if (!this.session && this.practiceMode === 'practice') {
+      if (!this.session && this.practiceMode === 'practice' && !this.isFreePracticeSelected()) {
         const raw = timerInput.value.trim();
         if (raw === '') return;
         const n = parseFloat(raw);
@@ -673,6 +673,11 @@ const App = {
     };
 
     parts.push(optionHtml('', 'Select an item or cycle…', '', true));
+    parts.push(optionHtml(
+      'free',
+      'Free practice',
+      formatLastSessionMetaHtml(getLatestFreeSession())
+    ));
 
     const validCycles = cycles.filter((cycle) => this.resolveCycleSteps(cycle).length);
     if (validCycles.length) {
@@ -695,6 +700,10 @@ const App = {
     menu.innerHTML = parts.join('');
   },
 
+  isFreePracticeSelected() {
+    return parsePracticeSelection(document.getElementById('practice-item-select')?.value).type === 'free';
+  },
+
   syncPracticeItemRichSelect() {
     const select = document.getElementById('practice-item-select');
     const titleEl = document.getElementById('practice-item-trigger-title');
@@ -710,6 +719,13 @@ const App = {
     }
 
     const selection = parsePracticeSelection(value);
+    if (selection.type === 'free') {
+      titleEl.textContent = 'Free practice';
+      metaEl.innerHTML = formatLastSessionMetaHtml(getLatestFreeSession());
+      metaEl.hidden = false;
+      return;
+    }
+
     if (selection.type === 'cycle') {
       const cycle = Storage.getCycleById(selection.cycleId);
       titleEl.textContent = cycle ? cycleSelectLabel(cycle) : 'Cycle';
@@ -733,9 +749,28 @@ const App = {
     const timerInput = document.getElementById('timer-minutes');
     const timerDisplay = document.getElementById('session-timer');
     const tempoDisplay = document.getElementById('tempo-display');
+    const timerField = document.getElementById('timer-field');
     const hint = document.getElementById('cycle-preview-hint');
     const statusEl = document.getElementById('session-status');
     const selection = parsePracticeSelection(document.getElementById('practice-item-select').value);
+
+    if (this.practiceMode === 'practice' && timerField) {
+      timerField.hidden = selection.type === 'free';
+    }
+
+    if (selection.type === 'free') {
+      if (hint) {
+        hint.hidden = true;
+        hint.textContent = '';
+      }
+      if (this.practiceMode === 'practice' && timerDisplay) {
+        timerDisplay.textContent = '0:00';
+        timerDisplay.classList.remove('overtime');
+      }
+      this.syncPracticeItemRichSelect();
+      this.refreshLastSessionCard();
+      return;
+    }
 
     if (selection.type === 'cycle') {
       const cycle = Storage.getCycleById(selection.cycleId);
@@ -835,7 +870,7 @@ const App = {
       const base = this.cycleStatusText();
       return this.session.timerExpired ? `${base} · Overtime` : base;
     }
-    if (this.session.mode === 'free') return 'Playing…';
+    if (this.session.freePractice && this.session.remainingSeconds == null) return 'Playing…';
     if (this.session.timerExpired) return 'Overtime — end when ready';
     return 'Practicing…';
   },
@@ -843,7 +878,7 @@ const App = {
   /** Live timer label: countdown, then +m:ss once the planned time expires. */
   formatSessionTimerDisplay(session) {
     if (!session) return '0:00';
-    if (session.mode === 'free' || session.remainingSeconds == null) {
+    if (session.remainingSeconds == null) {
       return formatDuration(session.elapsedSeconds);
     }
     if (session.remainingSeconds > 0) {
@@ -862,23 +897,15 @@ const App = {
     const tempoDisplay = document.getElementById('tempo-display');
     const hint = document.getElementById('cycle-preview-hint');
 
-    if (this.practiceMode === 'free') {
-      itemField.hidden = true;
-      fixedPanel.hidden = false;
-      rampPanel.hidden = true;
-      timerField.hidden = true;
-      if (hint) hint.hidden = true;
-      const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 120;
-      tempoDisplay.textContent = `${bpm} BPM`;
-      this.refreshLastSessionCard();
-      return;
-    }
+    // Guard against stale in-memory mode if Free was removed from the toggle.
+    if (this.practiceMode === 'free') this.practiceMode = 'practice';
 
     itemField.hidden = false;
     if (this.practiceMode === 'ramp') {
       itemLabel.textContent = 'Practice item (optional)';
       fixedPanel.hidden = true;
       rampPanel.hidden = false;
+      if (timerField) timerField.hidden = false;
       if (hint) hint.hidden = true;
       const start = Math.max(40, Math.min(300, parseInt(document.getElementById('ramp-start-bpm').value, 10) || 60));
       const end = Math.max(40, Math.min(300, parseInt(document.getElementById('ramp-end-bpm').value, 10) || 120));
@@ -888,7 +915,7 @@ const App = {
       itemLabel.textContent = 'Practice item or cycle';
       fixedPanel.hidden = false;
       rampPanel.hidden = true;
-      timerField.hidden = false;
+      if (timerField) timerField.hidden = this.isFreePracticeSelected();
       const bpm = parseInt(document.getElementById('tempo-bpm').value, 10) || 120;
       tempoDisplay.textContent = `${bpm} BPM`;
       this.applyPracticeSelection();
@@ -973,13 +1000,14 @@ const App = {
     }
 
     if (timerDisplay) timerDisplay.classList.remove('overtime');
-    if (this.practiceMode === 'free') {
-      timerDisplay.textContent = '0:00';
-    } else if (this.practiceMode === 'ramp') {
+    if (this.practiceMode === 'ramp') {
       const minutes = parseTimerMinutes(document.getElementById('ramp-minutes').value, 5);
       document.getElementById('ramp-minutes').value = formatTimerMinutes(minutes);
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
       this.updatePracticeModeUI();
+    } else if (this.isFreePracticeSelected()) {
+      timerDisplay.textContent = '0:00';
+      document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
     } else {
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
       document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
@@ -997,7 +1025,7 @@ const App = {
       this.session.elapsedSeconds++;
       this.updateEndSessionButtonLabel();
 
-      if (this.session.mode === 'free') {
+      if (this.session.remainingSeconds == null) {
         timerDisplay.textContent = formatDuration(this.session.elapsedSeconds);
         return;
       }
@@ -1021,6 +1049,7 @@ const App = {
     if (this.session) return;
 
     const selection = parsePracticeSelection(document.getElementById('practice-item-select').value);
+    const freePractice = selection.type === 'free';
 
     if (this.practiceMode === 'practice' && selection.type === 'cycle') {
       await this.startCycle(selection.cycleId);
@@ -1028,7 +1057,7 @@ const App = {
     }
 
     if (this.practiceMode === 'practice' && selection.type === 'none') {
-      alert('Please select a practice item or cycle first.');
+      alert('Please select a practice item, cycle, or free practice first.');
       return;
     }
 
@@ -1070,7 +1099,7 @@ const App = {
       tempo = endTempo;
       this.metronome.setRamp(startTempo, endTempo, totalSeconds);
       document.getElementById('tempo-display').textContent = `${startTempo} BPM`;
-    } else if (this.practiceMode === 'free') {
+    } else if (freePractice) {
       totalSeconds = null;
       tempo = parseInt(tempoInput.value, 10) || 120;
       this.metronome.setBpm(tempo);
@@ -1086,6 +1115,7 @@ const App = {
 
     this.session = {
       mode: this.practiceMode,
+      freePractice,
       itemId,
       itemName: item ? itemDisplayName(item) : null,
       tempo,
@@ -1115,7 +1145,7 @@ const App = {
     statusEl.classList.add('running');
     this.setPracticeFormDisabled(true);
 
-    if (this.practiceMode === 'free') {
+    if (freePractice && totalSeconds == null) {
       timerDisplay.textContent = '0:00';
       timerDisplay.classList.remove('overtime');
     }
@@ -1405,8 +1435,8 @@ const App = {
     this.setPracticeFormDisabled(false);
 
     // durationSeconds is active practice time only (paused gaps never incremented elapsedSeconds).
-    const shouldLogItem = session?.itemId && session.elapsedSeconds >= MIN_LOG_SECONDS && session.mode !== 'free';
-    const canLogFree = session?.mode === 'free' && session.elapsedSeconds >= MIN_LOG_SECONDS;
+    const shouldLogItem = session?.itemId && session.elapsedSeconds >= MIN_LOG_SECONDS && !session.freePractice;
+    const canLogFree = session?.freePractice && session.elapsedSeconds >= MIN_LOG_SECONDS;
 
     if (shouldLogItem) {
       const loggedTempo = session.mode === 'ramp'
@@ -1437,17 +1467,20 @@ const App = {
       this.refreshItemSelects();
       this.renderLog();
     } else if (canLogFree) {
+      const loggedTempo = session.mode === 'ramp'
+        ? this.metronome.getRoundedBpm()
+        : session.tempo;
       const draft = {
         id: generateId(),
         itemId: null,
         itemName: null,
         workedOn: '',
-        tempo: session.tempo,
-        startTempo: null,
-        endTempo: null,
+        tempo: loggedTempo,
+        startTempo: session.startTempo,
+        endTempo: session.endTempo,
         mode: 'free',
         durationSeconds: session.elapsedSeconds,
-        plannedDurationSeconds: null,
+        plannedDurationSeconds: session.plannedDurationSeconds,
         startedAt: session.startedAt,
         completedAt: new Date().toISOString(),
         completed: true,
@@ -1460,13 +1493,14 @@ const App = {
       statusEl.textContent = 'Ready';
     }
 
-    if (this.practiceMode === 'free') {
-      timerDisplay.textContent = '0:00';
-    } else if (this.practiceMode === 'ramp') {
+    if (this.practiceMode === 'ramp') {
       const minutes = parseTimerMinutes(document.getElementById('ramp-minutes').value, 5);
       document.getElementById('ramp-minutes').value = formatTimerMinutes(minutes);
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
       this.updatePracticeModeUI();
+    } else if (this.isFreePracticeSelected()) {
+      timerDisplay.textContent = '0:00';
+      document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
     } else {
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
       document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
@@ -1477,7 +1511,7 @@ const App = {
     const card = document.getElementById('last-session-card');
     const summary = document.getElementById('last-session-summary');
     card.hidden = false;
-    const tempoLabel = session.mode === 'ramp' && session.startTempo != null
+    const tempoLabel = session.startTempo != null && session.endTempo != null
       ? `<strong>${session.startTempo}→${session.tempo} BPM</strong>`
       : `<strong>${session.tempo} BPM</strong>`;
     const rating = normalizeSessionRating(session.rating);
@@ -1493,21 +1527,16 @@ const App = {
     summary.innerHTML = `<strong>${escapeHtml(sessionDisplayName(session))}</strong> — ${formatDuration(session.durationSeconds)} at ${tempoLabel}${feedbackHtml}`;
   },
 
-  /** Show last log for the current practice/ramp selection (item or cycle). */
+  /** Show last log for the current practice/ramp selection (item, cycle, or free). */
   refreshLastSessionCard() {
     const card = document.getElementById('last-session-card');
     if (!card) return;
 
-    if (this.practiceMode === 'free') {
-      const newest = Storage.getSessions()[0];
-      if (newest) this.showLastSession(newest);
-      else card.hidden = true;
-      return;
-    }
-
     const selection = parsePracticeSelection(document.getElementById('practice-item-select')?.value);
     let session = null;
-    if (selection.type === 'item') {
+    if (selection.type === 'free') {
+      session = getLatestFreeSession();
+    } else if (selection.type === 'item') {
       session = getLatestSessionForItem(selection.itemId);
     } else if (selection.type === 'cycle') {
       session = getLatestSessionForCycle(selection.cycleId);
@@ -1615,7 +1644,7 @@ const App = {
       skipBtn.textContent = 'Skip';
     }
 
-    const tempoText = session.mode === 'ramp' && session.startTempo != null
+    const tempoText = session.startTempo != null && session.endTempo != null
       ? `${session.startTempo}→${session.tempo} BPM`
       : `${session.tempo} BPM`;
     const name = sessionDisplayName(session);
@@ -2617,7 +2646,8 @@ const App = {
       {
         el: document.getElementById('practice-item-select'),
         placeholder: '<option value="">Select an item or cycle…</option>',
-        includeCycles: true
+        includeCycles: true,
+        includeFree: true
       },
       {
         el: document.getElementById('log-filter-item'),
@@ -2634,10 +2664,13 @@ const App = {
       }
     ];
 
-    configs.forEach(({ el, placeholder, extra = '', includeCycles = false }) => {
+    configs.forEach(({ el, placeholder, extra = '', includeCycles = false, includeFree = false }) => {
       if (!el) return;
       const current = el.value;
       let html = placeholder + extra;
+      if (includeFree) {
+        html += '<option value="free">Free practice</option>';
+      }
 
       if (includeCycles && cycles.length) {
         html += '<optgroup label="Cycles">' +
@@ -2714,7 +2747,7 @@ const App = {
   },
 
   renderLogSessionRow(s) {
-    const tempoText = s.mode === 'ramp' && s.startTempo != null
+    const tempoText = s.startTempo != null && s.endTempo != null
       ? `${s.startTempo}→${s.tempo} BPM`
       : `${s.tempo} BPM`;
     const rating = normalizeSessionRating(s.rating);

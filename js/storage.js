@@ -630,6 +630,7 @@ function formatLastSessionMetaHtml(session) {
 function parsePracticeSelection(value) {
   const raw = String(value || '');
   if (!raw) return { type: 'none' };
+  if (raw === 'free') return { type: 'free' };
   if (raw.startsWith('cycle:')) {
     return { type: 'cycle', cycleId: raw.slice('cycle:'.length) };
   }
@@ -638,8 +639,15 @@ function parsePracticeSelection(value) {
 
 function practiceSelectionValue(selection) {
   if (!selection || selection.type === 'none') return '';
+  if (selection.type === 'free') return 'free';
   if (selection.type === 'cycle') return `cycle:${selection.cycleId}`;
   return selection.itemId || '';
+}
+
+function getLatestFreeSession() {
+  const sessions = Storage.getSessions().filter((s) => s.mode === 'free');
+  if (!sessions.length) return null;
+  return sessions.slice().sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))[0];
 }
 
 function sessionDisplayName(session) {
