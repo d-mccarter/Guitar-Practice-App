@@ -76,6 +76,13 @@
       "description": "Frets 9-2, string 6-4, quarter notes",
       "targetTempo": null,
       "createdAt": "2026-07-23T10:54:53.961Z"
+    },
+    {
+      "id": "9b0e8cd2-05af-495f-80a4-12be5f7db5c1",
+      "name": "Cross Picking Warmup",
+      "description": "",
+      "targetTempo": 120,
+      "createdAt": "2026-07-26T12:00:05.507Z"
     }
   ],
   "cycles": [],
