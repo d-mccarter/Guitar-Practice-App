@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "bdf287b0-2b8d-4512-94de-a5c663de9f93",
+      "itemId": "1cac5d46-2e52-4fdd-a98e-08f7501a42de",
+      "itemName": "8f",
+      "workedOn": "",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 128,
+      "plannedDurationSeconds": 120,
+      "startedAt": "2026-07-27T10:58:14.708Z",
+      "completedAt": "2026-07-27T11:00:25.668Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "31ecb77a-284a-4f7d-aeb8-b95fa34740af",
       "itemId": "ada966a3-b7cb-45f6-ac14-0aded6b95f08",
       "itemName": "Spider 1",
