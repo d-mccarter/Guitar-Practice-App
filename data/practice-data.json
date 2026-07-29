@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "424bc0f9-1050-4023-af22-b5c62e9cf043",
+      "itemId": "9b0e8cd2-05af-495f-80a4-12be5f7db5c1",
+      "itemName": "Cross Picking Warmup",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 185,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-07-29T10:59:05.330Z",
+      "completedAt": "2026-07-29T11:02:13.977Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "83ba33af-0979-4353-9e5d-91882e8d0825",
       "itemId": "ada966a3-b7cb-45f6-ac14-0aded6b95f08",
       "itemName": "Spider 1",
