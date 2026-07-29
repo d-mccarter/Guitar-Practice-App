@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "6904fbd4-ef9f-485c-90fb-3b95e3f6ec9b",
+      "itemId": "89970727-7224-4dd3-ad8d-dfb4170b8be6",
+      "itemName": "C-shape triplets",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 209,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-07-29T11:02:32.678Z",
+      "completedAt": "2026-07-29T11:06:19.278Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "424bc0f9-1050-4023-af22-b5c62e9cf043",
       "itemId": "9b0e8cd2-05af-495f-80a4-12be5f7db5c1",
       "itemName": "Cross Picking Warmup",
