@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "8d86ab57-7973-4b5c-b5b1-053fffd1129f",
+      "itemId": "ada966a3-b7cb-45f6-ac14-0aded6b95f08",
+      "itemName": "Spider 1",
+      "workedOn": "",
+      "tempo": 105,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 370,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-07-30T11:02:13.147Z",
+      "completedAt": "2026-07-30T11:08:27.203Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "3a6d65d7-071a-4b4d-a47e-12ad8fbd4e73",
       "itemId": "49d86dfb-d482-4923-959f-60ee424408ce",
       "itemName": "C-Shape Warmup",
