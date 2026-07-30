@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "c050af18-51fb-48fc-be30-5e5fde42d800",
+      "itemId": "6c16ce96-6fee-4bfc-9db5-65780a34bc4b",
+      "itemName": "Arkansas Traveller Part 1",
+      "workedOn": "",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 32,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-07-30T23:16:36.745Z",
+      "completedAt": "2026-07-30T23:17:10.538Z",
+      "completed": false,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "cf634013-16ba-4f8c-808d-731e3e272ef5",
       "itemId": "44f9749e-9700-41e4-ac15-8d38d7942e1f",
       "itemName": "8g",
