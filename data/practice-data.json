@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "29b2e438-36f2-4d1e-baa8-074fa17045a1",
+      "itemId": "8d886925-762f-40d7-9bae-6b70fcc41263",
+      "itemName": "8l",
+      "workedOn": "",
+      "tempo": 105,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 407,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-08-11T22:51:30.404Z",
+      "completedAt": "2026-08-11T22:58:21.512Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "fb25a86e-2e6f-4a5f-9bbf-fd1e28f163db",
       "itemId": null,
       "itemName": "Here comes the sun",
