@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "fb25a86e-2e6f-4a5f-9bbf-fd1e28f163db",
+      "itemId": null,
+      "itemName": "Here comes the sun",
+      "workedOn": "Here comes the sun",
+      "tempo": 96,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 300,
+      "plannedDurationSeconds": 300,
+      "startedAt": "2026-08-11T21:08:00.000Z",
+      "completedAt": "2026-08-11T21:13:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": "Relearning"
+    },
+    {
       "id": "fb4e9482-0f94-4b6d-ace5-5c4543463539",
       "itemId": "447c7bd8-5e58-40bf-9ca3-4b262da5b2e8",
       "itemName": "8m",
