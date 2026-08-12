@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "95b33616-bdbf-4f25-b08b-8844e840d400",
+      "itemId": null,
+      "itemName": "Routine 8 Run",
+      "workedOn": "Routine 8 Run",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 180,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-08-12T14:49:00.000Z",
+      "completedAt": "2026-08-12T14:52:00.000Z",
+      "completed": true,
+      "rating": 3.5,
+      "notes": ""
+    },
+    {
       "id": "e474590a-53c1-49c1-ad2b-82c754afb3e2",
       "itemId": "9b0e8cd2-05af-495f-80a4-12be5f7db5c1",
       "itemName": "Cross Picking Warmup",
