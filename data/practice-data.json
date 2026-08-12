@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "4548c261-7152-4247-836c-cd919ffc7691",
+      "itemId": null,
+      "itemName": "Routine 8 practice",
+      "workedOn": "Routine 8 practice",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 464,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-08-12T16:21:25.852Z",
+      "completedAt": "2026-08-12T16:29:55.077Z",
+      "completed": true,
+      "rating": 0,
+      "notes": "8e, 8k"
+    },
+    {
       "id": "e04f5ce4-9e4a-4c84-8cac-21368066d4c0",
       "itemId": null,
       "itemName": "Jazz - Ch 1 - Minor pentatonic patterns",
