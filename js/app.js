@@ -17,6 +17,8 @@ const App = {
   feedbackRating: 0,
   feedbackEditing: false,
   manualLogRating: 0,
+  manualLogEditingId: null,
+  manualLogEditingHasRamp: false,
   logCalendarMonth: null,
   logDateFilterBeforeCalendar: '',
   pendingLogDayFilter: null,
@@ -2253,7 +2255,7 @@ const App = {
       const editBtn = e.target.closest('[data-edit-session]');
       if (editBtn) {
         const session = Storage.getSessionById(editBtn.dataset.editSession);
-        if (session) this.openSessionFeedback(session, { editing: true });
+        if (session) this.openEditLog(session);
         return;
       }
 
@@ -2405,7 +2407,7 @@ const App = {
     tempoInput.addEventListener('blur', commitTempo);
 
     itemSelect.addEventListener('change', () => {
-      this.updateManualLogItemUI();
+      this.updateManualLogModalUI();
       if (itemSelect.value && itemSelect.value !== '__other__') {
         const item = Storage.getItemById(itemSelect.value);
         if (item?.targetTempo) {
@@ -2415,6 +2417,20 @@ const App = {
       }
     });
 
+    const startTempoInput = document.getElementById('manual-log-start-tempo');
+    const commitStartTempo = () => {
+      startTempoInput.value = clampBpm(startTempoInput.value, 120);
+    };
+    document.getElementById('manual-log-start-tempo-up')?.addEventListener('click', () => {
+      startTempoInput.value = Math.min(300, clampBpm(startTempoInput.value, 120) + 1);
+      commitStartTempo();
+    });
+    document.getElementById('manual-log-start-tempo-down')?.addEventListener('click', () => {
+      startTempoInput.value = Math.max(40, clampBpm(startTempoInput.value, 120) - 1);
+      commitStartTempo();
+    });
+    startTempoInput?.addEventListener('blur', commitStartTempo);
+
     this.bindRatingSelect({
       selectId: 'manual-log-rating',
       setRating: (value) => { this.manualLogRating = value; },
@@ -2422,11 +2438,33 @@ const App = {
     });
   },
 
-  updateManualLogItemUI() {
+  updateManualLogModalUI() {
     const itemSelect = document.getElementById('manual-log-item');
     const workedOnField = document.getElementById('manual-log-worked-on-field');
+    const startTempoField = document.getElementById('manual-log-start-tempo-field');
+    const tempoLabel = document.getElementById('manual-log-tempo-label');
     const isOther = itemSelect.value === '__other__';
     workedOnField.hidden = !isOther;
+    startTempoField.hidden = !this.manualLogEditingHasRamp;
+    if (tempoLabel) {
+      tempoLabel.textContent = this.manualLogEditingHasRamp ? 'End tempo (BPM)' : 'Tempo (BPM)';
+    }
+
+    const title = document.getElementById('manual-log-title');
+    const hint = document.getElementById('manual-log-hint');
+    const saveBtn = document.getElementById('manual-log-save-btn');
+    const editing = !!this.manualLogEditingId;
+    if (title) title.textContent = editing ? 'Edit log entry' : 'Log practice';
+    if (hint) {
+      hint.textContent = editing
+        ? 'Update session details.'
+        : 'Add a session you practiced without the metronome timer.';
+    }
+    if (saveBtn) saveBtn.textContent = editing ? 'Save changes' : 'Save session';
+  },
+
+  updateManualLogItemUI() {
+    this.updateManualLogModalUI();
   },
 
   renderManualLogRating() {
@@ -2434,6 +2472,8 @@ const App = {
   },
 
   openManualLog() {
+    this.manualLogEditingId = null;
+    this.manualLogEditingHasRamp = false;
     this.refreshItemSelects();
     this.manualLogRating = 0;
     this.renderManualLogRating();
@@ -2441,6 +2481,7 @@ const App = {
     const itemSelect = document.getElementById('manual-log-item');
     const durationInput = document.getElementById('manual-log-duration');
     const tempoInput = document.getElementById('manual-log-tempo');
+    const startTempoInput = document.getElementById('manual-log-start-tempo');
     const whenInput = document.getElementById('manual-log-when');
     const notes = document.getElementById('manual-log-notes');
     const workedOn = document.getElementById('manual-log-worked-on');
@@ -2451,10 +2492,51 @@ const App = {
       : '';
     durationInput.value = formatTimerMinutes(document.getElementById('timer-minutes').value || 3);
     tempoInput.value = parseInt(document.getElementById('tempo-bpm').value, 10) || 120;
+    if (startTempoInput) startTempoInput.value = 120;
     whenInput.value = toDatetimeLocalValue(new Date());
     notes.value = '';
     workedOn.value = '';
-    this.updateManualLogItemUI();
+    this.updateManualLogModalUI();
+
+    document.getElementById('manual-log-modal').hidden = false;
+    itemSelect.focus();
+  },
+
+  openEditLog(session) {
+    if (!session?.id) return;
+
+    this.manualLogEditingId = session.id;
+    this.manualLogEditingHasRamp = session.startTempo != null && session.endTempo != null;
+    this.refreshItemSelects();
+    this.manualLogRating = normalizeSessionRating(session.rating);
+    this.renderManualLogRating();
+
+    const itemSelect = document.getElementById('manual-log-item');
+    const durationInput = document.getElementById('manual-log-duration');
+    const tempoInput = document.getElementById('manual-log-tempo');
+    const startTempoInput = document.getElementById('manual-log-start-tempo');
+    const whenInput = document.getElementById('manual-log-when');
+    const notes = document.getElementById('manual-log-notes');
+    const workedOn = document.getElementById('manual-log-worked-on');
+
+    const useOther = session.mode === 'free' || !session.itemId
+      || ![...itemSelect.options].some((o) => o.value === session.itemId);
+    if (useOther) {
+      itemSelect.value = '__other__';
+      workedOn.value = (session.workedOn || session.itemName || '').trim();
+    } else {
+      itemSelect.value = session.itemId;
+      workedOn.value = '';
+    }
+
+    durationInput.value = formatTimerMinutes((session.durationSeconds || 0) / 60);
+    tempoInput.value = session.tempo || 120;
+    if (startTempoInput) {
+      startTempoInput.value = session.startTempo ?? session.tempo ?? 120;
+    }
+    whenInput.value = toDatetimeLocalValue(session.startedAt);
+    notes.value = session.notes || '';
+    this.updateManualLogModalUI();
 
     document.getElementById('manual-log-modal').hidden = false;
     itemSelect.focus();
@@ -2462,10 +2544,13 @@ const App = {
 
   closeManualLog() {
     document.getElementById('manual-log-modal').hidden = true;
+    this.manualLogEditingId = null;
+    this.manualLogEditingHasRamp = false;
     this.manualLogRating = 0;
     document.getElementById('manual-log-worked-on').value = '';
     document.getElementById('manual-log-notes').value = '';
     this.renderManualLogRating();
+    this.updateManualLogModalUI();
   },
 
   saveManualLog() {
@@ -2519,6 +2604,43 @@ const App = {
     }
 
     const completedAt = new Date(startedAt.getTime() + durationSeconds * 1000);
+
+    if (this.manualLogEditingId) {
+      const existing = Storage.getSessionById(this.manualLogEditingId);
+      if (!existing) {
+        alert('Session not found.');
+        this.closeManualLog();
+        return;
+      }
+
+      const updates = {
+        itemId: isOther ? null : item.id,
+        itemName: isOther ? workedOn : itemDisplayName(item),
+        workedOn: isOther ? workedOn : '',
+        tempo,
+        durationSeconds,
+        plannedDurationSeconds: durationSeconds,
+        startedAt: startedAt.toISOString(),
+        completedAt: completedAt.toISOString(),
+        rating,
+        notes
+      };
+
+      if (this.manualLogEditingHasRamp) {
+        const startTempoRaw = parseInt(document.getElementById('manual-log-start-tempo').value, 10);
+        const startTempo = Number.isNaN(startTempoRaw) ? tempo : Math.max(40, Math.min(300, startTempoRaw));
+        updates.startTempo = startTempo;
+        updates.endTempo = tempo;
+      }
+
+      Storage.updateSession(this.manualLogEditingId, updates);
+      this.closeManualLog();
+      this.refreshLastSessionCard();
+      this.refreshItemSelects();
+      this.renderLog();
+      return;
+    }
+
     const recorded = {
       id: generateId(),
       itemId: isOther ? null : item.id,
@@ -2745,8 +2867,7 @@ const App = {
     if (notes) {
       feedbackBits.push(`<div class="log-feedback"><div class="log-notes">${escapeHtml(notes)}</div></div>`);
     }
-    const hasFeedback = ratingHtml || notes || (s.workedOn || '').trim();
-    const editLabel = hasFeedback ? 'Edit notes' : 'Add notes';
+    const editLabel = 'Edit';
     const modeLabel = s.mode === 'free'
       ? ' <span class="log-mode">Free</span>'
       : s.mode === 'manual'
