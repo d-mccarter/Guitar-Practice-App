@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "22bab42e-c15a-4c3a-a9d0-fb9bf25bd881",
+      "itemId": null,
+      "itemName": "Here comes the sun",
+      "workedOn": "Here comes the sun",
+      "tempo": 100,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 249,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-08-12T18:26:41.676Z",
+      "completedAt": "2026-08-12T18:32:40.719Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "f19b78c6-478b-49ba-979d-79beadfcf1a3",
       "itemId": null,
       "itemName": "Jazz ch 1 - pentatonic patterns",
