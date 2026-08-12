@@ -418,10 +418,10 @@ function timeOfDayLabel(date) {
 
 /**
  * Cluster sessions into practice sessions when consecutive entries
- * (by startedAt) are within maxGapMs of each other (default 15 min).
+ * (by startedAt) are within maxGapMs of each other (default 30 min).
  * Returns groups newest-first; entries within each group oldest-first.
  */
-function groupSessionsByProximity(sessions, maxGapMs = 15 * 60 * 1000) {
+function groupSessionsByProximity(sessions, maxGapMs = 30 * 60 * 1000) {
   const chronological = (sessions || [])
     .slice()
     .filter((s) => s && s.startedAt && !Number.isNaN(new Date(s.startedAt).getTime()))
