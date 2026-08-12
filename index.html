@@ -504,7 +504,7 @@
   <div class="modal-backdrop" id="manual-log-modal" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="manual-log-title">
       <h3 id="manual-log-title">Log practice</h3>
-      <p class="field-hint">Add a session you practiced without the metronome timer.</p>
+      <p class="field-hint" id="manual-log-hint">Add a session you practiced without the metronome timer.</p>
       <label class="field">
         <span>Practice item</span>
         <select id="manual-log-item">
@@ -524,8 +524,16 @@
             <button type="button" class="btn-icon" id="manual-log-duration-up" aria-label="Increase duration">+</button>
           </div>
         </div>
+        <div class="field" id="manual-log-start-tempo-field" hidden>
+          <span>Start tempo (BPM)</span>
+          <div class="number-stepper">
+            <button type="button" class="btn-icon" id="manual-log-start-tempo-down" aria-label="Decrease start tempo">−</button>
+            <input type="number" id="manual-log-start-tempo" min="40" max="300" value="120" aria-label="Start tempo BPM">
+            <button type="button" class="btn-icon" id="manual-log-start-tempo-up" aria-label="Increase start tempo">+</button>
+          </div>
+        </div>
         <div class="field">
-          <span>Tempo (BPM)</span>
+          <span id="manual-log-tempo-label">Tempo (BPM)</span>
           <div class="number-stepper">
             <button type="button" class="btn-icon" id="manual-log-tempo-down" aria-label="Decrease tempo">−</button>
             <input type="number" id="manual-log-tempo" min="40" max="300" value="120" aria-label="Tempo BPM">
