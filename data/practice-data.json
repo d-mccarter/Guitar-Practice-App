@@ -102,6 +102,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "61d71982-7527-4223-8aca-96ca6e355f60",
+      "itemId": null,
+      "itemName": "Routine 8 run through",
+      "workedOn": "Routine 8 run through",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-08-13T18:52:00.000Z",
+      "completedAt": "2026-08-13T19:02:00.000Z",
+      "completed": true,
+      "rating": 3.5,
+      "notes": ""
+    },
+    {
       "id": "6110f7b4-e43c-46a2-a0f3-4377214b8337",
       "itemId": null,
       "itemName": "Jazz c1 - pentatonic patterns",
