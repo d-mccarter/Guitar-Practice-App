@@ -109,6 +109,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "093b1751-73b0-4e25-b8c9-7782a1981bb0",
+      "itemId": null,
+      "itemName": "Pentatonic 1",
+      "workedOn": "Pentatonic 1",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 200,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-08-15T20:06:13.250Z",
+      "completedAt": "2026-08-15T20:09:47.844Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "d5e34375-0537-4f18-918a-b4f9fb1442e7",
       "itemId": null,
       "itemName": "8k/8l",
