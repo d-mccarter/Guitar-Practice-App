@@ -109,6 +109,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "20379152-e792-42cb-afff-c96bba78e57e",
+      "itemId": null,
+      "itemName": "8j, 8k",
+      "workedOn": "8j, 8k",
+      "tempo": 80,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 587,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-08-15T04:17:02.981Z",
+      "completedAt": "2026-08-15T04:27:25.331Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "8c384bfc-8591-4f1b-ad4a-4275c131ebf0",
       "itemId": null,
       "itemName": "Jazz ch1-pentatonic pattern 2",
