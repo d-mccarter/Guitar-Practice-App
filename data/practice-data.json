@@ -109,6 +109,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "b1ca6ed9-df51-4822-9d54-08492d6c2adb",
+      "itemId": null,
+      "itemName": "Jazz c1 - pentatonic pattern 2",
+      "workedOn": "Jazz c1 - pentatonic pattern 2",
+      "tempo": 100,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 568,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-08-15T04:27:42.392Z",
+      "completedAt": "2026-08-15T04:38:59.983Z",
+      "completed": true,
+      "rating": 3.5,
+      "notes": ""
+    },
+    {
       "id": "20379152-e792-42cb-afff-c96bba78e57e",
       "itemId": null,
       "itemName": "8j, 8k",
