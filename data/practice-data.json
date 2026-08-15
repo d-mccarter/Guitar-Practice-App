@@ -109,6 +109,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "d5e34375-0537-4f18-918a-b4f9fb1442e7",
+      "itemId": null,
+      "itemName": "8k/8l",
+      "workedOn": "8k/8l",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 1627,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-08-15T19:38:09.521Z",
+      "completedAt": "2026-08-15T20:05:44.136Z",
+      "completed": true,
+      "rating": 3,
+      "notes": ""
+    },
+    {
       "id": "83822418-53af-4c13-8615-4fd6eaaacb60",
       "itemId": "49d86dfb-d482-4923-959f-60ee424408ce",
       "itemName": "C-Shape Warmup",
