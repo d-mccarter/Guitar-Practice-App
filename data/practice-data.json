@@ -109,6 +109,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "83822418-53af-4c13-8615-4fd6eaaacb60",
+      "itemId": "49d86dfb-d482-4923-959f-60ee424408ce",
+      "itemName": "C-Shape Warmup",
+      "workedOn": "",
+      "tempo": 135,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 153,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-08-15T17:19:04.447Z",
+      "completedAt": "2026-08-15T17:55:42.375Z",
+      "completed": false,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "b1ca6ed9-df51-4822-9d54-08492d6c2adb",
       "itemId": null,
       "itemName": "Jazz c1 - pentatonic pattern 2",
