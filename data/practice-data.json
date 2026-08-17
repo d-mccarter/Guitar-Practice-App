@@ -109,6 +109,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "8ee06fb4-2498-4e88-b17c-47a75608a212",
+      "itemId": null,
+      "itemName": "Pentatonic pattern 2",
+      "workedOn": "Pentatonic pattern 2",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 550,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-08-17T02:03:19.486Z",
+      "completedAt": "2026-08-17T02:12:45.400Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "b4ac3c50-d8e9-4e21-9055-bf98615306b1",
       "itemId": "77798049-14f3-4153-9992-784cadba1090",
       "itemName": "8k",
