@@ -143,23 +143,6 @@
       "notes": ""
     },
     {
-      "id": "02e8ade6-5e84-461f-885b-1eefa5e0344e",
-      "itemId": "8d886925-762f-40d7-9bae-6b70fcc41263",
-      "itemName": "8l",
-      "workedOn": "",
-      "tempo": 60,
-      "startTempo": null,
-      "endTempo": null,
-      "mode": "practice",
-      "durationSeconds": 31,
-      "plannedDurationSeconds": 180,
-      "startedAt": "2026-08-17T16:45:55.022Z",
-      "completedAt": "2026-08-17T16:46:34.241Z",
-      "completed": false,
-      "rating": 0,
-      "notes": ""
-    },
-    {
       "id": "47bcd3e1-9ec8-4c45-9602-b986e62b801d",
       "itemId": "77798049-14f3-4153-9992-784cadba1090",
       "itemName": "8k",
