@@ -109,6 +109,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "b4ac3c50-d8e9-4e21-9055-bf98615306b1",
+      "itemId": "77798049-14f3-4153-9992-784cadba1090",
+      "itemName": "8k",
+      "workedOn": "",
+      "tempo": 70,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 984,
+      "plannedDurationSeconds": 120,
+      "startedAt": "2026-08-17T01:46:12.887Z",
+      "completedAt": "2026-08-17T02:02:43.482Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "4f95bc29-49fc-4490-bbe8-0af3b6fe7173",
       "itemId": "89970727-7224-4dd3-ad8d-dfb4170b8be6",
       "itemName": "C-shape triplets",
