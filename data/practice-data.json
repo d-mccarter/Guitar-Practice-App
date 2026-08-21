@@ -130,6 +130,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "bb4d6019-84bc-490d-a987-ff3255d7840b",
+      "itemId": "55776a1e-5c73-47bd-b54e-3f79e02108d1",
+      "itemName": "Spider 2",
+      "workedOn": "",
+      "tempo": 90,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 34,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-08-21T02:35:12.301Z",
+      "completedAt": "2026-08-21T02:35:55.990Z",
+      "completed": false,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "bc5d4e02-d0cf-4807-9b94-45739d1f2362",
       "itemId": "cb1752b8-9b6d-4ed7-884a-85cbd77aa090",
       "itemName": "Pentatonic pattern 3",
