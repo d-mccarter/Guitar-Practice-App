@@ -130,6 +130,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "8c3e9e13-92b8-44b2-b7d1-8447b9829503",
+      "itemId": "77798049-14f3-4153-9992-784cadba1090",
+      "itemName": "8k",
+      "workedOn": "",
+      "tempo": 90,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 186,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-08-21T17:01:27.140Z",
+      "completedAt": "2026-08-21T17:04:37.101Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "01e1160f-9f8d-47c8-8e6e-ccb0a8fdfd81",
       "itemId": "55776a1e-5c73-47bd-b54e-3f79e02108d1",
       "itemName": "Spider 2",
