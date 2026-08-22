@@ -1518,21 +1518,12 @@ const App = {
     summary.innerHTML = `<strong>${escapeHtml(sessionDisplayName(session))}</strong> — ${formatDuration(session.durationSeconds)} at ${tempoLabel}${feedbackHtml}`;
   },
 
-  /** Show last log for the current selection (free practice, item, or cycle). */
+  /** Show the most recently logged session at the bottom of the metronome. */
   refreshLastSessionCard() {
     const card = document.getElementById('last-session-card');
     if (!card) return;
 
-    const selection = parsePracticeSelection(document.getElementById('practice-item-select')?.value);
-    let session = null;
-    if (selection.type === 'none') {
-      session = getLatestFreeSession();
-    } else if (selection.type === 'item') {
-      session = getLatestSessionForItem(selection.itemId);
-    } else if (selection.type === 'cycle') {
-      session = getLatestSessionForCycle(selection.cycleId);
-    }
-
+    const session = getLatestSession();
     if (session) this.showLastSession(session);
     else card.hidden = true;
   },

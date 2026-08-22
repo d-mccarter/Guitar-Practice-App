@@ -571,6 +571,13 @@ function cycleSelectLabel(cycle) {
   return `${cycle.name || 'Untitled cycle'} (${steps}×${rounds})`;
 }
 
+/** Most recently started session across the whole log (newest first). */
+function getLatestSession() {
+  const sessions = Storage.getSessions();
+  if (!sessions.length) return null;
+  return sessions.slice().sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))[0];
+}
+
 function getLatestSessionForItem(itemId) {
   const sessions = Storage.getSessionsForItem(itemId);
   if (!sessions.length) return null;
