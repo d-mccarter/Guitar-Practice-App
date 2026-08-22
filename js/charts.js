@@ -14,17 +14,30 @@ const Charts = {
     return { ctx, w, h };
   },
 
-  _drawGrid(ctx, w, h, padding) {
+  _drawGrid(ctx, w, h, padding, intervals = 4) {
     ctx.strokeStyle = '#2e2e38';
     ctx.lineWidth = 1;
     const chartH = h - padding.top - padding.bottom;
-    for (let i = 0; i <= 4; i++) {
-      const y = padding.top + (chartH / 4) * i;
+    const steps = Math.max(1, intervals);
+    for (let i = 0; i <= steps; i++) {
+      const y = padding.top + (chartH / steps) * i;
       ctx.beginPath();
       ctx.moveTo(padding.left, y);
       ctx.lineTo(w - padding.right, y);
       ctx.stroke();
     }
+  },
+
+  /** Y-axis ceiling and tick step (minutes) for the practice-time chart. */
+  _timeChartYScale(maxMinutes, period) {
+    const rawMax = Math.max(maxMinutes || 0, 1);
+    if (period === 'week') {
+      const step = 15;
+      const yMax = Math.max(step, Math.ceil(rawMax / step) * step);
+      return { yMax, step, intervals: yMax / step };
+    }
+    // Month / year: keep four equal bands sized to the data max.
+    return { yMax: rawMax, step: rawMax / 4, intervals: 4 };
   },
 
   drawTempoChart(canvas, sessions) {
@@ -228,18 +241,19 @@ const Charts = {
     }
 
     const maxMin = Math.max(...buckets.map((b) => b.minutes), 1);
+    const { yMax, step, intervals } = this._timeChartYScale(maxMin, period);
     const chartW = w - padding.left - padding.right;
     const chartH = h - padding.top - padding.bottom;
     const barW = Math.min(40, chartW / buckets.length - 8);
 
-    this._drawGrid(ctx, w, h, padding);
+    this._drawGrid(ctx, w, h, padding, intervals);
 
     ctx.fillStyle = '#888894';
     ctx.font = '11px system-ui, sans-serif';
     ctx.textAlign = 'right';
-    for (let i = 0; i <= 4; i++) {
-      const val = Math.round(maxMin - (maxMin / 4) * i);
-      const y = padding.top + (chartH / 4) * i;
+    for (let i = 0; i <= intervals; i++) {
+      const val = Math.round(yMax - step * i);
+      const y = padding.top + (chartH / intervals) * i;
       ctx.fillText(val + 'm', padding.left - 4, y + 4);
     }
 
@@ -247,7 +261,7 @@ const Charts = {
     const labelEvery = buckets.length > 16 ? 2 : 1;
 
     buckets.forEach((bucket, i) => {
-      const barH = (bucket.minutes / maxMin) * chartH;
+      const barH = (bucket.minutes / yMax) * chartH;
       const x = padding.left + i * (chartW / buckets.length) + (chartW / buckets.length - barW) / 2;
       const y = padding.top + chartH - barH;
 
