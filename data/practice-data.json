@@ -130,6 +130,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "c33b9eca-d05f-4feb-82f3-4672c100a772",
+      "itemId": "cb1752b8-9b6d-4ed7-884a-85cbd77aa090",
+      "itemName": "Pentatonic pattern 3",
+      "workedOn": "",
+      "tempo": 100,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 386,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-08-22T02:50:54.974Z",
+      "completedAt": "2026-08-22T03:00:16.203Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "f2fcb153-a423-4646-abde-6b6615376be4",
       "itemId": "8d886925-762f-40d7-9bae-6b70fcc41263",
       "itemName": "8l",
