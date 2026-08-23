@@ -2959,7 +2959,7 @@ const App = {
     const periodSubtitles = {
       week: 'Minutes practiced each day',
       month: 'Minutes practiced each day',
-      year: 'Minutes practiced each month'
+      year: 'Hours practiced each month'
     };
     if (timeSubtitle) {
       timeSubtitle.textContent = periodSubtitles[period] || periodSubtitles.week;
