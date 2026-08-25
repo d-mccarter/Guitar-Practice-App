@@ -130,6 +130,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "fd53c0cb-b02b-4931-905e-abac85a3e1e0",
+      "itemId": "1cac5d46-2e52-4fdd-a98e-08f7501a42de",
+      "itemName": "8f",
+      "workedOn": "",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 93,
+      "plannedDurationSeconds": 90,
+      "startedAt": "2026-08-25T01:39:33.873Z",
+      "completedAt": "2026-08-25T01:41:09.218Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "1e49ec28-9002-4906-81e0-11cb079f270d",
       "itemId": "fd41d2f7-6a97-452e-b031-9b6b8754ed49",
       "itemName": "Pentatonic 1 & 2",
