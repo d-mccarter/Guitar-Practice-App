@@ -662,8 +662,11 @@ const App = {
     if (!menu || !select) return;
 
     const current = select.value;
-    const items = Storage.getItems();
-    const cycles = Storage.getCycles();
+    const items = sortByMostRecentlyPracticed(Storage.getItems(), (item) => getLatestSessionForItem(item.id));
+    const cycles = sortByMostRecentlyPracticed(
+      Storage.getCycles().filter((cycle) => this.resolveCycleSteps(cycle).length),
+      (cycle) => getLatestSessionForCycle(cycle.id)
+    );
     const parts = [];
 
     const optionHtml = (value, title, metaHtml, isPlaceholder = false) => {
@@ -680,10 +683,9 @@ const App = {
       formatLastSessionMetaHtml(getLatestFreeSession())
     ));
 
-    const validCycles = cycles.filter((cycle) => this.resolveCycleSteps(cycle).length);
-    if (validCycles.length) {
+    if (cycles.length) {
       parts.push('<div class="rich-select-group-label">Cycles</div>');
-      validCycles.forEach((cycle) => {
+      cycles.forEach((cycle) => {
         const value = `cycle:${cycle.id}`;
         const session = getLatestSessionForCycle(cycle.id);
         parts.push(optionHtml(value, cycleSelectLabel(cycle), formatLastSessionMetaHtml(session)));
@@ -1426,59 +1428,50 @@ const App = {
     this.setPracticeFormDisabled(false);
 
     // durationSeconds is active practice time only (paused gaps never incremented elapsedSeconds).
+    // Both item and free sessions stay pending until Save — Don't log discards without writing.
     const shouldLogItem = session?.itemId && session.elapsedSeconds >= MIN_LOG_SECONDS && !session.freePractice;
     const canLogFree = session?.freePractice && session.elapsedSeconds >= MIN_LOG_SECONDS;
 
-    if (shouldLogItem) {
+    if (shouldLogItem || canLogFree) {
       const loggedTempo = session.mode === 'ramp'
         ? this.metronome.getRoundedBpm()
         : session.tempo;
-
-      const recorded = Storage.addSession({
-        id: generateId(),
-        itemId: session.itemId,
-        itemName: session.itemName,
-        workedOn: '',
-        tempo: loggedTempo,
-        startTempo: session.startTempo,
-        endTempo: session.endTempo,
-        mode: session.mode,
-        durationSeconds: session.elapsedSeconds,
-        plannedDurationSeconds: session.plannedDurationSeconds,
-        startedAt: session.startedAt,
-        completedAt: new Date().toISOString(),
-        completed: completed,
-        rating: 0,
-        notes: ''
-      });
-
-      this.refreshLastSessionCard();
-      statusEl.textContent = completed ? 'Session complete!' : 'Session saved';
-      this.openSessionFeedback(recorded, { editing: false });
-      this.refreshItemSelects();
-      this.renderLog();
-    } else if (canLogFree) {
-      const loggedTempo = session.mode === 'ramp'
-        ? this.metronome.getRoundedBpm()
-        : session.tempo;
-      const draft = {
-        id: generateId(),
-        itemId: null,
-        itemName: null,
-        workedOn: '',
-        tempo: loggedTempo,
-        startTempo: session.startTempo,
-        endTempo: session.endTempo,
-        mode: 'free',
-        durationSeconds: session.elapsedSeconds,
-        plannedDurationSeconds: session.plannedDurationSeconds,
-        startedAt: session.startedAt,
-        completedAt: new Date().toISOString(),
-        completed: true,
-        rating: 0,
-        notes: ''
-      };
-      statusEl.textContent = 'Session ended';
+      const draft = shouldLogItem
+        ? {
+            id: generateId(),
+            itemId: session.itemId,
+            itemName: session.itemName,
+            workedOn: '',
+            tempo: loggedTempo,
+            startTempo: session.startTempo,
+            endTempo: session.endTempo,
+            mode: session.mode,
+            durationSeconds: session.elapsedSeconds,
+            plannedDurationSeconds: session.plannedDurationSeconds,
+            startedAt: session.startedAt,
+            completedAt: new Date().toISOString(),
+            completed,
+            rating: 0,
+            notes: ''
+          }
+        : {
+            id: generateId(),
+            itemId: null,
+            itemName: null,
+            workedOn: '',
+            tempo: loggedTempo,
+            startTempo: session.startTempo,
+            endTempo: session.endTempo,
+            mode: 'free',
+            durationSeconds: session.elapsedSeconds,
+            plannedDurationSeconds: session.plannedDurationSeconds,
+            startedAt: session.startedAt,
+            completedAt: new Date().toISOString(),
+            completed: true,
+            rating: 0,
+            notes: ''
+          };
+      statusEl.textContent = shouldLogItem && completed ? 'Session complete!' : 'Session ended';
       this.openSessionFeedback(draft, { editing: false, pending: true });
     } else {
       statusEl.textContent = 'Ready';
@@ -1612,8 +1605,8 @@ const App = {
     const workedOnInput = document.getElementById('session-feedback-worked-on');
     const isFree = session.mode === 'free';
 
-    if (pending && isFree) {
-      title.textContent = 'Log free session';
+    if (pending) {
+      title.textContent = isFree ? 'Log free session' : 'Log session';
       skipBtn.textContent = "Don't log";
     } else if (editing) {
       title.textContent = 'Edit session notes';
@@ -1698,6 +1691,7 @@ const App = {
 
       this.closeSessionFeedback();
       this.refreshLastSessionCard();
+      this.refreshItemSelects();
       document.getElementById('session-status').textContent = 'Session saved';
       this.renderLog();
       return;
@@ -2744,11 +2738,18 @@ const App = {
   refreshItemSelects() {
     const items = Storage.getItems();
     const cycles = Storage.getCycles();
+    const practiceItems = sortByMostRecentlyPracticed(items, (item) => getLatestSessionForItem(item.id));
+    const practiceCycles = sortByMostRecentlyPracticed(
+      cycles.filter((cycle) => this.resolveCycleSteps(cycle).length),
+      (cycle) => getLatestSessionForCycle(cycle.id)
+    );
     const configs = [
       {
         el: document.getElementById('practice-item-select'),
         placeholder: '<option value="">Free practice</option>',
-        includeCycles: true
+        includeCycles: true,
+        items: practiceItems,
+        cycles: practiceCycles
       },
       {
         el: document.getElementById('log-filter-item'),
@@ -2765,27 +2766,28 @@ const App = {
       }
     ];
 
-    configs.forEach(({ el, placeholder, extra = '', includeCycles = false }) => {
+    configs.forEach(({ el, placeholder, extra = '', includeCycles = false, items: configItems, cycles: configCycles }) => {
       if (!el) return;
       const current = el.value;
+      const listItems = configItems || items;
+      const listCycles = configCycles || cycles;
       let html = placeholder + extra;
 
-      if (includeCycles && cycles.length) {
+      if (includeCycles && listCycles.length) {
         html += '<optgroup label="Cycles">' +
-          cycles.map((cycle) => {
-            const steps = this.resolveCycleSteps(cycle).length;
-            if (!steps) return '';
+          listCycles.map((cycle) => {
+            if (!configCycles && !this.resolveCycleSteps(cycle).length) return '';
             return `<option value="cycle:${cycle.id}">${escapeHtml(cycleSelectLabel(cycle))}</option>`;
           }).join('') +
           '</optgroup>';
       }
 
-      if (includeCycles && items.length) {
+      if (includeCycles && listItems.length) {
         html += '<optgroup label="Items">' +
-          items.map((i) => `<option value="${i.id}">${escapeHtml(itemSelectLabel(i))}</option>`).join('') +
+          listItems.map((i) => `<option value="${i.id}">${escapeHtml(itemSelectLabel(i))}</option>`).join('') +
           '</optgroup>';
       } else {
-        html += items.map((i) => `<option value="${i.id}">${escapeHtml(itemSelectLabel(i))}</option>`).join('');
+        html += listItems.map((i) => `<option value="${i.id}">${escapeHtml(itemSelectLabel(i))}</option>`).join('');
       }
 
       el.innerHTML = html;

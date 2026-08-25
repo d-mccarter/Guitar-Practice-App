@@ -656,6 +656,27 @@ function getLatestFreeSession() {
   return sessions.slice().sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))[0];
 }
 
+/** Milliseconds since epoch for sorting; 0 if never practiced / invalid. */
+function sessionRecencyMs(session) {
+  if (!session?.startedAt) return 0;
+  const t = new Date(session.startedAt).getTime();
+  return Number.isNaN(t) ? 0 : t;
+}
+
+/**
+ * Sort practice choices by most recently practiced (newest first).
+ * Never-practiced entries stay at the bottom; ties keep relative order.
+ */
+function sortByMostRecentlyPracticed(entries, getLatestSession) {
+  return entries
+    .map((entry, index) => ({ entry, index, recency: sessionRecencyMs(getLatestSession(entry)) }))
+    .sort((a, b) => {
+      if (b.recency !== a.recency) return b.recency - a.recency;
+      return a.index - b.index;
+    })
+    .map(({ entry }) => entry);
+}
+
 function sessionDisplayName(session) {
   const workedOn = (session.workedOn || '').trim();
   if (workedOn) return workedOn;
