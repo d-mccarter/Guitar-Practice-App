@@ -138,10 +138,10 @@
       "startTempo": null,
       "endTempo": null,
       "mode": "manual",
-      "durationSeconds": 300,
-      "plannedDurationSeconds": 300,
+      "durationSeconds": 420,
+      "plannedDurationSeconds": 420,
       "startedAt": "2026-08-25T17:20:00.000Z",
-      "completedAt": "2026-08-25T17:25:00.000Z",
+      "completedAt": "2026-08-25T17:27:00.000Z",
       "completed": true,
       "rating": 0,
       "notes": ""
