@@ -130,6 +130,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "e814ba02-47ef-4815-8aed-be1fdea9cb94",
+      "itemId": "77798049-14f3-4153-9992-784cadba1090",
+      "itemName": "8k",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 101,
+      "plannedDurationSeconds": 90,
+      "startedAt": "2026-08-25T01:58:50.941Z",
+      "completedAt": "2026-08-25T02:00:34.586Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "ac4273b2-de93-4467-9e36-b2f667e99ae9",
       "itemId": null,
       "itemName": "8g",
