@@ -130,6 +130,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "b4abe7bd-16c1-4f50-a2d3-29684686154e",
+      "itemId": "77798049-14f3-4153-9992-784cadba1090",
+      "itemName": "8k",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 181,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-08-25T17:03:15.122Z",
+      "completedAt": "2026-08-25T17:06:20.916Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "88f5f4e6-7412-456d-9386-7818ce6af535",
       "itemId": "6ed60f89-c6b6-4f07-a6fa-577673edff1a",
       "itemName": "Arkansas Traveller Part 2",
