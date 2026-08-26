@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "154a50b7-1e0b-480d-93bc-213c1c917fdd",
+      "itemId": null,
+      "itemName": "Here comes the sun",
+      "workedOn": "Here comes the sun",
+      "tempo": 100,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 360,
+      "plannedDurationSeconds": 360,
+      "startedAt": "2026-08-26T02:12:00.000Z",
+      "completedAt": "2026-08-26T02:18:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "6f811178-086f-4a93-8010-578d33108221",
       "itemId": "cb1752b8-9b6d-4ed7-884a-85cbd77aa090",
       "itemName": "Pentatonic pattern 3",
