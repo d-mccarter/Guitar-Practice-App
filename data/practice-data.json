@@ -125,6 +125,13 @@
       "description": "",
       "targetTempo": null,
       "createdAt": "2026-08-21T02:35:04.947Z"
+    },
+    {
+      "id": "a1c64c67-af2f-4038-a413-803e0e5ff47f",
+      "name": "8e",
+      "description": "Pinky-index pull offs",
+      "targetTempo": 160,
+      "createdAt": "2026-08-26T01:33:56.192Z"
     }
   ],
   "cycles": [],
