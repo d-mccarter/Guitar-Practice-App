@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "6f811178-086f-4a93-8010-578d33108221",
+      "itemId": "cb1752b8-9b6d-4ed7-884a-85cbd77aa090",
+      "itemName": "Pentatonic pattern 3",
+      "workedOn": "",
+      "tempo": 100,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 306,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-08-26T01:59:37.560Z",
+      "completedAt": "2026-08-26T02:05:08.859Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "d6e115de-9b90-4b71-8b5a-36114110f978",
       "itemId": "fd41d2f7-6a97-452e-b031-9b6b8754ed49",
       "itemName": "Pentatonic 1 & 2",
