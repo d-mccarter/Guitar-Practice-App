@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "07357669-0698-4bfe-b37a-2e22b5426360",
+      "itemId": "1cac5d46-2e52-4fdd-a98e-08f7501a42de",
+      "itemName": "8f",
+      "workedOn": "",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 324,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-08-27T01:48:00.800Z",
+      "completedAt": "2026-08-27T01:53:31.682Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "82951c61-41a5-464e-a901-e51772518b44",
       "itemId": "970ab2fb-6f59-4be2-ba34-c94c2f6cba60",
       "itemName": "Routine 8",
