@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "82951c61-41a5-464e-a901-e51772518b44",
+      "itemId": "970ab2fb-6f59-4be2-ba34-c94c2f6cba60",
+      "itemName": "Routine 8",
+      "workedOn": "",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-08-27T01:46:00.000Z",
+      "completedAt": "2026-08-27T01:56:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": "Work on 8e, 8f, 8j"
+    },
+    {
       "id": "154a50b7-1e0b-480d-93bc-213c1c917fdd",
       "itemId": null,
       "itemName": "Here comes the sun",
