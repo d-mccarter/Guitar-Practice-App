@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "d17424af-ff22-4dae-aaff-ec43ea30ae6e",
+      "itemId": null,
+      "itemName": "Pull off practice",
+      "workedOn": "Pull off practice",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-08-29T19:13:00.000Z",
+      "completedAt": "2026-08-29T19:23:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "f3013850-24c8-4ff2-ad4d-36d0994e54c0",
       "itemId": "cb1752b8-9b6d-4ed7-884a-85cbd77aa090",
       "itemName": "Pentatonic pattern 3",
