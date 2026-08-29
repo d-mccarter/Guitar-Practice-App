@@ -8,8 +8,8 @@
   <meta name="theme-color" content="#0f0f12">
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-192.png?v=electric">
-  <link rel="stylesheet" href="css/styles.css?v=76">
+  <link rel="apple-touch-icon" href="icons/icon-192.png?v=77electric">
+  <link rel="stylesheet" href="css/styles.css?v=77">
 </head>
 <body>
   <header class="app-header">
@@ -497,6 +497,7 @@
       <div class="form-actions">
         <button type="button" class="btn btn-primary" id="session-feedback-save-btn">Save</button>
         <button type="button" class="btn btn-secondary" id="session-feedback-skip-btn">Skip</button>
+        <button type="button" class="btn btn-secondary" id="session-feedback-resume-btn" hidden>Cancel</button>
       </div>
     </div>
   </div>
@@ -571,11 +572,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=76"></script>
-  <script src="js/storage.js?v=76"></script>
-  <script src="js/metronome.js?v=76"></script>
-  <script src="js/charts.js?v=76"></script>
-  <script src="js/app.js?v=76"></script>
+  <script src="js/github-sync.js?v=77"></script>
+  <script src="js/storage.js?v=77"></script>
+  <script src="js/metronome.js?v=77"></script>
+  <script src="js/charts.js?v=77"></script>
+  <script src="js/app.js?v=77"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
