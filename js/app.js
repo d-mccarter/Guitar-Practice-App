@@ -14,6 +14,7 @@ const App = {
   practiceMode: 'normal',
   feedbackSessionId: null,
   feedbackPendingSession: null,
+  pendingEndSession: false,
   feedbackRating: 0,
   feedbackEditing: false,
   manualLogRating: 0,
@@ -1393,23 +1394,22 @@ const App = {
       this.playTimerBellIfEnabled();
     }
 
-    this.metronome.stop();
-    this.metronome.clearRamp();
-    clearInterval(this.timerInterval);
-    this.timerInterval = null;
-    this.releaseWakeLock();
-    this.resetMeasureBeatDisplay();
-
     const statusEl = document.getElementById('session-status');
     const timerDisplay = document.getElementById('session-timer');
     const tempoInput = document.getElementById('tempo-bpm');
     const inCycle = !!this.cycleRun;
 
-    this.session = null;
-
-    if (timerDisplay) timerDisplay.classList.remove('overtime');
-
     if (inCycle) {
+      this.metronome.stop();
+      this.metronome.clearRamp();
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+      this.releaseWakeLock();
+      this.resetMeasureBeatDisplay();
+      this.session = null;
+
+      if (timerDisplay) timerDisplay.classList.remove('overtime');
+
       this.logCycleStepSession(session, completed);
       if (completed) {
         // Keep controls locked while auto-advancing; notes prompt waits until cycle end.
@@ -1423,16 +1423,26 @@ const App = {
       return;
     }
 
-    this.setSessionControlsVisible(false);
-    statusEl.classList.remove('running', 'paused');
-    this.setPracticeFormDisabled(false);
-
     // durationSeconds is active practice time only (paused gaps never incremented elapsedSeconds).
     // Both item and free sessions stay pending until Save — Don't log discards without writing.
     const shouldLogItem = session?.itemId && session.elapsedSeconds >= MIN_LOG_SECONDS && !session.freePractice;
     const canLogFree = session?.freePractice && session.elapsedSeconds >= MIN_LOG_SECONDS;
 
     if (shouldLogItem || canLogFree) {
+      // Pause instead of fully stopping so Cancel can resume the live session.
+      if (session && !session.paused) {
+        this.session.paused = true;
+        this.metronome.pause();
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+        this.releaseWakeLock();
+      }
+      this.pendingEndSession = true;
+
+      this.setSessionControlsVisible(false);
+      statusEl.classList.remove('running', 'paused');
+      this.setPracticeFormDisabled(false);
+
       const loggedTempo = session.mode === 'ramp'
         ? this.metronome.getRoundedBpm()
         : session.tempo;
@@ -1473,9 +1483,22 @@ const App = {
           };
       statusEl.textContent = shouldLogItem && completed ? 'Session complete!' : 'Session ended';
       this.openSessionFeedback(draft, { editing: false, pending: true });
-    } else {
-      statusEl.textContent = 'Ready';
+      return;
     }
+
+    this.metronome.stop();
+    this.metronome.clearRamp();
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.releaseWakeLock();
+    this.resetMeasureBeatDisplay();
+    this.session = null;
+
+    if (timerDisplay) timerDisplay.classList.remove('overtime');
+
+    this.setSessionControlsVisible(false);
+    statusEl.classList.remove('running', 'paused');
+    this.setPracticeFormDisabled(false);
 
     if (this.practiceMode === 'ramp') {
       const minutes = parseTimerMinutes(document.getElementById('ramp-minutes').value, 5);
@@ -1489,6 +1512,68 @@ const App = {
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
       document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
     }
+
+    statusEl.textContent = 'Ready';
+  },
+
+  /** Tear down a session after Save or Don't log on the pending end dialog. */
+  finalizePendingEndSession() {
+    if (!this.pendingEndSession) return;
+    this.pendingEndSession = false;
+
+    this.metronome.stop();
+    this.metronome.clearRamp();
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.releaseWakeLock();
+    this.resetMeasureBeatDisplay();
+    this.session = null;
+
+    const timerDisplay = document.getElementById('session-timer');
+    const tempoInput = document.getElementById('tempo-bpm');
+    if (timerDisplay) timerDisplay.classList.remove('overtime');
+
+    if (this.practiceMode === 'ramp') {
+      const minutes = parseTimerMinutes(document.getElementById('ramp-minutes').value, 5);
+      document.getElementById('ramp-minutes').value = formatTimerMinutes(minutes);
+      timerDisplay.textContent = formatDuration(timerMinutesToSeconds(minutes));
+      this.updatePracticeModeUI();
+    } else if (this.isFreePracticeSelected()) {
+      timerDisplay.textContent = '0:00';
+      document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
+    } else {
+      timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
+      document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
+    }
+  },
+
+  /** Return to the live session after accidentally ending it. */
+  async cancelPendingEndSession() {
+    if (!this.pendingEndSession || !this.session) return;
+
+    this.pendingEndSession = false;
+    this.feedbackPendingSession = null;
+
+    const modal = document.getElementById('session-feedback-modal');
+    modal.hidden = true;
+    this.feedbackSessionId = null;
+    this.feedbackRating = 0;
+    this.feedbackEditing = false;
+    document.getElementById('session-feedback-worked-on').value = '';
+    document.getElementById('session-feedback-notes').value = '';
+    this.renderFeedbackRating();
+
+    await this.resumeSession();
+    this.setSessionControlsVisible(true);
+    this.setPracticeFormDisabled(true);
+  },
+
+  dismissSessionFeedback() {
+    if (this.pendingEndSession) {
+      this.finalizePendingEndSession();
+      document.getElementById('session-status').textContent = 'Ready';
+    }
+    this.closeSessionFeedback();
   },
 
   showLastSession(session) {
@@ -1526,6 +1611,7 @@ const App = {
     const notes = document.getElementById('session-feedback-notes');
     const saveBtn = document.getElementById('session-feedback-save-btn');
     const skipBtn = document.getElementById('session-feedback-skip-btn');
+    const resumeBtn = document.getElementById('session-feedback-resume-btn');
 
     this.bindRatingSelect({
       selectId: 'session-feedback-rating',
@@ -1534,15 +1620,16 @@ const App = {
     });
 
     saveBtn.addEventListener('click', () => this.saveSessionFeedback());
-    skipBtn.addEventListener('click', () => this.closeSessionFeedback());
+    skipBtn.addEventListener('click', () => this.dismissSessionFeedback());
+    resumeBtn.addEventListener('click', () => this.cancelPendingEndSession());
 
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) this.closeSessionFeedback();
+      if (e.target === modal) this.dismissSessionFeedback();
     });
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !modal.hidden) {
-        this.closeSessionFeedback();
+        this.dismissSessionFeedback();
       }
     });
 
@@ -1601,6 +1688,7 @@ const App = {
     const summary = document.getElementById('session-feedback-summary');
     const notes = document.getElementById('session-feedback-notes');
     const skipBtn = document.getElementById('session-feedback-skip-btn');
+    const resumeBtn = document.getElementById('session-feedback-resume-btn');
     const workedOnField = document.getElementById('session-feedback-worked-on-field');
     const workedOnInput = document.getElementById('session-feedback-worked-on');
     const isFree = session.mode === 'free';
@@ -1608,15 +1696,19 @@ const App = {
     if (pending) {
       title.textContent = isFree ? 'Log free session' : 'Log session';
       skipBtn.textContent = "Don't log";
-    } else if (editing) {
-      title.textContent = 'Edit session notes';
-      skipBtn.textContent = 'Cancel';
-    } else if (cycleComplete && session.cycleName) {
-      title.textContent = 'Cycle notes';
-      skipBtn.textContent = 'Skip';
+      if (resumeBtn) resumeBtn.hidden = false;
     } else {
-      title.textContent = 'Session notes';
-      skipBtn.textContent = 'Skip';
+      if (resumeBtn) resumeBtn.hidden = true;
+      if (editing) {
+        title.textContent = 'Edit session notes';
+        skipBtn.textContent = 'Cancel';
+      } else if (cycleComplete && session.cycleName) {
+        title.textContent = 'Cycle notes';
+        skipBtn.textContent = 'Skip';
+      } else {
+        title.textContent = 'Session notes';
+        skipBtn.textContent = 'Skip';
+      }
     }
 
     const tempoText = session.startTempo != null && session.endTempo != null
@@ -1689,6 +1781,7 @@ const App = {
         completedAt: new Date().toISOString()
       });
 
+      this.finalizePendingEndSession();
       this.closeSessionFeedback();
       this.refreshLastSessionCard();
       this.refreshItemSelects();
