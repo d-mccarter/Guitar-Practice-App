@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "7539c7c1-8d70-4d47-b9b5-bf3f4dffef11",
+      "itemId": "970ab2fb-6f59-4be2-ba34-c94c2f6cba60",
+      "itemName": "Routine 8",
+      "workedOn": "",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-08-30T02:43:00.000Z",
+      "completedAt": "2026-08-30T02:53:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "f0a32ce4-ba1c-40ee-aae0-0d158bc44744",
       "itemId": null,
       "itemName": "Pull offs",
