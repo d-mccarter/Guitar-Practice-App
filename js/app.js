@@ -1598,7 +1598,7 @@ const App = {
     document.getElementById('session-feedback-notes').value = '';
     this.renderFeedbackRating();
 
-    await this.resumeSession({ restartMeasure: false });
+    await this.resumeSession();
     this.setSessionControlsVisible(true);
     this.setPracticeFormDisabled(true);
   },
