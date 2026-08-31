@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "80f3a5e3-9056-4d03-b1f3-97c4b80f68be",
+      "itemId": null,
+      "itemName": "Pentatonic patterns 1-3",
+      "workedOn": "Pentatonic patterns 1-3",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 710,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-08-31T02:13:57.437Z",
+      "completedAt": "2026-08-31T02:26:05.542Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "8ecbca5f-20aa-4448-9511-0af79bdde8a4",
       "itemId": "a1c64c67-af2f-4038-a413-803e0e5ff47f",
       "itemName": "8e",
