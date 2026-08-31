@@ -515,7 +515,7 @@ class Metronome {
     this._tick();
   }
 
-  /** Pause clicks without resetting beat position or ramp progress. */
+  /** Pause clicks without resetting ramp progress (tick is preserved until resume). */
   pause() {
     if (!this.running) return;
     this._suspendedByBackground = false;
@@ -531,13 +531,36 @@ class Metronome {
     }
   }
 
-  /** Resume after pause; keeps tick count and ramp progress. */
-  async resume() {
+  /** Snap the tick counter to the start of the current measure (beat 1). */
+  snapTickToMeasureStart() {
+    const ticksPerMeasure = this.subdivisionsPerBeat * this.beatsPerMeasure;
+    this.tick = Math.floor(this.tick / ticksPerMeasure) * ticksPerMeasure;
+  }
+
+  /** Current bar/beat (1-based) from the tick counter. */
+  getMeasureBeatInfo() {
+    const beatInMeasure = Math.floor(this.tick / this.subdivisionsPerBeat) % this.beatsPerMeasure;
+    const measure = Math.floor(Math.floor(this.tick / this.subdivisionsPerBeat) / this.beatsPerMeasure) + 1;
+    return { measure, beat: beatInMeasure + 1 };
+  }
+
+  /**
+   * Resume after pause.
+   * @param {{ nextBeatTime?: number, resetToMeasureStart?: boolean }} [options]
+   */
+  async resume(options = {}) {
     await this.init();
     if (this.running) return;
+    if (options.resetToMeasureStart) {
+      this.snapTickToMeasureStart();
+    }
     this.running = true;
     this._suspendedByBackground = false;
-    this.nextBeatTime = this.audioCtx.currentTime + 0.05;
+    const now = this.audioCtx.currentTime;
+    const handoff = options.nextBeatTime;
+    this.nextBeatTime = handoff != null && handoff > now
+      ? handoff
+      : now + 0.05;
     if (this.ramp) {
       this.ramp.startAudioTime = this.audioCtx.currentTime;
       this._reportBpm(this._currentBpm());
