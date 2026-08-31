@@ -348,16 +348,24 @@ const App = {
   },
 
   /**
+   * @param {{ forResume?: boolean }} [options]
    * @returns {{ nextBeatTime: number|null, cancelled?: boolean }}
    */
-  async runCountInIfEnabled() {
+  async runCountInIfEnabled({ forResume = false } = {}) {
     if (!this.isCountInEnabled()) return { nextBeatTime: null };
 
     this.countingIn = true;
-    this.setSessionControlsVisible(true, { countingIn: true });
-    this.setPracticeFormDisabled(true);
-
     const statusEl = document.getElementById('session-status');
+    const pauseBtn = document.getElementById('pause-resume-btn');
+
+    if (forResume) {
+      pauseBtn.hidden = true;
+      this.updateEndSessionButtonLabel({ countingIn: true });
+    } else {
+      this.setSessionControlsVisible(true, { countingIn: true });
+      this.setPracticeFormDisabled(true);
+    }
+
     statusEl.textContent = 'Count in…';
     statusEl.classList.remove('running', 'paused');
 
@@ -367,6 +375,12 @@ const App = {
     });
 
     this.countingIn = false;
+
+    if (forResume) {
+      pauseBtn.hidden = false;
+      this.updateEndSessionButtonLabel({ countingIn: false });
+    }
+
     if (nextBeatTime == null) return { cancelled: true, nextBeatTime: null };
     return { nextBeatTime };
   },
@@ -1326,15 +1340,36 @@ const App = {
     pauseBtn.textContent = 'Resume';
   },
 
-  async resumeSession() {
+  async resumeSession({ restartMeasure = true } = {}) {
     if (!this.session || !this.session.paused) return;
-
-    this.session.paused = false;
-    await this.requestWakeLock();
-    await this.metronome.resume();
 
     const statusEl = document.getElementById('session-status');
     const pauseBtn = document.getElementById('pause-resume-btn');
+
+    let countIn = { nextBeatTime: null };
+    if (restartMeasure) {
+      this.metronome.snapTickToMeasureStart();
+      const { measure } = this.metronome.getMeasureBeatInfo();
+      this.updateMeasureBeatDisplay(measure, 1);
+      this.resetBeatPie();
+
+      countIn = await this.runCountInIfEnabled({ forResume: true });
+      if (countIn.cancelled) {
+        statusEl.textContent = 'Paused';
+        statusEl.classList.add('paused');
+        statusEl.classList.remove('running');
+        pauseBtn.textContent = 'Resume';
+        return;
+      }
+    }
+
+    this.session.paused = false;
+    await this.requestWakeLock();
+    await this.metronome.resume({
+      resetToMeasureStart: restartMeasure,
+      nextBeatTime: countIn.nextBeatTime ?? undefined
+    });
+
     statusEl.textContent = this.activeSessionStatusText();
     statusEl.classList.remove('paused');
     statusEl.classList.add('running');
@@ -1563,7 +1598,7 @@ const App = {
     document.getElementById('session-feedback-notes').value = '';
     this.renderFeedbackRating();
 
-    await this.resumeSession();
+    await this.resumeSession({ restartMeasure: false });
     this.setSessionControlsVisible(true);
     this.setPracticeFormDisabled(true);
   },
