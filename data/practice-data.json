@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "7f94bc7c-3b65-431d-a894-2f507a1fb76b",
+      "itemId": "970ab2fb-6f59-4be2-ba34-c94c2f6cba60",
+      "itemName": "Routine 8",
+      "workedOn": "",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-09-02T02:08:00.000Z",
+      "completedAt": "2026-09-02T02:18:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "608216b7-18fd-413e-aab8-00b2e23d8225",
       "itemId": "a1c64c67-af2f-4038-a413-803e0e5ff47f",
       "itemName": "8e",
