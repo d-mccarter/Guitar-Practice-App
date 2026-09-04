@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "075e3a4b-9abb-4ce8-96b4-de358a0545da",
+      "itemId": null,
+      "itemName": "Pull off practice",
+      "workedOn": "Pull off practice",
+      "tempo": 145,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 300,
+      "plannedDurationSeconds": 300,
+      "startedAt": "2026-09-04T02:19:00.000Z",
+      "completedAt": "2026-09-04T02:24:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "145d5d2e-aeb3-4a9a-a24e-0a7fdedf09bb",
       "itemId": "970ab2fb-6f59-4be2-ba34-c94c2f6cba60",
       "itemName": "Routine 8",
