@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "d8e75c9e-53a3-440d-828a-3c245fe656ff",
+      "itemId": "8d886925-762f-40d7-9bae-6b70fcc41263",
+      "itemName": "8l",
+      "workedOn": "",
+      "tempo": 100,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 330,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-09-04T01:47:43.392Z",
+      "completedAt": "2026-09-04T01:56:19.212Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "d49b61e8-5987-499b-a14d-808255881864",
       "itemId": null,
       "itemName": "Pentatonic 1-3",
