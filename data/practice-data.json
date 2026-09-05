@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "3d21affe-d545-4460-9bff-0bd326cd08fc",
+      "itemId": "a1c64c67-af2f-4038-a413-803e0e5ff47f",
+      "itemName": "8e",
+      "workedOn": "",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 216,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-09-05T02:30:48.563Z",
+      "completedAt": "2026-09-05T02:38:36.037Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "075e3a4b-9abb-4ce8-96b4-de358a0545da",
       "itemId": null,
       "itemName": "Pull off practice",
