@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "c1749931-e11c-4cd9-9409-72dcc18e551f",
+      "itemId": null,
+      "itemName": "8j/8l",
+      "workedOn": "8j/8l",
+      "tempo": 110,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 619,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-09-05T02:47:04.865Z",
+      "completedAt": "2026-09-05T02:58:41.297Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "cbabdc92-b040-407d-8670-82bc5cfe19bc",
       "itemId": "77798049-14f3-4153-9992-784cadba1090",
       "itemName": "8k",
