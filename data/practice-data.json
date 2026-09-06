@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "0f21fcd7-3eef-4b0b-a675-9b875581a0d2",
+      "itemId": null,
+      "itemName": "A shape major",
+      "workedOn": "A shape major",
+      "tempo": 135,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 608,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-09-06T03:08:37.641Z",
+      "completedAt": "2026-09-06T03:26:57.502Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "373a9b90-b1c5-4638-81c4-49eadd7612a8",
       "itemId": null,
       "itemName": "Pentatonic 1-3",
