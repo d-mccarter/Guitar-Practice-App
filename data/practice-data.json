@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "771021fb-ef87-4e60-8226-278d86821f09",
+      "itemId": "77798049-14f3-4153-9992-784cadba1090",
+      "itemName": "8k",
+      "workedOn": "",
+      "tempo": 145,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 186,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-09-06T03:27:26.281Z",
+      "completedAt": "2026-09-06T03:32:23.510Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "0f21fcd7-3eef-4b0b-a675-9b875581a0d2",
       "itemId": null,
       "itemName": "A shape major",
