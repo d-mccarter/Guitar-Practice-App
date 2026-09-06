@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "36af3325-eed7-4259-8d1f-a5982caa0b5a",
+      "itemId": null,
+      "itemName": "Arkansas Traveller",
+      "workedOn": "Arkansas Traveller",
+      "tempo": 180,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 342,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-09-06T03:32:48.671Z",
+      "completedAt": "2026-09-06T03:39:28.235Z",
+      "completed": true,
+      "rating": 0,
+      "notes": "Hold pick stiffer and focus on picking on the very edge."
+    },
+    {
       "id": "771021fb-ef87-4e60-8226-278d86821f09",
       "itemId": "77798049-14f3-4153-9992-784cadba1090",
       "itemName": "8k",
