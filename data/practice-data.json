@@ -144,6 +144,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "65489dde-f077-4c7c-9c2f-eaa6341745c6",
+      "itemId": null,
+      "itemName": "Routine 9",
+      "workedOn": "Routine 9",
+      "tempo": 130,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 528,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-09-07T03:05:02.635Z",
+      "completedAt": "2026-09-07T03:22:54.891Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "cdd444e6-bca2-417f-9059-9202b2a011cb",
       "itemId": "b2b61116-e20b-4b7d-8d5d-953a0e1134f6",
       "itemName": "A-Shape Major",
