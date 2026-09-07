@@ -132,6 +132,13 @@
       "description": "Pinky-index pull offs",
       "targetTempo": 160,
       "createdAt": "2026-08-26T01:33:56.192Z"
+    },
+    {
+      "id": "b2b61116-e20b-4b7d-8d5d-953a0e1134f6",
+      "name": "A-Shape Major",
+      "description": "",
+      "targetTempo": 150,
+      "createdAt": "2026-09-07T02:51:07.711Z"
     }
   ],
   "cycles": [],
