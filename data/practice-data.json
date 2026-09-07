@@ -137,6 +137,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "1b9b8407-4df0-452c-9147-f4a8217854a0",
+      "itemId": "970ab2fb-6f59-4be2-ba34-c94c2f6cba60",
+      "itemName": "Routine 8",
+      "workedOn": "",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-09-07T02:24:00.000Z",
+      "completedAt": "2026-09-07T02:34:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "3cd10635-0d0c-4a1e-a135-e590ff0a0fc8",
       "itemId": "ada966a3-b7cb-45f6-ac14-0aded6b95f08",
       "itemName": "Spider 1",
