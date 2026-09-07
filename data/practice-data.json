@@ -144,6 +144,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "cdd444e6-bca2-417f-9059-9202b2a011cb",
+      "itemId": "b2b61116-e20b-4b7d-8d5d-953a0e1134f6",
+      "itemName": "A-Shape Major",
+      "workedOn": "",
+      "tempo": 130,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 266,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-09-07T02:51:27.490Z",
+      "completedAt": "2026-09-07T02:56:20.662Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "b5bf5eed-3e70-42cc-9c97-b40e994d6db5",
       "itemId": "8d886925-762f-40d7-9bae-6b70fcc41263",
       "itemName": "8l",
