@@ -151,6 +151,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "b6c1ed5e-3ff1-4671-9e34-5b9e8a743468",
+      "itemId": "ada966a3-b7cb-45f6-ac14-0aded6b95f08",
+      "itemName": "Spider 1",
+      "workedOn": "",
+      "tempo": 115,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 287,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-09-08T02:30:12.124Z",
+      "completedAt": "2026-09-08T02:35:05.216Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "392e5581-7386-4e11-bf97-b9b522f747fd",
       "itemId": "fd41d2f7-6a97-452e-b031-9b6b8754ed49",
       "itemName": "Pentatonic 1 - 3",
