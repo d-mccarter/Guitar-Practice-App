@@ -182,6 +182,23 @@
       "notes": ""
     },
     {
+      "id": "131c743d-754e-4a23-b020-ca78e6223a94",
+      "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
+      "itemName": "Routine 9",
+      "workedOn": "",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 180,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-09-15T01:35:00.000Z",
+      "completedAt": "2026-09-15T01:38:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "aad93dee-cff5-48a4-ad3a-5337a2f2bc1d",
       "itemId": "a1c64c67-af2f-4038-a413-803e0e5ff47f",
       "itemName": "8e",
