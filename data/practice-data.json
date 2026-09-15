@@ -190,10 +190,10 @@
       "startTempo": null,
       "endTempo": null,
       "mode": "manual",
-      "durationSeconds": 180,
-      "plannedDurationSeconds": 180,
+      "durationSeconds": 300,
+      "plannedDurationSeconds": 300,
       "startedAt": "2026-09-15T01:35:00.000Z",
-      "completedAt": "2026-09-15T01:38:00.000Z",
+      "completedAt": "2026-09-15T01:40:00.000Z",
       "completed": true,
       "rating": 0,
       "notes": ""
