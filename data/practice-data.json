@@ -167,6 +167,13 @@
       "description": "Ascending arpeggio, descending scale",
       "targetTempo": 140,
       "createdAt": "2026-09-16T01:38:15.576Z"
+    },
+    {
+      "id": "f53c34cf-7db1-4277-a7a8-cf679e4071aa",
+      "name": "9g",
+      "description": "Major scales in same positions",
+      "targetTempo": 140,
+      "createdAt": "2026-09-16T01:59:17.718Z"
     }
   ],
   "cycles": [],
