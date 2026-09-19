@@ -179,6 +179,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "3d1b0d88-340f-4ae7-bca4-584f1a6eaaad",
+      "itemId": "80db6980-73cb-4fd1-8fc8-103c5288bc1a",
+      "itemName": "9e",
+      "workedOn": "",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 126,
+      "plannedDurationSeconds": 120,
+      "startedAt": "2026-09-19T03:26:08.554Z",
+      "completedAt": "2026-09-19T03:28:27.127Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "fdb9a17c-e5ed-48d3-acfe-2778840446e9",
       "itemId": "2ce0e9df-c22b-47b0-9ce5-06b1b2aab0f5",
       "itemName": "9f",
