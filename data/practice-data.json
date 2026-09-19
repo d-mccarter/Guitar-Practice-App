@@ -179,6 +179,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "5d5fb1a9-c8f7-47b3-a94b-e69967c4a62a",
+      "itemId": null,
+      "itemName": "Fours pinky transition",
+      "workedOn": "Fours pinky transition",
+      "tempo": 110,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 359,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-09-19T12:04:06.476Z",
+      "completedAt": "2026-09-19T12:12:13.430Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "392d605e-9821-45a3-aa37-353c0b2d904d",
       "itemId": "80db6980-73cb-4fd1-8fc8-103c5288bc1a",
       "itemName": "9e",
