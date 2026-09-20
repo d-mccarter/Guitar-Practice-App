@@ -10,9 +10,10 @@ Works on iPhone: open in Safari, tap **Share → Add to Home Screen** for a full
 - **Keep screen awake** — Phone stays on during an active practice session (releases on pause/end)
 - **Practice items** — Configure routines by name (e.g. `5k`, `scales`, `warm-up`) with optional target tempo
 - **Timed sessions** — Set duration and tempo; timer starts when the metronome starts
+- **Today's total** — Practice tab shows a running total of practice time for the current day
 - **Session log** — Tracks time and tempo for every practice session
 - **Manual logging** — Add past sessions from the Log tab without running the metronome
-- **Progress charts** — Tempo over time and practice minutes by week, month, or year (with period navigation)
+- **Progress charts** — Tempo over time and practice minutes by week, month, or year (tap a bar for its total; navigate earlier periods)
 - **Local storage** — All data saved in your browser (persists on iPhone when installed to home screen)
 
 ## Quick start (on your computer)

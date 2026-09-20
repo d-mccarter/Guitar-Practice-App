@@ -1296,11 +1296,53 @@ select {
   cursor: default;
 }
 
+.time-chart-selection {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  min-height: 1.25em;
+}
+
+#time-chart {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .chart-card canvas {
   width: 100%;
   height: 200px;
   display: block;
   margin-top: 8px;
+}
+
+.today-practice-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 4px 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.today-practice-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.today-practice-value {
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
 }
 
 .chart-subtitle {

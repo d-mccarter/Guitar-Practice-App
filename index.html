@@ -50,6 +50,11 @@
   <main id="app">
     <!-- Practice View -->
     <section id="view-practice" class="view active">
+      <div class="today-practice-total" id="today-practice-total" aria-live="polite">
+        <span class="today-practice-label">Today</span>
+        <span class="today-practice-value" id="today-practice-total-value">0:00</span>
+      </div>
+
       <div class="card session-setup">
         <div class="mode-toggle" role="tablist" aria-label="Metronome mode">
           <button type="button" class="mode-btn active" data-mode="normal">Normal</button>
@@ -422,7 +427,8 @@
           <div class="time-chart-range" id="time-chart-range">This week</div>
           <button type="button" class="btn-icon" id="time-chart-next" aria-label="Next period">›</button>
         </div>
-        <canvas id="time-chart" height="200"></canvas>
+        <canvas id="time-chart" height="200" role="img" aria-label="Practice time chart"></canvas>
+        <p class="time-chart-selection" id="time-chart-selection" aria-live="polite" hidden></p>
         <p class="empty-state" id="time-chart-empty">Log sessions to see practice time.</p>
       </div>
 

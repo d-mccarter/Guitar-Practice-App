@@ -52,6 +52,21 @@ const Charts = {
     return Math.round(value) + 'm';
   },
 
+  /** Human-readable total for a selected practice-time bar. */
+  formatTimeChartTotal(minutes, period = 'week') {
+    const totalMinutes = Math.max(0, minutes || 0);
+    if (period === 'year') {
+      return this._formatTimeChartAxisValue(totalMinutes / 60, 'h');
+    }
+    const rounded = Math.round(totalMinutes);
+    if (rounded >= 60) {
+      const hours = Math.floor(rounded / 60);
+      const mins = rounded % 60;
+      return mins === 0 ? `${hours}h` : `${hours}h ${mins}m`;
+    }
+    return `${rounded}m`;
+  },
+
   drawTempoChart(canvas, sessions) {
     const { ctx, w, h } = this._setupCanvas(canvas);
     const padding = { top: 16, right: 16, bottom: 32, left: 44 };
@@ -237,27 +252,30 @@ const Charts = {
     return { buckets, window };
   },
 
-  drawTimeChart(canvas, sessions, period = 'week', offset = 0) {
+  drawTimeChart(canvas, sessions, period = 'week', offset = 0, selectedKey = null) {
     const { ctx, w, h } = this._setupCanvas(canvas);
-    const padding = { top: 16, right: 16, bottom: 32, left: 44 };
+    const padding = { top: 28, right: 16, bottom: 32, left: 44 };
     ctx.clearRect(0, 0, w, h);
 
     const { buckets, window } = this._buildTimeBuckets(sessions, period, offset);
     if (!buckets.length) {
-      return { drew: false, window, hasData: false };
+      return { drew: false, window, hasData: false, bars: [], selected: null };
     }
 
     const hasData = buckets.some((b) => b.minutes > 0);
     if (!hasData) {
-      return { drew: false, window, hasData: false };
+      return { drew: false, window, hasData: false, bars: [], selected: null };
     }
 
     const maxMin = Math.max(...buckets.map((b) => b.minutes), 1);
     const { yMax, step, intervals, unit } = this._timeChartYScale(maxMin, period);
     const chartW = w - padding.left - padding.right;
     const chartH = h - padding.top - padding.bottom;
-    const barW = Math.min(40, chartW / buckets.length - 8);
+    const slotW = chartW / buckets.length;
+    const barW = Math.min(40, slotW - 8);
     const useHours = unit === 'h';
+    const bars = [];
+    let selected = null;
 
     this._drawGrid(ctx, w, h, padding, intervals);
 
@@ -275,25 +293,73 @@ const Charts = {
 
     buckets.forEach((bucket, i) => {
       const chartValue = useHours ? bucket.minutes / 60 : bucket.minutes;
-      const barH = (chartValue / yMax) * chartH;
-      const x = padding.left + i * (chartW / buckets.length) + (chartW / buckets.length - barW) / 2;
+      const barH = bucket.minutes > 0 ? Math.max((chartValue / yMax) * chartH, 2) : 0;
+      const slotX = padding.left + i * slotW;
+      const x = slotX + (slotW - barW) / 2;
       const y = padding.top + chartH - barH;
+      const isSelected = selectedKey != null && bucket.key === selectedKey;
+
+      bars.push({
+        key: bucket.key,
+        label: bucket.label,
+        minutes: bucket.minutes,
+        x: slotX,
+        width: slotW,
+        barX: x,
+        barY: y,
+        barWidth: barW,
+        barHeight: barH
+      });
+
+      if (isSelected) {
+        selected = {
+          key: bucket.key,
+          label: bucket.label,
+          minutes: bucket.minutes,
+          totalLabel: this.formatTimeChartTotal(bucket.minutes, period)
+        };
+        // Dim highlight behind the selected slot for easier finger feedback.
+        ctx.fillStyle = 'rgba(232, 168, 56, 0.12)';
+        ctx.fillRect(slotX, padding.top, slotW, chartH);
+      }
 
       if (bucket.minutes > 0) {
-        ctx.fillStyle = '#e8a838';
+        ctx.fillStyle = isSelected ? '#f0c060' : '#e8a838';
         ctx.beginPath();
-        ctx.roundRect(x, y, barW, Math.max(barH, 2), 4);
+        ctx.roundRect(x, y, barW, barH, 4);
         ctx.fill();
       }
 
+      if (isSelected) {
+        const totalText = this.formatTimeChartTotal(bucket.minutes, period);
+        ctx.fillStyle = '#f0f0f5';
+        ctx.font = 'bold 12px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        const labelY = bucket.minutes > 0
+          ? Math.max(padding.top - 8, y - 8)
+          : padding.top + chartH - 8;
+        ctx.fillText(totalText, x + barW / 2, labelY);
+      }
+
       if (i % labelEvery === 0 || i === buckets.length - 1) {
-        ctx.fillStyle = '#888894';
+        ctx.fillStyle = isSelected ? '#f0f0f5' : '#888894';
         ctx.font = buckets.length > 20 ? '8px system-ui, sans-serif' : '9px system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(bucket.label, x + barW / 2, h - 8);
       }
     });
 
-    return { drew: true, window, hasData: true };
+    return { drew: true, window, hasData: true, bars, selected };
+  },
+
+  /**
+   * Resolve which bar was tapped from canvas-local coordinates.
+   * Uses full column hit targets so finger taps are forgiving.
+   */
+  hitTestTimeChart(bars, localX, localY, canvasHeight) {
+    if (!bars?.length) return null;
+    const yMax = canvasHeight || Number.POSITIVE_INFINITY;
+    if (localY < 0 || localY > yMax) return null;
+    return bars.find((bar) => localX >= bar.x && localX < bar.x + bar.width) || null;
   }
 };

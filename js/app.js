@@ -24,6 +24,8 @@ const App = {
   logDateFilterBeforeCalendar: '',
   pendingLogDayFilter: null,
   timeChartOffset: 0,
+  timeChartSelectedKey: null,
+  timeChartBars: [],
 
   init() {
     this.loadBuildLabel();
@@ -40,6 +42,7 @@ const App = {
     this.bindSessionFeedback();
     this.bindProgress();
     this.refreshAll();
+    this.refreshTodayPracticeTotal();
   },
 
   // Keep the phone screen on while a practice session is actively running.
@@ -157,6 +160,7 @@ const App = {
         if (view === 'progress') this.renderProgress();
         if (view === 'log') this.renderLog();
         if (view === 'cycles') this.renderCycles();
+        if (view === 'practice') this.refreshTodayPracticeTotal();
       });
     });
   },
@@ -1035,6 +1039,7 @@ const App = {
       // Only active (unpaused) metronome time counts toward elapsed/logging.
       this.session.elapsedSeconds++;
       this.updateEndSessionButtonLabel();
+      this.refreshTodayPracticeTotal();
 
       if (this.session.remainingSeconds == null) {
         timerDisplay.textContent = formatDuration(this.session.elapsedSeconds);
@@ -1320,6 +1325,7 @@ const App = {
       this.cycleRun.lastLoggedSession = recorded;
     }
     this.refreshLastSessionCard();
+    this.refreshTodayPracticeTotal();
     return recorded;
   },
 
@@ -1580,6 +1586,7 @@ const App = {
       timerDisplay.textContent = formatDuration(timerMinutesToSeconds(document.getElementById('timer-minutes').value));
       document.getElementById('tempo-display').textContent = `${parseInt(tempoInput.value, 10) || 120} BPM`;
     }
+    this.refreshTodayPracticeTotal();
   },
 
   /** Return to the live session after accidentally ending it. */
@@ -1820,6 +1827,7 @@ const App = {
       this.closeSessionFeedback();
       this.refreshLastSessionCard();
       this.refreshItemSelects();
+      this.refreshTodayPracticeTotal();
       document.getElementById('session-status').textContent = 'Session saved';
       this.renderLog();
       return;
@@ -2781,24 +2789,83 @@ const App = {
     this.closeManualLog();
     this.refreshLastSessionCard();
     this.refreshItemSelects();
+    this.refreshTodayPracticeTotal();
     this.renderLog();
   },
 
   bindProgress() {
-    document.getElementById('progress-item-select').addEventListener('change', () => this.renderProgress());
+    document.getElementById('progress-item-select').addEventListener('change', () => {
+      this.timeChartSelectedKey = null;
+      this.renderProgress();
+    });
     document.getElementById('time-chart-period').addEventListener('change', () => {
       this.timeChartOffset = 0;
+      this.timeChartSelectedKey = null;
       this.renderProgress();
     });
     document.getElementById('time-chart-prev').addEventListener('click', () => {
       this.timeChartOffset -= 1;
+      this.timeChartSelectedKey = null;
       this.renderProgress();
     });
     document.getElementById('time-chart-next').addEventListener('click', () => {
       if (this.timeChartOffset >= 0) return;
       this.timeChartOffset += 1;
+      this.timeChartSelectedKey = null;
       this.renderProgress();
     });
+
+    const timeCanvas = document.getElementById('time-chart');
+    if (timeCanvas) {
+      timeCanvas.addEventListener('pointerup', (event) => this.onTimeChartPointer(event));
+    }
+  },
+
+  onTimeChartPointer(event) {
+    const canvas = event.currentTarget;
+    if (!canvas || canvas.hidden || !this.timeChartBars.length) return;
+
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const localX = ((event.clientX - rect.left) / rect.width) * (canvas.clientWidth || rect.width);
+    const localY = ((event.clientY - rect.top) / rect.height) * (canvas.clientHeight || rect.height);
+    const hit = Charts.hitTestTimeChart(this.timeChartBars, localX, localY, canvas.clientHeight || rect.height);
+    if (!hit) {
+      if (this.timeChartSelectedKey != null) {
+        this.timeChartSelectedKey = null;
+        this.renderProgress();
+      }
+      return;
+    }
+
+    this.timeChartSelectedKey = this.timeChartSelectedKey === hit.key ? null : hit.key;
+    this.renderProgress();
+  },
+
+  /** Running total of logged (+ active) practice seconds for the local calendar day. */
+  getTodayPracticeSeconds() {
+    const todayKey = dayKeyFromDate(new Date());
+    let seconds = Storage.getSessions().reduce((sum, session) => {
+      const started = new Date(session.startedAt);
+      if (Number.isNaN(started.getTime())) return sum;
+      if (dayKeyFromDate(started) !== todayKey) return sum;
+      return sum + (session.durationSeconds || 0);
+    }, 0);
+
+    if (this.session?.startedAt) {
+      const started = new Date(this.session.startedAt);
+      if (!Number.isNaN(started.getTime()) && dayKeyFromDate(started) === todayKey) {
+        seconds += this.session.elapsedSeconds || 0;
+      }
+    }
+
+    return seconds;
+  },
+
+  refreshTodayPracticeTotal() {
+    const valueEl = document.getElementById('today-practice-total-value');
+    if (!valueEl) return;
+    valueEl.textContent = formatDuration(this.getTodayPracticeSeconds());
   },
 
   refreshAll() {
@@ -2807,6 +2874,7 @@ const App = {
     this.renderItems();
     this.renderCycles();
     this.renderLog();
+    this.refreshTodayPracticeTotal();
     if (!this.session) this.refreshLastSessionCard();
   },
 
@@ -3084,12 +3152,13 @@ const App = {
     const timeSubtitle = document.getElementById('time-chart-subtitle');
     const timeRange = document.getElementById('time-chart-range');
     const timeNext = document.getElementById('time-chart-next');
+    const timeSelection = document.getElementById('time-chart-selection');
     const statsGrid = document.getElementById('stats-grid');
 
     const periodSubtitles = {
-      week: 'Minutes practiced each day',
-      month: 'Minutes practiced each day',
-      year: 'Hours practiced each month'
+      week: 'Minutes practiced each day — tap a bar for its total',
+      month: 'Minutes practiced each day — tap a bar for its total',
+      year: 'Hours practiced each month — tap a bar for its total'
     };
     if (timeSubtitle) {
       timeSubtitle.textContent = periodSubtitles[period] || periodSubtitles.week;
@@ -3102,6 +3171,14 @@ const App = {
     let sessions = Storage.getSessions();
     if (itemId) sessions = sessions.filter((s) => s.itemId === itemId);
 
+    const clearTimeSelection = () => {
+      this.timeChartBars = [];
+      if (timeSelection) {
+        timeSelection.hidden = true;
+        timeSelection.textContent = '';
+      }
+    };
+
     if (!sessions.length) {
       tempoEmpty.hidden = false;
       timeEmpty.hidden = false;
@@ -3109,18 +3186,38 @@ const App = {
       tempoCanvas.hidden = true;
       timeCanvas.hidden = true;
       statsGrid.hidden = true;
+      this.timeChartSelectedKey = null;
+      clearTimeSelection();
       return;
     }
 
     tempoCanvas.hidden = false;
     statsGrid.hidden = false;
     tempoEmpty.hidden = Charts.drawTempoChart(tempoCanvas, sessions);
-    const timeResult = Charts.drawTimeChart(timeCanvas, sessions, period, this.timeChartOffset);
+    const timeResult = Charts.drawTimeChart(
+      timeCanvas,
+      sessions,
+      period,
+      this.timeChartOffset,
+      this.timeChartSelectedKey
+    );
     const drewTime = Boolean(timeResult?.drew);
+    this.timeChartBars = timeResult?.bars || [];
     timeEmpty.hidden = drewTime;
     timeCanvas.hidden = !drewTime;
     if (!drewTime) {
       timeEmpty.textContent = 'No practice in this period.';
+      this.timeChartSelectedKey = null;
+      clearTimeSelection();
+    } else if (timeSelection) {
+      const selected = timeResult.selected;
+      if (selected) {
+        timeSelection.hidden = false;
+        timeSelection.textContent = `${selected.label}: ${selected.totalLabel}`;
+      } else {
+        timeSelection.hidden = true;
+        timeSelection.textContent = '';
+      }
     }
 
     const totalMin = Math.round(sessions.reduce((s, x) => s + x.durationSeconds, 0) / 60);
