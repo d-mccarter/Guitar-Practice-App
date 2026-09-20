@@ -179,6 +179,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "ca301baa-ffb4-41ac-9042-abf6f683a6d6",
+      "itemId": null,
+      "itemName": "Ashape/Cshale 3rds",
+      "workedOn": "Ashape/Cshale 3rds",
+      "tempo": 110,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 536,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-09-20T04:01:54.707Z",
+      "completedAt": "2026-09-20T04:11:53.534Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "bb291848-3f44-4c50-ad66-40141a4e6901",
       "itemId": "80db6980-73cb-4fd1-8fc8-103c5288bc1a",
       "itemName": "9e",
