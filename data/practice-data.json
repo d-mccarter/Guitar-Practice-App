@@ -179,6 +179,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "aa9b5204-b147-4809-bb6e-296b24b0deca",
+      "itemId": null,
+      "itemName": "Alternating A shape/C shape 3rds",
+      "workedOn": "Alternating A shape/C shape 3rds",
+      "tempo": 100,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 549,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-09-20T00:44:37.009Z",
+      "completedAt": "2026-09-20T00:55:51.523Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "dd7f6042-d693-477c-83e4-f99b1ec6d752",
       "itemId": "8d886925-762f-40d7-9bae-6b70fcc41263",
       "itemName": "8l",
