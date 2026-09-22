@@ -179,6 +179,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "e1bffb6d-4daa-4573-a3ce-c8618636db48",
+      "itemId": "5b062e04-590e-4c6a-86d3-08eac2f699da",
+      "itemName": "E-shape triplets",
+      "workedOn": "",
+      "tempo": 110,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 187,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-09-22T01:08:31.637Z",
+      "completedAt": "2026-09-22T01:11:52.576Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "4f85bfa9-e4f7-425e-af17-e529df0bd464",
       "itemId": null,
       "itemName": "A/C thirds",
