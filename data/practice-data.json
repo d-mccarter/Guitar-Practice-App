@@ -200,6 +200,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "9af49e85-2286-4dba-ad65-e3ad1d64b016",
+      "itemId": "5b062e04-590e-4c6a-86d3-08eac2f699da",
+      "itemName": "E-shape triplets",
+      "workedOn": "",
+      "tempo": 110,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 248,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-09-22T02:18:56.614Z",
+      "completedAt": "2026-09-22T02:23:47.619Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "764fc77b-0a29-40f3-ad0f-1f7be48468c0",
       "itemId": "8d886925-762f-40d7-9bae-6b70fcc41263",
       "itemName": "8l",
