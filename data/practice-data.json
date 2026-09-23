@@ -200,6 +200,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "50d71ab9-255f-4e2b-965b-c7e988ec284b",
+      "itemId": null,
+      "itemName": "Legatto",
+      "workedOn": "Legatto",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 220,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-09-23T02:19:04.837Z",
+      "completedAt": "2026-09-23T02:22:55.504Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "5c5795e1-c1ca-44be-afc6-d7e93f14d090",
       "itemId": "5b062e04-590e-4c6a-86d3-08eac2f699da",
       "itemName": "E-shape triplets",
