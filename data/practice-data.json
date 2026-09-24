@@ -200,6 +200,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "2f628573-c2de-47db-b8ac-0ca66231f01a",
+      "itemId": "a1c64c67-af2f-4038-a413-803e0e5ff47f",
+      "itemName": "8e",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 189,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-09-24T01:09:52.646Z",
+      "completedAt": "2026-09-24T01:17:16.141Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "50d71ab9-255f-4e2b-965b-c7e988ec284b",
       "itemId": null,
       "itemName": "Legatto",
