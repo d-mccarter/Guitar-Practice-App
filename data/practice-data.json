@@ -200,6 +200,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "418ebf66-b4d2-4c97-abb0-7b3dce74a95e",
+      "itemId": "425aecbb-feb5-4676-b0ca-84ac7286a9f5",
+      "itemName": "A/C Shape 3rds",
+      "workedOn": "",
+      "tempo": 150,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 457,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-09-25T01:36:42.629Z",
+      "completedAt": "2026-09-25T01:46:17.343Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "d4a02a92-bc78-4305-8976-e8d51f8dc251",
       "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
       "itemName": "Routine 9",
