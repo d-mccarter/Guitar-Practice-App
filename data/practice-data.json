@@ -200,6 +200,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "2f2f0134-48f0-4a89-9be1-5e1de76e4f1b",
+      "itemId": null,
+      "itemName": "Random",
+      "workedOn": "Random",
+      "tempo": 150,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-09-25T02:04:00.000Z",
+      "completedAt": "2026-09-25T02:14:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "82c7c786-4963-44eb-94ef-4cd1c7c67d04",
       "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
       "itemName": "Routine 9",
