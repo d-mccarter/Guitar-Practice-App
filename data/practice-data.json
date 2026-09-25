@@ -200,6 +200,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "d4a02a92-bc78-4305-8976-e8d51f8dc251",
+      "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
+      "itemName": "Routine 9",
+      "workedOn": "",
+      "tempo": 150,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 480,
+      "plannedDurationSeconds": 480,
+      "startedAt": "2026-09-25T01:36:00.000Z",
+      "completedAt": "2026-09-25T01:44:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "ab7f16cd-de2d-4130-9e81-19e65ad6f5a3",
       "itemId": "6ed60f89-c6b6-4f07-a6fa-577673edff1a",
       "itemName": "Arkansas Traveller Part 2",
