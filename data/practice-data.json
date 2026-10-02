@@ -200,6 +200,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "9fb69f28-716d-4a93-a0bb-2b1e3f04abc5",
+      "itemId": "80db6980-73cb-4fd1-8fc8-103c5288bc1a",
+      "itemName": "9e",
+      "workedOn": "",
+      "tempo": 145,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 409,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-02T01:22:35.305Z",
+      "completedAt": "2026-10-02T01:30:07.244Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "7506f1a9-8d85-46c1-bbfb-5d14a8373943",
       "itemId": "425aecbb-feb5-4676-b0ca-84ac7286a9f5",
       "itemName": "A/C Shape 3rds",
