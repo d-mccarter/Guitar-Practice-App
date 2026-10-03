@@ -200,6 +200,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "d7aa29f8-c999-49c9-8ffa-743e71b50da7",
+      "itemId": "2f370118-1c18-43e7-9281-7ba773cb24a9",
+      "itemName": "9k",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 300,
+      "plannedDurationSeconds": 300,
+      "startedAt": "2026-10-03T15:59:00.000Z",
+      "completedAt": "2026-10-03T16:04:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "ffa62b07-1d9c-420f-8b5c-62d1c77c4363",
       "itemId": "80db6980-73cb-4fd1-8fc8-103c5288bc1a",
       "itemName": "9e",
