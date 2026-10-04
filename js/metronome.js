@@ -40,6 +40,13 @@ class Metronome {
     this._countInGain = null;
     /** Scheduler paused because the tab/app was backgrounded (not a user pause). */
     this._suspendedByBackground = false;
+    /** In-flight foreground recovery so visibility + pageshow + taps don't race. */
+    this._foregroundRecovery = null;
+    /** Tap arrived while a non-gesture recovery was still running. */
+    this._pendingGestureRecover = false;
+    /** Wall-clock samples used to detect iOS "running but frozen" zombie contexts. */
+    this._lastTickAudioTime = null;
+    this._stuckTickCount = 0;
   }
 
   static getClickSoundPresets() {
@@ -50,34 +57,136 @@ class Metronome {
     return BELL_SOUND_PRESETS;
   }
 
-  async init() {
-    if (!this.audioCtx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      this.audioCtx = new AudioContext();
-      this.audioCtx.addEventListener('statechange', () => {
-        // iOS often moves the context to suspended/interrupted when switching apps.
-        if (
-          this.running
-          && !this._suspendedByBackground
-          && (this.audioCtx.state === 'suspended' || this.audioCtx.state === 'interrupted')
-        ) {
-          this.handleBackground();
-        }
-      });
-    }
-    this._ensureMasterGain();
-    await this._resumeAudioCtx();
+  _bindAudioCtxStateChange() {
+    if (!this.audioCtx) return;
+    this.audioCtx.addEventListener('statechange', () => {
+      // iOS often moves the context to suspended/interrupted when switching apps.
+      if (
+        this.running
+        && !this._suspendedByBackground
+        && this.audioCtx
+        && (this.audioCtx.state === 'suspended' || this.audioCtx.state === 'interrupted')
+      ) {
+        this.handleBackground();
+      }
+    });
   }
 
-  async _resumeAudioCtx() {
-    if (!this.audioCtx) return;
-    if (this.audioCtx.state === 'suspended' || this.audioCtx.state === 'interrupted') {
+  _createAudioCtx() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    this.audioCtx = new AudioContext();
+    this.masterGain = null;
+    this._bindAudioCtxStateChange();
+    this._ensureMasterGain();
+  }
+
+  _recreateAudioCtx() {
+    const old = this.audioCtx;
+    this.audioCtx = null;
+    this.masterGain = null;
+    this._lastTickAudioTime = null;
+    this._stuckTickCount = 0;
+    if (old) {
       try {
-        await this.audioCtx.resume();
+        old.close();
       } catch {
-        // May require a user gesture; visibility/pointer handlers will retry.
+        // Already closed.
       }
     }
+    this._createAudioCtx();
+  }
+
+  _withTimeout(promise, ms) {
+    return new Promise((resolve, reject) => {
+      const id = setTimeout(() => reject(new Error('timeout')), ms);
+      Promise.resolve(promise).then(
+        (value) => {
+          clearTimeout(id);
+          resolve(value);
+        },
+        (err) => {
+          clearTimeout(id);
+          reject(err);
+        }
+      );
+    });
+  }
+
+  async _waitForTimeAdvance(timeoutMs = 250) {
+    if (!this.audioCtx || this.audioCtx.state !== 'running') return false;
+    const t0 = this.audioCtx.currentTime;
+    const start = performance.now();
+    while (performance.now() - start < timeoutMs) {
+      if (this.audioCtx.currentTime > t0) return true;
+      await new Promise((r) => setTimeout(r, 40));
+    }
+    return this.audioCtx.currentTime > t0;
+  }
+
+  async init() {
+    if (!this.audioCtx) {
+      this._createAudioCtx();
+    }
+    this._ensureMasterGain();
+    // Start/resume/count-in always happen under a user gesture, so recreating a
+    // dead context here is safe and matches what force-closing the app does.
+    await this._resumeAudioCtx({ allowRecreate: true, healthCheck: false });
+  }
+
+  /**
+   * Bring AudioContext back to a usable "running" state after iOS backgrounding.
+   * WebKit bugs: resume() may hang forever; state may stay "running" while
+   * currentTime is frozen (zombie). Recovery: timed resume → suspend/resume →
+   * recreate context when allowed (user gesture).
+   */
+  async _resumeAudioCtx({ allowRecreate = false, healthCheck = false } = {}) {
+    if (!this.audioCtx) {
+      this._createAudioCtx();
+    }
+
+    const tryResume = async () => {
+      if (!this.audioCtx) return;
+      const state = this.audioCtx.state;
+      if (state !== 'suspended' && state !== 'interrupted') return;
+      try {
+        await this._withTimeout(this.audioCtx.resume(), 500);
+      } catch {
+        // Hang, InvalidStateError, or gesture required — caller may recreate.
+      }
+    };
+
+    const trySuspendResume = async () => {
+      if (!this.audioCtx) return;
+      try {
+        await this._withTimeout(this.audioCtx.suspend(), 300);
+      } catch {
+        // ignore
+      }
+      await tryResume();
+    };
+
+    const isHealthy = async () => {
+      if (!this.audioCtx || this.audioCtx.state !== 'running') return false;
+      if (!healthCheck) return true;
+      return this._waitForTimeAdvance(250);
+    };
+
+    await tryResume();
+    if (await isHealthy()) return true;
+
+    await trySuspendResume();
+    if (await isHealthy()) return true;
+
+    if (allowRecreate) {
+      this._recreateAudioCtx();
+      await tryResume();
+      if (await isHealthy()) return true;
+      // Last chance after recreate.
+      await trySuspendResume();
+      return isHealthy();
+    }
+
+    return false;
   }
 
   /**
@@ -88,6 +197,8 @@ class Metronome {
   handleBackground() {
     if (!this.running || this._suspendedByBackground) return;
     this._suspendedByBackground = true;
+    this._lastTickAudioTime = null;
+    this._stuckTickCount = 0;
     if (this.ramp && this.ramp.startAudioTime != null && this.audioCtx) {
       this.ramp.elapsedBeforePause = this._rampElapsed();
       this.ramp.startAudioTime = null;
@@ -99,21 +210,61 @@ class Metronome {
     }
   }
 
-  /** Resume AudioContext and resync the beat grid after returning from background. */
-  async handleForeground() {
-    await this._resumeAudioCtx();
-    if (!this.running || !this._suspendedByBackground) {
-      // Even if we weren't mid-session, unstick a suspended context (e.g. count-in).
+  /**
+   * Resume AudioContext and resync the beat grid after returning from background.
+   * @param {{ fromUserGesture?: boolean }} [options]
+   */
+  async handleForeground(options = {}) {
+    let fromUserGesture = !!options.fromUserGesture;
+    if (this._foregroundRecovery) {
+      // Remember a tap that arrived while visibility recovery was still running,
+      // so one gesture can recreate a dead context after the first attempt fails.
+      if (fromUserGesture) this._pendingGestureRecover = true;
+      await this._foregroundRecovery;
+      if (!this._pendingGestureRecover) return;
+      this._pendingGestureRecover = false;
+      if (!this.running || !this._suspendedByBackground) return;
+      fromUserGesture = true;
+    }
+
+    this._foregroundRecovery = this._recoverForeground(fromUserGesture);
+    try {
+      await this._foregroundRecovery;
+    } finally {
+      this._foregroundRecovery = null;
+    }
+  }
+
+  async _recoverForeground(fromUserGesture) {
+    const healthy = await this._resumeAudioCtx({
+      allowRecreate: fromUserGesture,
+      healthCheck: true
+    });
+
+    if (!healthy) {
+      // Keep/restart background suspension until a user gesture can recreate audio.
+      if (this.running && !this._suspendedByBackground) {
+        this.handleBackground();
+      }
       return;
     }
+
+    if (!this.running) return;
+
+    const needsResync = this._suspendedByBackground || !this.timerId;
     this._suspendedByBackground = false;
     if (!this.audioCtx) return;
-    this.nextBeatTime = this.audioCtx.currentTime + 0.05;
-    if (this.ramp) {
-      this.ramp.startAudioTime = this.audioCtx.currentTime;
-      this._reportBpm(this._currentBpm());
+
+    if (needsResync) {
+      this.nextBeatTime = this.audioCtx.currentTime + 0.05;
+      this._lastTickAudioTime = null;
+      this._stuckTickCount = 0;
+      if (this.ramp) {
+        this.ramp.startAudioTime = this.audioCtx.currentTime;
+        this._reportBpm(this._currentBpm());
+      }
+      if (!this.timerId) this._tick();
     }
-    if (!this.timerId) this._tick();
   }
 
   /** 0–1 linear gain applied after each click/bell envelope. */
@@ -489,7 +640,26 @@ class Metronome {
   }
 
   _tick() {
-    if (!this.running) return;
+    if (!this.running || this._suspendedByBackground) return;
+    if (!this.audioCtx || this.audioCtx.state !== 'running') {
+      this.handleBackground();
+      return;
+    }
+
+    // iOS zombie context: state stays "running" but currentTime stops advancing.
+    const audioNow = this.audioCtx.currentTime;
+    if (this._lastTickAudioTime != null && audioNow === this._lastTickAudioTime) {
+      this._stuckTickCount += 1;
+      if (this._stuckTickCount >= 10) {
+        this.handleBackground();
+        this.handleForeground();
+        return;
+      }
+    } else {
+      this._lastTickAudioTime = audioNow;
+      this._stuckTickCount = 0;
+    }
+
     this._schedule();
     this.timerId = setTimeout(() => this._tick(), 25);
   }

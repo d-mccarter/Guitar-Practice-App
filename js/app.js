@@ -58,11 +58,16 @@ const App = {
       this.onAppForeground();
     });
 
-    // iOS sometimes needs a fresh user gesture to unstick a suspended AudioContext.
+    // iOS standalone PWAs often fire pagehide more reliably than visibilitychange.
+    window.addEventListener('pagehide', () => {
+      this.metronome.handleBackground();
+    });
+
+    // iOS sometimes needs a fresh user gesture to unstick or recreate audio.
     const tryResumeAudio = () => {
       if (document.visibilityState !== 'visible') return;
       if (!this.session && !this.countingIn) return;
-      this.metronome.handleForeground();
+      this.metronome.handleForeground({ fromUserGesture: true });
     };
     document.addEventListener('pointerdown', tryResumeAudio, { passive: true });
     document.addEventListener('pageshow', () => this.onAppForeground());
