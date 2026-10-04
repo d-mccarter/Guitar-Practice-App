@@ -215,6 +215,14 @@
       "targetTempo": 160,
       "createdAt": "2026-10-04T02:05:11.750Z",
       "archived": false
+    },
+    {
+      "id": "39adf5d2-b52f-4bf4-b073-327bbca1241b",
+      "name": "3k",
+      "description": "String skipping - minor chords",
+      "targetTempo": 90,
+      "archived": false,
+      "createdAt": "2026-10-04T13:36:46.762Z"
     }
   ],
   "cycles": [],
