@@ -228,6 +228,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "7e311be3-7094-4a84-a8c9-a2989ab50c24",
+      "itemId": "39adf5d2-b52f-4bf4-b073-327bbca1241b",
+      "itemName": "3k",
+      "workedOn": "",
+      "tempo": 90,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 310,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-04T13:37:00.819Z",
+      "completedAt": "2026-10-04T13:43:34.391Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "201e14ed-ab20-41d3-9287-f4f53ac0bff4",
       "itemId": "7736a579-1ff1-4574-8353-634db4498f1b",
       "itemName": "A/C Shape Fours",
