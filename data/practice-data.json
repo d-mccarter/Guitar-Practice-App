@@ -6,7 +6,7 @@
       "description": "",
       "targetTempo": 130,
       "createdAt": "2026-07-17T21:39:52.108Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "89970727-7224-4dd3-ad8d-dfb4170b8be6",
@@ -206,7 +206,7 @@
       "description": "",
       "targetTempo": 160,
       "createdAt": "2026-10-03T14:26:09.788Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "aac51e7f-3015-483c-a996-7d79c249d5c0",
