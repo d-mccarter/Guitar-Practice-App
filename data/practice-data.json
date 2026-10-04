@@ -126,7 +126,7 @@
       "description": "Pinky-index pull offs",
       "targetTempo": 160,
       "createdAt": "2026-08-26T01:33:56.192Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "2ce0e9df-c22b-47b0-9ce5-06b1b2aab0f5",
