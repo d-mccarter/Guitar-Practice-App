@@ -38,7 +38,7 @@
       "description": "Pentatonic 4-note pattern",
       "targetTempo": 160,
       "createdAt": "2026-07-17T22:28:44.802Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "97ea8c84-a953-4874-aeb8-db80d08bc3b1",
@@ -46,7 +46,7 @@
       "description": "Minor Pentatonic descending pattern",
       "targetTempo": 160,
       "createdAt": "2026-07-17T22:29:15.621Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "396c47ca-4d08-4e10-ab92-fe76538cc44f",
