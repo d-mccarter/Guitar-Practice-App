@@ -66,7 +66,8 @@ const Storage = {
       items: (Array.isArray(data.items) ? data.items : []).map((item) => ({
         ...item,
         name: item.name || item.code || 'Untitled',
-        description: item.description || ''
+        description: item.description || '',
+        archived: Boolean(item.archived)
       })),
       cycles: (Array.isArray(data.cycles) ? data.cycles : []).map((cycle) => this.normalizeCycle(cycle)),
       sessions: Array.isArray(data.sessions) ? data.sessions : []
@@ -254,6 +255,18 @@ const Storage = {
 
   getItems() {
     return this.load().items;
+  },
+
+  getActiveItems() {
+    return this.getItems().filter((item) => !item.archived);
+  },
+
+  getArchivedItems() {
+    return this.getItems().filter((item) => item.archived);
+  },
+
+  setItemArchived(id, archived) {
+    return this.updateItem(id, { archived: Boolean(archived) });
   },
 
   getCycles() {
