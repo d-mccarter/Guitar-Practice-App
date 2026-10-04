@@ -633,6 +633,23 @@ select {
   flex-shrink: 0;
 }
 
+.archived-items-section {
+  margin-top: 20px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.items-section-title {
+  margin: 12px 0 4px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.item-row.archived .item-title {
+  color: var(--text-muted);
+}
+
 .btn-icon {
   width: 44px;
   height: 44px;

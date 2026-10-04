@@ -9,7 +9,7 @@
   <title>Practice Tracker</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png?v=electric">
-  <link rel="stylesheet" href="css/styles.css?v=80">
+  <link rel="stylesheet" href="css/styles.css?v=81">
 </head>
 <body>
   <header class="app-header">
@@ -270,6 +270,10 @@
         <h3>Your items</h3>
         <ul id="items-list" class="items-list"></ul>
         <p class="empty-state" id="items-empty">No practice items yet. Add one above.</p>
+        <div id="archived-items-section" class="archived-items-section" hidden>
+          <h3 class="items-section-title">Archived</h3>
+          <ul id="archived-items-list" class="items-list"></ul>
+        </div>
       </div>
 
       <div class="card" id="sync-card">
@@ -578,11 +582,11 @@
     </div>
   </div>
 
-  <script src="js/github-sync.js?v=80"></script>
-  <script src="js/storage.js?v=80"></script>
-  <script src="js/metronome.js?v=80"></script>
-  <script src="js/charts.js?v=80"></script>
-  <script src="js/app.js?v=80"></script>
+  <script src="js/github-sync.js?v=81"></script>
+  <script src="js/storage.js?v=81"></script>
+  <script src="js/metronome.js?v=81"></script>
+  <script src="js/charts.js?v=81"></script>
+  <script src="js/app.js?v=81"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});

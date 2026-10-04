@@ -681,7 +681,10 @@ const App = {
     if (!menu || !select) return;
 
     const current = select.value;
-    const items = sortByMostRecentlyPracticed(Storage.getItems(), (item) => getLatestSessionForItem(item.id));
+    const items = sortByMostRecentlyPracticed(
+      Storage.getActiveItems(),
+      (item) => getLatestSessionForItem(item.id)
+    );
     const cycles = sortByMostRecentlyPracticed(
       Storage.getCycles().filter((cycle) => this.resolveCycleSteps(cycle).length),
       (cycle) => getLatestSessionForCycle(cycle.id)
@@ -1877,6 +1880,7 @@ const App = {
         Storage.addItem({
           id: generateId(),
           ...itemData,
+          archived: false,
           createdAt: new Date().toISOString()
         });
       }
@@ -2041,7 +2045,7 @@ const App = {
     const select = document.getElementById('cycle-step-item');
     if (!select) return;
     const current = select.value;
-    const items = Storage.getItems();
+    const items = Storage.getActiveItems();
     select.innerHTML = '<option value="">Add an item…</option>' +
       items.map((item) => `<option value="${item.id}">${escapeHtml(itemSelectLabel(item))}</option>`).join('');
     if (current && [...select.options].some((o) => o.value === current)) {
@@ -2933,8 +2937,12 @@ const App = {
 
   refreshItemSelects() {
     const items = Storage.getItems();
+    const activeItems = Storage.getActiveItems();
     const cycles = Storage.getCycles();
-    const practiceItems = sortByMostRecentlyPracticed(items, (item) => getLatestSessionForItem(item.id));
+    const practiceItems = sortByMostRecentlyPracticed(
+      activeItems,
+      (item) => getLatestSessionForItem(item.id)
+    );
     const practiceCycles = sortByMostRecentlyPracticed(
       cycles.filter((cycle) => this.resolveCycleSteps(cycle).length),
       (cycle) => getLatestSessionForCycle(cycle.id)
@@ -2997,41 +3005,50 @@ const App = {
     else this.syncPracticeItemRichSelect();
   },
 
-  renderItems() {
-    const items = Storage.getItems();
-    const list = document.getElementById('items-list');
-    const empty = document.getElementById('items-empty');
+  renderItemRow(item, { archived = false } = {}) {
+    const sessions = Storage.getSessionsForItem(item.id);
+    const totalMin = Math.round(sessions.reduce((s, x) => s + x.durationSeconds, 0) / 60);
+    const peakTempo = sessions.length ? Math.max(...sessions.map((s) => s.tempo)) : null;
+    const archiveAction = archived
+      ? `<button type="button" class="btn btn-secondary btn-small" data-unarchive="${item.id}">Re-activate</button>`
+      : `<button type="button" class="btn btn-secondary btn-small" data-archive="${item.id}">Archive</button>`;
 
-    if (!items.length) {
-      list.innerHTML = '';
-      empty.hidden = false;
-      return;
-    }
+    return `<li class="item-row${archived ? ' archived' : ''}${this.editingItemId === item.id ? ' editing' : ''}">
+      <div class="item-info">
+        <div class="item-title">${itemDisplayName(item)}</div>
+        ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
+        <div class="item-meta">${sessions.length} sessions · ${totalMin} min${peakTempo ? ' · peak ' + peakTempo + ' BPM' : ''}${item.targetTempo ? ' · target ' + item.targetTempo + ' BPM' : ''}</div>
+      </div>
+      <div class="item-actions">
+        <button type="button" class="btn btn-secondary btn-small" data-edit="${item.id}">Edit</button>
+        ${archiveAction}
+        <button type="button" class="btn btn-danger btn-small" data-delete="${item.id}">Delete</button>
+      </div>
+    </li>`;
+  },
 
-    empty.hidden = true;
-    list.innerHTML = items.map((item) => {
-      const sessions = Storage.getSessionsForItem(item.id);
-      const totalMin = Math.round(sessions.reduce((s, x) => s + x.durationSeconds, 0) / 60);
-      const peakTempo = sessions.length ? Math.max(...sessions.map((s) => s.tempo)) : null;
+  bindItemListActions(root) {
+    if (!root) return;
 
-      return `<li class="item-row${this.editingItemId === item.id ? ' editing' : ''}">
-        <div class="item-info">
-          <div class="item-title">${itemDisplayName(item)}</div>
-          ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
-          <div class="item-meta">${sessions.length} sessions · ${totalMin} min${peakTempo ? ' · peak ' + peakTempo + ' BPM' : ''}${item.targetTempo ? ' · target ' + item.targetTempo + ' BPM' : ''}</div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="btn btn-secondary btn-small" data-edit="${item.id}">Edit</button>
-          <button type="button" class="btn btn-danger btn-small" data-delete="${item.id}">Delete</button>
-        </div>
-      </li>`;
-    }).join('');
-
-    list.querySelectorAll('[data-edit]').forEach((btn) => {
+    root.querySelectorAll('[data-edit]').forEach((btn) => {
       btn.addEventListener('click', () => this.startEditItem(btn.dataset.edit));
     });
 
-    list.querySelectorAll('[data-delete]').forEach((btn) => {
+    root.querySelectorAll('[data-archive]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        Storage.setItemArchived(btn.dataset.archive, true);
+        this.refreshAll();
+      });
+    });
+
+    root.querySelectorAll('[data-unarchive]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        Storage.setItemArchived(btn.dataset.unarchive, false);
+        this.refreshAll();
+      });
+    });
+
+    root.querySelectorAll('[data-delete]').forEach((btn) => {
       btn.addEventListener('click', () => {
         if (this.editingItemId === btn.dataset.delete) this.cancelEditItem();
         if (confirm('Delete this practice item? Session history will remain.')) {
@@ -3040,6 +3057,47 @@ const App = {
         }
       });
     });
+  },
+
+  renderItems() {
+    const activeItems = Storage.getActiveItems();
+    const archivedItems = Storage.getArchivedItems();
+    const list = document.getElementById('items-list');
+    const empty = document.getElementById('items-empty');
+    const archivedSection = document.getElementById('archived-items-section');
+    const archivedList = document.getElementById('archived-items-list');
+
+    if (!activeItems.length && !archivedItems.length) {
+      list.innerHTML = '';
+      empty.hidden = false;
+      empty.textContent = 'No practice items yet. Add one above.';
+      if (archivedSection) archivedSection.hidden = true;
+      if (archivedList) archivedList.innerHTML = '';
+      return;
+    }
+
+    if (!activeItems.length) {
+      list.innerHTML = '';
+      empty.hidden = false;
+      empty.textContent = 'No active practice items.';
+    } else {
+      empty.hidden = true;
+      list.innerHTML = activeItems.map((item) => this.renderItemRow(item)).join('');
+      this.bindItemListActions(list);
+    }
+
+    if (archivedSection && archivedList) {
+      if (!archivedItems.length) {
+        archivedSection.hidden = true;
+        archivedList.innerHTML = '';
+      } else {
+        archivedSection.hidden = false;
+        archivedList.innerHTML = archivedItems
+          .map((item) => this.renderItemRow(item, { archived: true }))
+          .join('');
+        this.bindItemListActions(archivedList);
+      }
+    }
   },
 
   renderLogSessionRow(s) {
