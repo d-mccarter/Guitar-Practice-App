@@ -150,7 +150,7 @@
       "description": "A-shape fours",
       "targetTempo": 140,
       "createdAt": "2026-09-10T02:00:06.462Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "2bdea550-3035-4c41-a879-bd2aae0bc4bf",
