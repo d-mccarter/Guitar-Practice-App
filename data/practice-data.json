@@ -207,6 +207,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "857ac2d8-0630-4d8a-a7e4-668d483c80c6",
+      "itemId": null,
+      "itemName": "9j/9k",
+      "workedOn": "9j/9k",
+      "tempo": 155,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 999,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-04T01:40:59.974Z",
+      "completedAt": "2026-10-04T02:06:35.832Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "92060cc5-e55d-471c-a999-758bc39974c1",
       "itemId": null,
       "itemName": "9j/9k",
