@@ -228,6 +228,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "c0474202-02ab-47b7-a1c7-8e25bb2cda8b",
+      "itemId": null,
+      "itemName": "Warmup",
+      "workedOn": "Warmup",
+      "tempo": 120,
+      "startTempo": 90,
+      "endTempo": 120,
+      "mode": "free",
+      "durationSeconds": 313,
+      "plannedDurationSeconds": 300,
+      "startedAt": "2026-10-05T16:45:54.818Z",
+      "completedAt": "2026-10-05T16:51:27.184Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "de09d71b-6163-475f-acbf-df7ae85e98e7",
       "itemId": "425aecbb-feb5-4676-b0ca-84ac7286a9f5",
       "itemName": "A/C Shape 3rds",
