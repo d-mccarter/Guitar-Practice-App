@@ -236,6 +236,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "8b727db7-5b15-42f1-b0ec-2510ad2d49e5",
+      "itemId": "2bdea550-3035-4c41-a879-bd2aae0bc4bf",
+      "itemName": "9g",
+      "workedOn": "",
+      "tempo": 165,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 693,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-05T23:21:00.074Z",
+      "completedAt": "2026-10-05T23:40:27.957Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "79acd330-5bb0-4358-a254-aad1de86b8be",
       "itemId": null,
       "itemName": "Chromatic ascending descending",
