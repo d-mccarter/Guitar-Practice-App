@@ -223,6 +223,14 @@
       "targetTempo": 90,
       "archived": false,
       "createdAt": "2026-10-04T13:36:46.762Z"
+    },
+    {
+      "id": "5f8bc68c-8b6d-41d1-8ad6-714e15c631a9",
+      "name": "Chromatic ascending descending",
+      "description": "",
+      "targetTempo": 170,
+      "archived": false,
+      "createdAt": "2026-10-05T18:52:36.976Z"
     }
   ],
   "cycles": [],
