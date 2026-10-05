@@ -15,6 +15,16 @@ const DATA_PROFILES = {
   }
 };
 
+function coerceArchivedFlag(value) {
+  if (value === true || value === 1) return true;
+  if (value === false || value === 0 || value == null) return false;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    return normalized === 'true' || normalized === '1' || normalized === 'yes';
+  }
+  return Boolean(value);
+}
+
 const Storage = {
   _fileSha: null,
   _pushTimer: null,
@@ -67,7 +77,7 @@ const Storage = {
         ...item,
         name: item.name || item.code || 'Untitled',
         description: item.description || '',
-        archived: Boolean(item.archived)
+        archived: coerceArchivedFlag(item.archived)
       })),
       cycles: (Array.isArray(data.cycles) ? data.cycles : []).map((cycle) => this.normalizeCycle(cycle)),
       sessions: Array.isArray(data.sessions) ? data.sessions : []
@@ -134,6 +144,61 @@ const Storage = {
     if (this.onSyncStatus) this.onSyncStatus(message, type);
   },
 
+  isDataEmpty(data) {
+    return !data?.items?.length && !data?.sessions?.length && !data?.cycles?.length;
+  },
+
+  /**
+   * Combine GitHub and local data without dropping sessions that exist on only one side.
+   * Returns merged data and whether local had records missing from remote.
+   */
+  reconcileSyncData(remote, local) {
+    const remoteNorm = this.normalize(remote);
+    const localNorm = this.normalize(local);
+    const remoteEmpty = this.isDataEmpty(remoteNorm);
+    const localEmpty = this.isDataEmpty(localNorm);
+
+    if (remoteEmpty && !localEmpty) {
+      return { data: localNorm, merged: false, localWasRicher: true };
+    }
+    if (localEmpty && !remoteEmpty) {
+      return { data: remoteNorm, merged: false, localWasRicher: false };
+    }
+    if (remoteEmpty && localEmpty) {
+      return { data: remoteNorm, merged: false, localWasRicher: false };
+    }
+
+    const merged = this.mergeData(remoteNorm, localNorm);
+    const localWasRicher =
+      localNorm.sessions.length > remoteNorm.sessions.length
+      || localNorm.items.length > remoteNorm.items.length
+      || localNorm.cycles.length > remoteNorm.cycles.length;
+    return { data: merged, merged: true, localWasRicher };
+  },
+
+  async applySyncFromRemote(remote, sha, { silent = false, settings = null } = {}) {
+    settings = settings || this.getSyncSettings();
+    const local = this.load();
+    const { data, merged, localWasRicher } = this.reconcileSyncData(remote, local);
+
+    this._fileSha = sha;
+    this.save(data, { sync: false });
+
+    if (merged && localWasRicher) {
+      await this.pushToGitHub({ silent, settings });
+      if (!silent) {
+        this.setSyncStatus('Merged local history with GitHub', 'success');
+      }
+      return data;
+    }
+
+    if (!silent) {
+      const message = merged ? 'Synced and merged with GitHub' : 'Synced from GitHub';
+      this.setSyncStatus(message, 'success');
+    }
+    return data;
+  },
+
   async init() {
     if (!GitHubSync.isAutoSyncEnabled()) return;
 
@@ -141,8 +206,8 @@ const Storage = {
       const settings = this.getSyncSettings();
       const { data: remote, sha } = await GitHubSync.fetchRemote(settings);
       const local = this.load();
-      const remoteEmpty = !remote.items?.length && !remote.sessions?.length && !remote.cycles?.length;
-      const localHasData = local.items.length || local.sessions.length || local.cycles.length;
+      const remoteEmpty = this.isDataEmpty(remote);
+      const localHasData = !this.isDataEmpty(local);
 
       this._fileSha = sha;
 
@@ -150,8 +215,7 @@ const Storage = {
         await this.pushToGitHub({ silent: true });
         this.setSyncStatus('Synced to GitHub', 'success');
       } else {
-        this.save(remote, { sync: false });
-        this.setSyncStatus('Synced from GitHub', 'success');
+        await this.applySyncFromRemote(remote, sha, { silent: true, settings });
       }
     } catch (error) {
       this.setSyncStatus(error.message, 'error');

@@ -2211,17 +2211,15 @@ const App = {
     const runInitialSync = async (settings) => {
       const { data: remote, sha } = await GitHubSync.fetchRemote(settings);
       const local = Storage.load();
-      const remoteEmpty = !remote.items?.length && !remote.sessions?.length && !remote.cycles?.length;
-      const localHasData = local.items.length || local.sessions.length || local.cycles.length;
-
-      Storage._fileSha = sha;
+      const remoteEmpty = Storage.isDataEmpty(remote);
+      const localHasData = !Storage.isDataEmpty(local);
 
       if (remoteEmpty && localHasData) {
         await Storage.pushToGitHub({ settings });
       } else {
-        await Storage.pullFromGitHub({ settings });
-        refreshAfterSync();
+        await Storage.applySyncFromRemote(remote, sha, { settings });
       }
+      refreshAfterSync();
     };
 
     const switchDataProfile = async (profileId) => {
@@ -2940,6 +2938,29 @@ const App = {
     this.logDateFilterBeforeCalendar = select.value;
   },
 
+  buildHistoryItemOptionsHtml(items) {
+    const active = items.filter((item) => !item.archived);
+    const archived = items.filter((item) => item.archived);
+    const byName = (a, b) => itemDisplayName(a).localeCompare(itemDisplayName(b));
+    active.sort(byName);
+    archived.sort(byName);
+
+    const optionFor = (item) => {
+      const sessions = Storage.getSessionsForItem(item.id).length;
+      const suffix = sessions ? ` (${sessions} sessions)` : '';
+      return `<option value="${item.id}">${escapeHtml(itemSelectLabel(item))}${escapeHtml(suffix)}</option>`;
+    };
+
+    let html = '';
+    if (active.length) {
+      html += `<optgroup label="Active">${active.map(optionFor).join('')}</optgroup>`;
+    }
+    if (archived.length) {
+      html += `<optgroup label="Archived">${archived.map(optionFor).join('')}</optgroup>`;
+    }
+    return html;
+  },
+
   refreshItemSelects() {
     const items = Storage.getItems();
     const activeItems = Storage.getActiveItems();
@@ -2962,11 +2983,13 @@ const App = {
       },
       {
         el: document.getElementById('log-filter-item'),
-        placeholder: '<option value="">All items</option>'
+        placeholder: '<option value="">All items</option>',
+        groupArchived: true
       },
       {
         el: document.getElementById('progress-item-select'),
-        placeholder: '<option value="">Select an item…</option>'
+        placeholder: '<option value="">All items (combined)</option>',
+        groupArchived: true
       },
       {
         el: document.getElementById('manual-log-item'),
@@ -2975,7 +2998,7 @@ const App = {
       }
     ];
 
-    configs.forEach(({ el, placeholder, extra = '', includeCycles = false, items: configItems, cycles: configCycles }) => {
+    configs.forEach(({ el, placeholder, extra = '', includeCycles = false, groupArchived = false, items: configItems, cycles: configCycles }) => {
       if (!el) return;
       const current = el.value;
       const listItems = configItems || items;
@@ -2995,6 +3018,8 @@ const App = {
         html += '<optgroup label="Items">' +
           listItems.map((i) => `<option value="${i.id}">${escapeHtml(itemSelectLabel(i))}</option>`).join('') +
           '</optgroup>';
+      } else if (groupArchived && !configItems) {
+        html += this.buildHistoryItemOptionsHtml(listItems);
       } else {
         html += listItems.map((i) => `<option value="${i.id}">${escapeHtml(itemSelectLabel(i))}</option>`).join('');
       }
@@ -3269,7 +3294,15 @@ const App = {
     timeEmpty.hidden = drewTime;
     timeCanvas.hidden = !drewTime;
     if (!drewTime) {
-      timeEmpty.textContent = 'No practice in this period.';
+      const chartWindow = timeResult?.window;
+      const hasOutsideWindow = chartWindow && sessions.some((s) => {
+        const started = new Date(s.startedAt);
+        if (Number.isNaN(started.getTime())) return false;
+        return started < chartWindow.start || started > chartWindow.end;
+      });
+      timeEmpty.textContent = hasOutsideWindow
+        ? 'No practice in this period. Tap ‹ to view earlier weeks or months.'
+        : 'No practice in this period.';
       this.timeChartSelectedKey = null;
       clearTimeSelection();
     } else if (timeSelection) {
