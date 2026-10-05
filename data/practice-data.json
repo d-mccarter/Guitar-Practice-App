@@ -236,6 +236,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "79acd330-5bb0-4358-a254-aad1de86b8be",
+      "itemId": null,
+      "itemName": "Chromatic ascending descending",
+      "workedOn": "Chromatic ascending descending",
+      "tempo": 130,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 536,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-05T18:43:06.867Z",
+      "completedAt": "2026-10-05T18:53:31.935Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "ebe216f9-6f4d-4301-a8b1-5f2099bca4c6",
       "itemId": "aac51e7f-3015-483c-a996-7d79c249d5c0",
       "itemName": "9j/9k",
