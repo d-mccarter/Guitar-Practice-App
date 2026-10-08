@@ -236,6 +236,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "5c2ee5ed-95db-4091-844c-0fefe40dbe04",
+      "itemId": "425aecbb-feb5-4676-b0ca-84ac7286a9f5",
+      "itemName": "A/C Shape 3rds",
+      "workedOn": "",
+      "tempo": 150,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 735,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-08T01:11:33.486Z",
+      "completedAt": "2026-10-08T01:37:37.614Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "ef64a236-e329-4168-8818-a483a85ec02d",
       "itemId": null,
       "itemName": "C shape transition warmup",
