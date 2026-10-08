@@ -231,6 +231,14 @@
       "targetTempo": 170,
       "archived": false,
       "createdAt": "2026-10-05T18:52:36.976Z"
+    },
+    {
+      "id": "69091490-e377-40d4-adb1-09a9c39eac0e",
+      "name": "Finger independence",
+      "description": "",
+      "targetTempo": null,
+      "archived": false,
+      "createdAt": "2026-10-08T01:50:00.238Z"
     }
   ],
   "cycles": [],
