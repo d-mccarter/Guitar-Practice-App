@@ -236,6 +236,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "ef64a236-e329-4168-8818-a483a85ec02d",
+      "itemId": null,
+      "itemName": "C shape transition warmup",
+      "workedOn": "C shape transition warmup",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 451,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-08T01:02:55.026Z",
+      "completedAt": "2026-10-08T01:11:19.818Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "ea2be214-5fa8-4016-8e6a-66c687a2698d",
       "itemId": "7736a579-1ff1-4574-8353-634db4498f1b",
       "itemName": "A/C Shape Fours",
