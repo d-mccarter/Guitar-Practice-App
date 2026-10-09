@@ -244,6 +244,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "05e5acbf-6631-44af-9618-5b72167dcf0e",
+      "itemId": "aac51e7f-3015-483c-a996-7d79c249d5c0",
+      "itemName": "9j/9k",
+      "workedOn": "",
+      "tempo": 150,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 353,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-09T01:30:16.450Z",
+      "completedAt": "2026-10-09T01:36:14.666Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "86380018-90ef-4232-b49b-1cda77b2ccf6",
       "itemId": null,
       "itemName": "G shape arpeggio",
