@@ -244,6 +244,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "86380018-90ef-4232-b49b-1cda77b2ccf6",
+      "itemId": null,
+      "itemName": "G shape arpeggio",
+      "workedOn": "G shape arpeggio",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 852,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-09T01:15:21.643Z",
+      "completedAt": "2026-10-09T01:30:06.199Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "98f9e7a2-4fa8-46b3-b00f-5c91920f4bbc",
       "itemId": "2bdea550-3035-4c41-a879-bd2aae0bc4bf",
       "itemName": "9g",
