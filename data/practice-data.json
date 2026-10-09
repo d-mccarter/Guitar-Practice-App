@@ -244,6 +244,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "a2b9881d-b254-4839-900d-fb2fd4da186c",
+      "itemId": "69091490-e377-40d4-adb1-09a9c39eac0e",
+      "itemName": "Finger independence",
+      "workedOn": "",
+      "tempo": 70,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 430,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-09T19:29:44.424Z",
+      "completedAt": "2026-10-09T19:37:33.768Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "e580aa13-c2ab-4253-a291-4c15f17dec3a",
       "itemId": "9b0e8cd2-05af-495f-80a4-12be5f7db5c1",
       "itemName": "Cross Picking Warmup",
