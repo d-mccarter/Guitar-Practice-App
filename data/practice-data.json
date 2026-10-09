@@ -244,6 +244,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "33a3db29-12a5-461e-a557-4a5b8fc9adb6",
+      "itemId": null,
+      "itemName": "Warmup",
+      "workedOn": "Warmup",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 398,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-09T00:39:24.431Z",
+      "completedAt": "2026-10-09T00:46:38.635Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "ae0e47f0-6900-4afa-8983-90d4ad660ca3",
       "itemId": "7736a579-1ff1-4574-8353-634db4498f1b",
       "itemName": "A/C Shape Fours",
