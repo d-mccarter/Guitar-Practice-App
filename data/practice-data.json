@@ -239,6 +239,14 @@
       "targetTempo": null,
       "archived": false,
       "createdAt": "2026-10-08T01:50:00.238Z"
+    },
+    {
+      "id": "0d07977c-62b0-4a29-8edd-63bb89cf572e",
+      "name": "E shape 3rds",
+      "description": "",
+      "targetTempo": 160,
+      "archived": false,
+      "createdAt": "2026-10-10T20:25:00.006Z"
     }
   ],
   "cycles": [],
