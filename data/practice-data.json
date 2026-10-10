@@ -252,6 +252,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "4b739960-d92f-4263-8fbd-4ead93d6656e",
+      "itemId": null,
+      "itemName": "Move your funky soul",
+      "workedOn": "Move your funky soul",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 900,
+      "plannedDurationSeconds": 900,
+      "startedAt": "2026-10-10T21:57:00.000Z",
+      "completedAt": "2026-10-10T22:12:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "86cfe87f-3dad-475b-8d48-670c7f3810c4",
       "itemId": "0d07977c-62b0-4a29-8edd-63bb89cf572e",
       "itemName": "E shape 3rds",
