@@ -252,6 +252,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "86cfe87f-3dad-475b-8d48-670c7f3810c4",
+      "itemId": "0d07977c-62b0-4a29-8edd-63bb89cf572e",
+      "itemName": "E shape 3rds",
+      "workedOn": "",
+      "tempo": 100,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 690,
+      "plannedDurationSeconds": 690,
+      "startedAt": "2026-10-10T20:25:00.000Z",
+      "completedAt": "2026-10-10T20:36:30.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "c84e6ce4-266e-4da2-a2e3-1425a4f0c950",
       "itemId": "425aecbb-feb5-4676-b0ca-84ac7286a9f5",
       "itemName": "A/C Shape 3rds",
