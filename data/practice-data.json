@@ -244,6 +244,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "79999150-de58-49ce-ab2d-7888d6d2bccb",
+      "itemId": null,
+      "itemName": "C shape transition/ inside outside picking warmup",
+      "workedOn": "C shape transition/ inside outside picking warmup",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 604,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-10T19:32:46.271Z",
+      "completedAt": "2026-10-10T19:43:18.964Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "d5980b43-db30-4ea7-ab00-c2af10021b7d",
       "itemId": "2bdea550-3035-4c41-a879-bd2aae0bc4bf",
       "itemName": "9g",
