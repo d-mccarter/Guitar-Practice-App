@@ -252,6 +252,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "3e983985-016b-4d26-bd4c-a7e605f46548",
+      "itemId": null,
+      "itemName": "C shape/in out warmup",
+      "workedOn": "C shape/in out warmup",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 605,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-11T14:53:12.553Z",
+      "completedAt": "2026-10-11T15:03:47.969Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "4b739960-d92f-4263-8fbd-4ead93d6656e",
       "itemId": null,
       "itemName": "Move your funky soul",
