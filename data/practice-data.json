@@ -252,6 +252,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "8cda8583-94ce-4c9a-b525-94a9337dd7b0",
+      "itemId": "2bdea550-3035-4c41-a879-bd2aae0bc4bf",
+      "itemName": "9g",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 306,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-12T23:44:05.740Z",
+      "completedAt": "2026-10-12T23:49:54.086Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "71332c20-8770-4130-930f-c1aa4c871bbc",
       "itemId": "0d07977c-62b0-4a29-8edd-63bb89cf572e",
       "itemName": "E shape 3rds",
