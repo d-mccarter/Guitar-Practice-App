@@ -252,6 +252,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "468f4fb6-d8f3-42c2-a235-8307ad209371",
+      "itemId": null,
+      "itemName": "Warmup",
+      "workedOn": "Warmup",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 187,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-12T16:25:02.943Z",
+      "completedAt": "2026-10-12T16:28:33.152Z",
+      "completed": true,
+      "rating": 0,
+      "notes": "C shape chord transitions"
+    },
+    {
       "id": "839ee429-9fc6-41a3-9ca3-9346b96cd08f",
       "itemId": "0d07977c-62b0-4a29-8edd-63bb89cf572e",
       "itemName": "E shape 3rds",
