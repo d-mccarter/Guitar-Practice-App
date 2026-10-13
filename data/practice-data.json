@@ -255,6 +255,14 @@
       "targetTempo": 150,
       "archived": false,
       "createdAt": "2026-10-13T00:16:34.135Z"
+    },
+    {
+      "id": "2e2ac8a7-40f5-43b0-8423-b1437219c144",
+      "name": "E/A/C Shape 3rds",
+      "description": "",
+      "targetTempo": 160,
+      "archived": false,
+      "createdAt": "2026-10-13T23:54:15.353Z"
     }
   ],
   "cycles": [],
