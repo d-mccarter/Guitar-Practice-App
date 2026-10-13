@@ -260,6 +260,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "544db215-a4b8-4592-98cb-1cba15b81476",
+      "itemId": "678df588-b3a1-4160-b11a-30071ff53d42",
+      "itemName": "Pull off legato exercises",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 570,
+      "plannedDurationSeconds": 570,
+      "startedAt": "2026-10-13T00:16:00.000Z",
+      "completedAt": "2026-10-13T00:25:30.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "da4bc5d6-5601-446e-88eb-a2632f8de197",
       "itemId": "69091490-e377-40d4-adb1-09a9c39eac0e",
       "itemName": "Finger independence",
