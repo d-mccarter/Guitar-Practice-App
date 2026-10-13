@@ -229,7 +229,7 @@
       "name": "Chromatic ascending descending",
       "description": "",
       "targetTempo": 170,
-      "archived": false,
+      "archived": true,
       "createdAt": "2026-10-05T18:52:36.976Z"
     },
     {
