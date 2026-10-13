@@ -70,7 +70,7 @@
       "description": "E-shape scale legato",
       "targetTempo": 160,
       "createdAt": "2026-07-17T22:31:00.746Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "447c7bd8-5e58-40bf-9ca3-4b262da5b2e8",
@@ -78,7 +78,7 @@
       "description": "C-shape scale legato",
       "targetTempo": 160,
       "createdAt": "2026-07-17T22:31:21.394Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "ada966a3-b7cb-45f6-ac14-0aded6b95f08",
