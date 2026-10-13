@@ -260,6 +260,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "0500d049-f8cd-4a6d-9c33-19b7b7f74433",
+      "itemId": "69091490-e377-40d4-adb1-09a9c39eac0e",
+      "itemName": "Finger independence",
+      "workedOn": "",
+      "tempo": 65,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 420,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-13T16:26:33.081Z",
+      "completedAt": "2026-10-13T16:33:51.539Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "43751f03-9ba6-4db1-bcdf-4073a995ce5b",
       "itemId": "0d07977c-62b0-4a29-8edd-63bb89cf572e",
       "itemName": "E shape 3rds",
