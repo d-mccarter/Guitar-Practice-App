@@ -247,6 +247,14 @@
       "targetTempo": 160,
       "archived": false,
       "createdAt": "2026-10-10T20:25:00.006Z"
+    },
+    {
+      "id": "678df588-b3a1-4160-b11a-30071ff53d42",
+      "name": "Pull off legato exercises",
+      "description": "",
+      "targetTempo": 150,
+      "archived": false,
+      "createdAt": "2026-10-13T00:16:34.135Z"
     }
   ],
   "cycles": [],
