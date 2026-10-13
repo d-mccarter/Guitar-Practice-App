@@ -22,7 +22,7 @@
       "description": "",
       "targetTempo": 140,
       "createdAt": "2026-07-17T21:58:01.193Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "1cac5d46-2e52-4fdd-a98e-08f7501a42de",
@@ -110,7 +110,7 @@
       "description": "",
       "targetTempo": 160,
       "createdAt": "2026-08-15T04:10:11.790Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "fd41d2f7-6a97-452e-b031-9b6b8754ed49",
