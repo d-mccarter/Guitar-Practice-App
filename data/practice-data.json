@@ -260,6 +260,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "62a7b359-0531-4664-8c22-71a8c522c82f",
+      "itemId": null,
+      "itemName": "C shape triplet scale and chord warmup",
+      "workedOn": "C shape triplet scale and chord warmup",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 604,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-13T16:03:30.451Z",
+      "completedAt": "2026-10-13T16:14:22.892Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "544db215-a4b8-4592-98cb-1cba15b81476",
       "itemId": "678df588-b3a1-4160-b11a-30071ff53d42",
       "itemName": "Pull off legato exercises",
