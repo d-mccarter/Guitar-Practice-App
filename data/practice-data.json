@@ -102,7 +102,7 @@
       "description": "",
       "targetTempo": 200,
       "createdAt": "2026-07-26T14:26:46.146Z",
-      "archived": false
+      "archived": true
     },
     {
       "id": "970ab2fb-6f59-4be2-ba34-c94c2f6cba60",
