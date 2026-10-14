@@ -268,6 +268,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "e4e503d2-99e1-488d-8ad7-91d1d08421e2",
+      "itemId": null,
+      "itemName": "C shape triplets and chord warmup",
+      "workedOn": "C shape triplets and chord warmup",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 435,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-14T16:08:04.795Z",
+      "completedAt": "2026-10-14T16:15:42.772Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "0c24c2e4-7e55-4be5-a4b3-e94392bf3f64",
       "itemId": "2bdea550-3035-4c41-a879-bd2aae0bc4bf",
       "itemName": "9g",
