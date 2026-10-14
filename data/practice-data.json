@@ -268,6 +268,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "626ff1ff-8216-4e4b-9a54-cb4cfd11497b",
+      "itemId": "2e2ac8a7-40f5-43b0-8423-b1437219c144",
+      "itemName": "E/A/C Shape 3rds",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 445,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-14T16:15:52.027Z",
+      "completedAt": "2026-10-14T16:24:49.164Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "e4e503d2-99e1-488d-8ad7-91d1d08421e2",
       "itemId": null,
       "itemName": "C shape triplets and chord warmup",
