@@ -268,6 +268,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "0c24c2e4-7e55-4be5-a4b3-e94392bf3f64",
+      "itemId": "2bdea550-3035-4c41-a879-bd2aae0bc4bf",
+      "itemName": "9g",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 283,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-14T00:07:49.909Z",
+      "completedAt": "2026-10-14T00:14:36.317Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "8c83a4b1-46e8-4d51-86e9-1407bbe6f832",
       "itemId": "2e2ac8a7-40f5-43b0-8423-b1437219c144",
       "itemName": "E/A/C Shape 3rds",
