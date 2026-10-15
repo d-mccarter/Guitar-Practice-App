@@ -276,6 +276,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "68eab455-ab2b-481b-8255-a3e8b170b7b1",
+      "itemId": null,
+      "itemName": "C shape triplet",
+      "workedOn": "C shape triplet",
+      "tempo": 125,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 455,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-15T17:10:02.756Z",
+      "completedAt": "2026-10-15T17:22:16.989Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "5ca0ad0e-2eb9-4178-b94c-db9428c08378",
       "itemId": "2bdea550-3035-4c41-a879-bd2aae0bc4bf",
       "itemName": "9g",
