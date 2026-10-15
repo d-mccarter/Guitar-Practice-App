@@ -276,6 +276,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "335f9654-0938-41ab-9a62-c9c2b4cfc71c",
+      "itemId": "2e2ac8a7-40f5-43b0-8423-b1437219c144",
+      "itemName": "E/A/C Shape 3rds",
+      "workedOn": "",
+      "tempo": 110,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 1380,
+      "plannedDurationSeconds": 1380,
+      "startedAt": "2026-10-15T21:27:00.000Z",
+      "completedAt": "2026-10-15T21:50:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "68eab455-ab2b-481b-8255-a3e8b170b7b1",
       "itemId": null,
       "itemName": "C shape triplet",
