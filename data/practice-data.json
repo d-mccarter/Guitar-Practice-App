@@ -276,6 +276,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "5273040c-8201-4fed-adc5-c08711a0eb0a",
+      "itemId": "89970727-7224-4dd3-ad8d-dfb4170b8be6",
+      "itemName": "C-shape triplets",
+      "workedOn": "",
+      "tempo": 130,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 900,
+      "plannedDurationSeconds": 900,
+      "startedAt": "2026-10-16T22:48:00.000Z",
+      "completedAt": "2026-10-16T23:03:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "a3a4973a-0d10-4a72-9f63-354f90b87542",
       "itemId": "b20c0ceb-ed3b-48ba-96e5-6c57b2394f9c",
       "itemName": "E/A/C ascending arpeggio descending scale",
