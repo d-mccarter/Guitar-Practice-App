@@ -276,6 +276,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "e58658ed-c9c1-45f1-97ae-22129debff12",
+      "itemId": "b20c0ceb-ed3b-48ba-96e5-6c57b2394f9c",
+      "itemName": "E/A/C ascending arpeggio descending scale",
+      "workedOn": "",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 226,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-20T00:49:09.031Z",
+      "completedAt": "2026-10-20T00:53:00.031Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "27b36d03-54e7-4935-a886-58d1bbf6416a",
       "itemId": "2e2ac8a7-40f5-43b0-8423-b1437219c144",
       "itemName": "E/A/C Shape 3rds",
