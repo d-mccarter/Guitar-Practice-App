@@ -276,6 +276,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "27b36d03-54e7-4935-a886-58d1bbf6416a",
+      "itemId": "2e2ac8a7-40f5-43b0-8423-b1437219c144",
+      "itemName": "E/A/C Shape 3rds",
+      "workedOn": "",
+      "tempo": 150,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 209,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-20T00:45:21.782Z",
+      "completedAt": "2026-10-20T00:49:05.092Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "59f49b1e-4454-465d-9dd0-0f39b0d0dfa7",
       "itemId": null,
       "itemName": "Cage shape triplets",
