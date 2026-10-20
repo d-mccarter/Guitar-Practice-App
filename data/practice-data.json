@@ -276,6 +276,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "59f49b1e-4454-465d-9dd0-0f39b0d0dfa7",
+      "itemId": null,
+      "itemName": "Cage shape triplets",
+      "workedOn": "Cage shape triplets",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 409,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-20T00:35:43.929Z",
+      "completedAt": "2026-10-20T00:45:10.089Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "b0c62949-a128-4a3f-923b-4f3b1fe8b2c9",
       "itemId": "b20c0ceb-ed3b-48ba-96e5-6c57b2394f9c",
       "itemName": "E/A/C ascending arpeggio descending scale",
