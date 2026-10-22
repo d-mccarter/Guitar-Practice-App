@@ -276,6 +276,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "928ca849-5ce2-49cc-ac75-f3d05b4f7ac9",
+      "itemId": "2e2ac8a7-40f5-43b0-8423-b1437219c144",
+      "itemName": "E/A/C Shape 3rds",
+      "workedOn": "",
+      "tempo": 150,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 543,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-22T00:29:28.420Z",
+      "completedAt": "2026-10-22T00:40:22.632Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "e1e907fb-4b28-43a5-b7ea-72092fc37cdf",
       "itemId": null,
       "itemName": "Warmup",
