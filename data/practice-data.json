@@ -276,6 +276,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "5ad254fc-89e0-4fed-9aa7-b7b7bbfa8f89",
+      "itemId": null,
+      "itemName": "Triplets",
+      "workedOn": "Triplets",
+      "tempo": 135,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 673,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-23T00:16:18.603Z",
+      "completedAt": "2026-10-23T00:27:43.844Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "0b5993c6-89e0-4431-bdc8-2b47984e0fb2",
       "itemId": null,
       "itemName": "Triplets",
