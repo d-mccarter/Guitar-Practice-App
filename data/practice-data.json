@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "db9d17e6-e787-4016-9405-2969a555e4dd",
+      "itemId": "2e2ac8a7-40f5-43b0-8423-b1437219c144",
+      "itemName": "E/A/C Shape 3rds",
+      "workedOn": "",
+      "tempo": 150,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 277,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-24T00:37:32.338Z",
+      "completedAt": "2026-10-24T00:42:14.053Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "753d27e4-8c2b-4735-9bfc-955e71800b2d",
       "itemId": "f31345c0-844d-4d00-91ef-e09442c5b820",
       "itemName": "Triplets",
