@@ -301,6 +301,23 @@
       "notes": ""
     },
     {
+      "id": "0b197348-6cbe-4cf9-b31a-587a362c4ea7",
+      "itemId": null,
+      "itemName": "Pentatonic jam",
+      "workedOn": "Pentatonic jam",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-10-24T13:48:00.000Z",
+      "completedAt": "2026-10-24T13:58:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "4163a6f7-7f5b-49ec-83be-260d81adfdf7",
       "itemId": "7736a579-1ff1-4574-8353-634db4498f1b",
       "itemName": "A/C Shape Fours",
