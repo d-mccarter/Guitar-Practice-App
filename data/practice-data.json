@@ -271,6 +271,14 @@
       "targetTempo": 150,
       "archived": false,
       "createdAt": "2026-10-14T16:34:45.745Z"
+    },
+    {
+      "id": "f31345c0-844d-4d00-91ef-e09442c5b820",
+      "name": "Triplets",
+      "description": "",
+      "targetTempo": 150,
+      "archived": false,
+      "createdAt": "2026-10-24T00:28:54.760Z"
     }
   ],
   "cycles": [],
