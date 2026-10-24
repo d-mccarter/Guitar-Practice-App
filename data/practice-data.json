@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "753d27e4-8c2b-4735-9bfc-955e71800b2d",
+      "itemId": "f31345c0-844d-4d00-91ef-e09442c5b820",
+      "itemName": "Triplets",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 488,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-24T00:29:04.882Z",
+      "completedAt": "2026-10-24T00:37:24.386Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "31899108-ce09-44b9-a1ee-527246d2020c",
       "itemId": "69091490-e377-40d4-adb1-09a9c39eac0e",
       "itemName": "Finger independence",
