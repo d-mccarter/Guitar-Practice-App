@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "7ee579c8-7365-477a-bab6-6050dee6e1fe",
+      "itemId": "aac51e7f-3015-483c-a996-7d79c249d5c0",
+      "itemName": "9j/9k",
+      "workedOn": "",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 185,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-24T01:12:16.924Z",
+      "completedAt": "2026-10-24T01:15:45.477Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "fdc19b94-2910-4f42-875f-070309115b50",
       "itemId": "69091490-e377-40d4-adb1-09a9c39eac0e",
       "itemName": "Finger independence",
