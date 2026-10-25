@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "5d4b5400-89f8-401c-9695-23ca95bcfab1",
+      "itemId": null,
+      "itemName": "C shape triplet warmup",
+      "workedOn": "C shape triplet warmup",
+      "tempo": 125,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 376,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-10-25T16:37:18.583Z",
+      "completedAt": "2026-10-25T16:43:50.978Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "0802a4d4-4208-4edf-a601-853fc5d81b02",
       "itemId": "f31345c0-844d-4d00-91ef-e09442c5b820",
       "itemName": "Triplets",
