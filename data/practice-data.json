@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "f7aae796-301d-4c85-8179-c899ee71bf33",
+      "itemId": null,
+      "itemName": "E pentatonic jam",
+      "workedOn": "E pentatonic jam",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 480,
+      "plannedDurationSeconds": 480,
+      "startedAt": "2026-10-25T23:21:00.000Z",
+      "completedAt": "2026-10-25T23:29:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "bd8125e5-3f4a-4b5f-8026-3a8b8cc3bd37",
       "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
       "itemName": "Routine 9",
