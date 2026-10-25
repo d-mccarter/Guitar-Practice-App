@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "42e19944-75aa-4de1-891e-c8df62e06a02",
+      "itemId": "2e2ac8a7-40f5-43b0-8423-b1437219c144",
+      "itemName": "E/A/C Shape 3rds",
+      "workedOn": "",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 366,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-25T16:44:38.337Z",
+      "completedAt": "2026-10-25T16:51:10.952Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "5d4b5400-89f8-401c-9695-23ca95bcfab1",
       "itemId": null,
       "itemName": "C shape triplet warmup",
