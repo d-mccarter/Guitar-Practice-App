@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "9a9c36bc-5744-4361-906f-f1097b7d2ace",
+      "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
+      "itemName": "Routine 9",
+      "workedOn": "",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-10-27T01:48:00.000Z",
+      "completedAt": "2026-10-27T01:58:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "13ff48ac-3dcb-4861-b866-58ae5860e120",
       "itemId": "f31345c0-844d-4d00-91ef-e09442c5b820",
       "itemName": "Triplets",
