@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "13ff48ac-3dcb-4861-b866-58ae5860e120",
+      "itemId": "f31345c0-844d-4d00-91ef-e09442c5b820",
+      "itemName": "Triplets",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 330,
+      "plannedDurationSeconds": 330,
+      "startedAt": "2026-10-27T01:36:00.000Z",
+      "completedAt": "2026-10-27T01:41:30.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "f7aae796-301d-4c85-8179-c899ee71bf33",
       "itemId": null,
       "itemName": "E pentatonic jam",
