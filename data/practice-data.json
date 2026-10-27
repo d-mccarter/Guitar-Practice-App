@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "ee6fa4b6-aa32-458b-80c5-83a6ce3d372f",
+      "itemId": "aac51e7f-3015-483c-a996-7d79c249d5c0",
+      "itemName": "9j/9k",
+      "workedOn": "",
+      "tempo": 150,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 374,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-27T17:27:01.569Z",
+      "completedAt": "2026-10-27T17:34:04.708Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "857c78f2-91e9-4b79-97fe-b4309760ca8a",
       "itemId": "f31345c0-844d-4d00-91ef-e09442c5b820",
       "itemName": "Triplets",
