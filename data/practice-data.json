@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "4fd37671-a4b1-4e1f-bbd0-608339fe51d1",
+      "itemId": "b20c0ceb-ed3b-48ba-96e5-6c57b2394f9c",
+      "itemName": "E/A/C ascending arpeggio descending scale",
+      "workedOn": "",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 204,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-10-30T02:01:38.306Z",
+      "completedAt": "2026-10-30T02:07:40.721Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "f5c5875c-94b4-4c8c-83bf-90d9b40d974a",
       "itemId": "f31345c0-844d-4d00-91ef-e09442c5b820",
       "itemName": "Triplets",
