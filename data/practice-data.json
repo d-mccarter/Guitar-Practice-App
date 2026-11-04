@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "9bc16d46-41e7-440f-8730-97f6d50b2701",
+      "itemId": "b20c0ceb-ed3b-48ba-96e5-6c57b2394f9c",
+      "itemName": "E/A/C ascending arpeggio descending scale",
+      "workedOn": "",
+      "tempo": 150,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 467,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-04T19:21:02.944Z",
+      "completedAt": "2026-11-04T19:31:54.181Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "5cd893f5-0eb2-4bfe-a051-5ce939de89c0",
       "itemId": null,
       "itemName": "Warmup",
