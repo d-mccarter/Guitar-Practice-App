@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "c7255533-863e-4b2e-a140-7a7c49cd9fda",
+      "itemId": null,
+      "itemName": "Warmups",
+      "workedOn": "Warmups",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 322,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-11-05T14:19:30.564Z",
+      "completedAt": "2026-11-05T14:25:01.747Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "07d795c9-4778-41aa-8dff-c2c5ffb7f314",
       "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
       "itemName": "Routine 9",
