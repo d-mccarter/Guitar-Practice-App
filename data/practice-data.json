@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "0a5aa2b8-c6f3-4a40-9e39-090e511c6b1a",
+      "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
+      "itemName": "Routine 9",
+      "workedOn": "",
+      "tempo": 110,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 1500,
+      "plannedDurationSeconds": 1500,
+      "startedAt": "2026-11-05T19:55:00.000Z",
+      "completedAt": "2026-11-05T20:20:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "babf6837-fa38-4ae5-9a5e-059a81975de5",
       "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
       "itemName": "Routine 9",
