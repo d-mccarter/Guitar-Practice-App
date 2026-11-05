@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "ab5d30ab-f12e-4b68-ba18-f4543ed69d01",
+      "itemId": "69091490-e377-40d4-adb1-09a9c39eac0e",
+      "itemName": "Finger independence",
+      "workedOn": "",
+      "tempo": 95,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 579,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-05T14:25:08.200Z",
+      "completedAt": "2026-11-05T14:40:38.772Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "c7255533-863e-4b2e-a140-7a7c49cd9fda",
       "itemId": null,
       "itemName": "Warmups",
