@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "07d795c9-4778-41aa-8dff-c2c5ffb7f314",
+      "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
+      "itemName": "Routine 9",
+      "workedOn": "",
+      "tempo": 170,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-11-05T01:45:00.000Z",
+      "completedAt": "2026-11-05T01:55:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "3533e6fa-2be4-4154-9838-575e2ceefbab",
       "itemId": null,
       "itemName": "9a - chord switching",
