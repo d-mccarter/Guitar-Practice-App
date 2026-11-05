@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "3533e6fa-2be4-4154-9838-575e2ceefbab",
+      "itemId": null,
+      "itemName": "9a - chord switching",
+      "workedOn": "9a - chord switching",
+      "tempo": 170,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 422,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-11-05T01:26:37.019Z",
+      "completedAt": "2026-11-05T01:34:36.804Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "0f27af4e-ee01-45c5-b2fe-aab711d995f8",
       "itemId": "7736a579-1ff1-4574-8353-634db4498f1b",
       "itemName": "A/C Shape Fours",
