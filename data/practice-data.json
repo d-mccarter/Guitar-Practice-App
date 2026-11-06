@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "0aaa0211-2dd9-4fec-b0a8-8905a66194d3",
+      "itemId": null,
+      "itemName": "Noodling",
+      "workedOn": "Noodling",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 900,
+      "plannedDurationSeconds": 900,
+      "startedAt": "2026-11-06T04:03:00.000Z",
+      "completedAt": "2026-11-06T04:18:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "4611d0c2-f315-4c3c-b20f-2e8560b38b76",
       "itemId": null,
       "itemName": "Triplets",
