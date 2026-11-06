@@ -284,6 +284,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "f6d73c94-a1d5-467f-875d-74fca14100b3",
+      "itemId": null,
+      "itemName": "Fast pentatonics",
+      "workedOn": "Fast pentatonics",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 658,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-11-06T17:33:31.609Z",
+      "completedAt": "2026-11-06T17:47:16.560Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "0aaa0211-2dd9-4fec-b0a8-8905a66194d3",
       "itemId": null,
       "itemName": "Noodling",
