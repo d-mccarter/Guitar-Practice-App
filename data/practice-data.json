@@ -292,6 +292,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "d9c956ca-acdd-415e-92c7-7bf32eb37ed4",
+      "itemId": "69091490-e377-40d4-adb1-09a9c39eac0e",
+      "itemName": "Finger independence",
+      "workedOn": "",
+      "tempo": 105,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 273,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-07T01:15:05.292Z",
+      "completedAt": "2026-11-07T01:21:31.915Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "5beea567-e6ba-4cd3-a2cf-72fd1121ff20",
       "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
       "itemName": "Routine 9",
