@@ -282,8 +282,8 @@
     },
     {
       "id": "cd25c483-09e9-41c7-b5dc-b60bc9e94ed1",
-      "name": "10e",
-      "description": "Ascending major all 12 keys",
+      "name": "10e/10f",
+      "description": "Ascending/descending major all 12 keys",
       "targetTempo": 140,
       "archived": false,
       "createdAt": "2026-11-06T18:01:59.779Z"
