@@ -300,6 +300,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "3caa1b7a-2d3c-4705-b808-2dd9d1dbecc1",
+      "itemId": "f31345c0-844d-4d00-91ef-e09442c5b820",
+      "itemName": "Triplets",
+      "workedOn": "",
+      "tempo": 130,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 288,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-07T03:40:36.391Z",
+      "completedAt": "2026-11-07T03:45:35.352Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "3b8d02ea-a2b4-4b43-9056-e2e6ebce86e3",
       "itemId": "e902c763-15b9-4333-9e05-c96ec7dde102",
       "itemName": "Fast Pentatonics",
