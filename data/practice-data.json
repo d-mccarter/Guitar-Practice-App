@@ -300,6 +300,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "e1460b50-b4cf-4ad0-b1a2-92245acd2ff2",
+      "itemId": null,
+      "itemName": "Warmup",
+      "workedOn": "Warmup",
+      "tempo": 130,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 504,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-11-09T00:54:30.974Z",
+      "completedAt": "2026-11-09T01:03:13.085Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "3caa1b7a-2d3c-4705-b808-2dd9d1dbecc1",
       "itemId": "f31345c0-844d-4d00-91ef-e09442c5b820",
       "itemName": "Triplets",
