@@ -97,6 +97,14 @@
       "archived": true
     },
     {
+      "id": "6ed60f89-c6b6-4f07-a6fa-577673edff1a",
+      "name": "Arkansas Traveller Part 2",
+      "description": "",
+      "targetTempo": 200,
+      "createdAt": "2026-07-26T14:25:58.957Z",
+      "archived": false
+    },
+    {
       "id": "6c16ce96-6fee-4bfc-9db5-65780a34bc4b",
       "name": "Arkansas Traveller Part 1",
       "description": "",
@@ -119,6 +127,22 @@
       "targetTempo": null,
       "createdAt": "2026-08-18T01:40:15.528Z",
       "archived": true
+    },
+    {
+      "id": "cb1752b8-9b6d-4ed7-884a-85cbd77aa090",
+      "name": "Pentatonic pattern 3",
+      "description": "",
+      "targetTempo": null,
+      "createdAt": "2026-08-21T02:32:29.459Z",
+      "archived": false
+    },
+    {
+      "id": "55776a1e-5c73-47bd-b54e-3f79e02108d1",
+      "name": "Spider 2",
+      "description": "",
+      "targetTempo": null,
+      "createdAt": "2026-08-21T02:35:04.947Z",
+      "archived": false
     },
     {
       "id": "a1c64c67-af2f-4038-a413-803e0e5ff47f",
