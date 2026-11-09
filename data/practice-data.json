@@ -300,6 +300,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "2bd73610-0269-4af8-a381-6f7a8a9db65a",
+      "itemId": "e902c763-15b9-4333-9e05-c96ec7dde102",
+      "itemName": "Fast Pentatonics",
+      "workedOn": "",
+      "tempo": 85,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 1135,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-09T03:43:50.148Z",
+      "completedAt": "2026-11-09T04:02:55.307Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "c31ddc2a-1313-4180-a110-319704c1f41e",
       "itemId": "b20c0ceb-ed3b-48ba-96e5-6c57b2394f9c",
       "itemName": "E/A/C ascending arpeggio descending scale",
