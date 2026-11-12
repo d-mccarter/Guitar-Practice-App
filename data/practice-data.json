@@ -324,6 +324,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "7faafb20-8d63-490c-bb7a-f706aa06eebf",
+      "itemId": "e902c763-15b9-4333-9e05-c96ec7dde102",
+      "itemName": "Fast Pentatonics",
+      "workedOn": "",
+      "tempo": 80,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 449,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-12T02:58:29.296Z",
+      "completedAt": "2026-11-12T03:06:05.941Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "882ae951-4309-4bb8-ae78-40a44d5b0d2a",
       "itemId": "cd25c483-09e9-41c7-b5dc-b60bc9e94ed1",
       "itemName": "10e/10f",
