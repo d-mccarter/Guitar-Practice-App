@@ -324,6 +324,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "5cabe3ac-eceb-45a0-a3b3-ba43224c2866",
+      "itemId": "aac51e7f-3015-483c-a996-7d79c249d5c0",
+      "itemName": "9j/9k",
+      "workedOn": "",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 579,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-13T20:27:50.438Z",
+      "completedAt": "2026-11-13T20:38:18.194Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "f005691a-9f75-461a-b9bd-9adbba6399b5",
       "itemId": null,
       "itemName": "Arkansas Traveller",
