@@ -324,6 +324,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "f005691a-9f75-461a-b9bd-9adbba6399b5",
+      "itemId": null,
+      "itemName": "Arkansas Traveller",
+      "workedOn": "Arkansas Traveller",
+      "tempo": 200,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 172,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-11-13T20:21:04.240Z",
+      "completedAt": "2026-11-13T20:27:26.614Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "f2a27755-f10b-41d7-8fc9-22085d2a519b",
       "itemId": "2e2ac8a7-40f5-43b0-8423-b1437219c144",
       "itemName": "E/A/C Shape 3rds",
