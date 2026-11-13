@@ -324,6 +324,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "a01f00c5-a84a-4d69-acd0-af8b7845f0de",
+      "itemId": null,
+      "itemName": "Warmup",
+      "workedOn": "Warmup",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "free",
+      "durationSeconds": 407,
+      "plannedDurationSeconds": null,
+      "startedAt": "2026-11-13T15:12:48.080Z",
+      "completedAt": "2026-11-13T15:19:57.963Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "7faafb20-8d63-490c-bb7a-f706aa06eebf",
       "itemId": "e902c763-15b9-4333-9e05-c96ec7dde102",
       "itemName": "Fast Pentatonics",
