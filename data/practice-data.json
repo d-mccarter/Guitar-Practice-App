@@ -324,6 +324,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "6a70e358-2df6-45de-9b37-4003431d017c",
+      "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
+      "itemName": "Routine 9",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-11-14T20:47:00.000Z",
+      "completedAt": "2026-11-14T20:57:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "7c981cd9-3a5d-477e-88a0-148049d46a9b",
       "itemId": "e902c763-15b9-4333-9e05-c96ec7dde102",
       "itemName": "Fast Pentatonics",
