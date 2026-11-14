@@ -324,6 +324,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "1c4dd325-dd8b-4253-ac5e-74645774180a",
+      "itemId": "aac51e7f-3015-483c-a996-7d79c249d5c0",
+      "itemName": "9j/9k",
+      "workedOn": "",
+      "tempo": 160,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 187,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-14T02:05:19.487Z",
+      "completedAt": "2026-11-14T02:08:42.148Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "febc8e7b-97dd-43c5-a143-a522519d9b21",
       "itemId": "c016eda6-f573-4367-895f-4a0e3807514a",
       "itemName": "Routine 9",
