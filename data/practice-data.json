@@ -324,6 +324,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "fa1ba6f1-4b04-4baa-98de-528282b3e601",
+      "itemId": "e902c763-15b9-4333-9e05-c96ec7dde102",
+      "itemName": "Fast Pentatonics",
+      "workedOn": "",
+      "tempo": 180,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 206,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-14T21:13:03.188Z",
+      "completedAt": "2026-11-14T21:17:25.618Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "c787c62a-7090-48bc-9be0-f4657a108104",
       "itemId": "7736a579-1ff1-4574-8353-634db4498f1b",
       "itemName": "A/C Shape Fours",
