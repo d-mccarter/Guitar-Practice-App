@@ -332,6 +332,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "7001b420-0e79-4bfa-80f7-d88305e8d8bf",
+      "itemId": "cd25c483-09e9-41c7-b5dc-b60bc9e94ed1",
+      "itemName": "10e/10f",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 182,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-15T15:03:47.800Z",
+      "completedAt": "2026-11-15T15:06:53.816Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "5ab53ccf-e9ad-4900-8713-50365e37a145",
       "itemId": null,
       "itemName": "Warmup",
