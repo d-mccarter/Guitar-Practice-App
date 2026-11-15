@@ -332,6 +332,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "2746a42d-9a9d-425c-94b0-a0a3fe565e00",
+      "itemId": "0395ebfe-d3cd-42a6-bc5a-a2a01b3b3d24",
+      "itemName": "10b/10c",
+      "workedOn": "",
+      "tempo": 140,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "manual",
+      "durationSeconds": 600,
+      "plannedDurationSeconds": 600,
+      "startedAt": "2026-11-15T00:09:00.000Z",
+      "completedAt": "2026-11-15T00:19:00.000Z",
+      "completed": true,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "8915d171-cf9e-4924-bb92-e8d8c1766d02",
       "itemId": "cd25c483-09e9-41c7-b5dc-b60bc9e94ed1",
       "itemName": "10e/10f",
