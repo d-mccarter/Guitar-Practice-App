@@ -319,6 +319,14 @@
       "targetTempo": null,
       "createdAt": "2026-08-21T02:35:04.947Z",
       "archived": false
+    },
+    {
+      "id": "0395ebfe-d3cd-42a6-bc5a-a2a01b3b3d24",
+      "name": "10b/10c",
+      "description": "Chord progressions and scales",
+      "targetTempo": 140,
+      "archived": false,
+      "createdAt": "2026-11-15T00:08:54.252Z"
     }
   ],
   "cycles": [],
