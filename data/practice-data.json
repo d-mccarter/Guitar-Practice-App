@@ -332,6 +332,23 @@
   "cycles": [],
   "sessions": [
     {
+      "id": "0b308316-d88a-427a-a945-f5525016137a",
+      "itemId": "cd25c483-09e9-41c7-b5dc-b60bc9e94ed1",
+      "itemName": "10e/10f",
+      "workedOn": "",
+      "tempo": 120,
+      "startTempo": null,
+      "endTempo": null,
+      "mode": "practice",
+      "durationSeconds": 87,
+      "plannedDurationSeconds": 180,
+      "startedAt": "2026-11-15T15:07:05.413Z",
+      "completedAt": "2026-11-15T15:08:35.728Z",
+      "completed": false,
+      "rating": 0,
+      "notes": ""
+    },
+    {
       "id": "7001b420-0e79-4bfa-80f7-d88305e8d8bf",
       "itemId": "cd25c483-09e9-41c7-b5dc-b60bc9e94ed1",
       "itemName": "10e/10f",
